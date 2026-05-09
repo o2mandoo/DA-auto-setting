@@ -118,34 +118,67 @@ METADATA_PROVENANCE_RULES: tuple[dict[str, object], ...] = (
 
 SUPPORT_LEVELS: tuple[dict[str, str], ...] = (
     {
-        "feature": "Semantic Pack contracts, local Registry, and local MCP interface",
-        "support": "supported_local_mvp",
+        "surface": "Semantic Pack contracts",
+        "support_level": "supported_local_validation",
+        "evidence_status": "present",
         "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
+        "limitation": "Schema freeze and external-adapter versioning remain release-gated.",
     },
     {
-        "feature": "PostgreSQL/MySQL fixture and read-only evidence",
-        "support": "fixture_evidence_available",
+        "surface": "Local Registry and MCP interface",
+        "support_level": "supported_local_validation",
+        "evidence_status": "present",
+        "evidence": "reports/productization/PR3_MCP_SAFE_RUNTIME_EVIDENCE.md",
+        "limitation": "MCP requires the official SDK/runtime; no production SQL execution surface is supported.",
+    },
+    {
+        "surface": "Optional local HTTP adapter",
+        "support_level": "partial_local_adapter",
+        "evidence_status": "present",
+        "evidence": "reports/productization/PR2_HTTP_ADAPTER_EVIDENCE.md",
+        "limitation": "Adapter is local/demo scoped and does not make the repo production-server ready.",
+    },
+    {
+        "surface": "PostgreSQL fixture/read-only metadata",
+        "support_level": "fixture_readonly_validation",
+        "evidence_status": "present",
         "evidence": "reports/productization/PR4_DB_FIXTURE_READONLY_EVIDENCE.md",
+        "limitation": "Metadata scan/profile/demo validation only; no production execution claim.",
     },
     {
-        "feature": "Weaviate retrieval backend",
-        "support": "optional_evidence_gated",
+        "surface": "MySQL fixture/read-only metadata",
+        "support_level": "fixture_readonly_validation",
+        "evidence_status": "present",
+        "evidence": "reports/productization/PR4_DB_FIXTURE_READONLY_EVIDENCE.md",
+        "limitation": "No fallback to PostgreSQL/DuckDB/SQLite/cached JSON/synthetic comments.",
+    },
+    {
+        "surface": "Weaviate retrieval backend",
+        "support_level": "optional_evidence_gated",
+        "evidence_status": "present_or_explicit_skip",
         "evidence": "reports/productization/PR5_SEMANTIC_RETRIEVAL_EVIDENCE.md",
+        "limitation": "Selected Weaviate must fail visibly if unavailable; keyword fallback is not allowed after explicit selection.",
     },
     {
-        "feature": "n8n orchestration",
-        "support": "workflow_template_ready_adapter_required",
-        "evidence": "reports/productization/phase20_n8n_readiness_report.md",
+        "surface": "n8n orchestration",
+        "support_level": "demo_orchestration_only",
+        "evidence_status": "present",
+        "evidence": "reports/productization/pr6_n8n_live_runtime_smoke.md",
+        "limitation": "n8n is not source of truth, must not execute SQL, and must keep backend/comment warnings visible.",
     },
     {
-        "feature": "Oracle",
-        "support": "unsupported",
-        "evidence": "no current release evidence",
+        "surface": "Oracle",
+        "support_level": "unsupported",
+        "evidence_status": "no_release_evidence",
+        "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
+        "limitation": "Unsupported backends must fail explicitly; no fake Oracle fixture behavior is allowed.",
     },
     {
-        "feature": "Production execute_query",
-        "support": "forbidden",
+        "surface": "Production execute_query",
+        "support_level": "forbidden",
+        "evidence_status": "prohibited_by_contract",
         "evidence": "docs/product/PRODUCTION_MODE_ADR.md",
+        "limitation": "No route, MCP tool, handler, workflow, or documentation may promote production SQL execution.",
     },
 )
 
@@ -386,6 +419,23 @@ def build_test_evidence() -> str:
     return "\n".join(lines) + "\n"
 
 
+
+
+def build_structured_support_matrix() -> str:
+    lines = [
+        "## Structured support levels",
+        "",
+        "| Surface | Support level | Evidence status | Evidence | Limitation |",
+        "|---|---|---|---|---|",
+    ]
+    for item in SUPPORT_LEVELS:
+        lines.append(
+            "| {surface} | `{support_level}` | {evidence_status} | {evidence} | {limitation} |".format(**item)
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
 def build_evidence_coverage(root: Path) -> list[dict[str, object]]:
     coverage: list[dict[str, object]] = []
     for gate in EVIDENCE_GATES:
@@ -613,6 +663,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         section
         for section in (
             extract_markdown_section(matrix_text, "Support matrix"),
+            build_structured_support_matrix(),
             extract_markdown_section(matrix_text, "Non-negotiable safety gates"),
         )
         if section

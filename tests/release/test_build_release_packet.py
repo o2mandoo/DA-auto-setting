@@ -80,7 +80,11 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert any(item["gate"].startswith("PR-4") and item["status"] == "present" for item in manifest["evidence_coverage"])
     assert any(item["gate"].startswith("PR-7") and item["status"] == "partial" for item in manifest["evidence_coverage"])
     assert manifest["support_levels"]
-    assert any(item["feature"] == "Oracle" and item["support"] == "unsupported" for item in manifest["support_levels"])
+    support_by_surface = {item["surface"]: item for item in manifest["support_levels"]}
+    assert support_by_surface["Oracle"]["support_level"] == "unsupported"
+    assert support_by_surface["Production execute_query"]["support_level"] == "forbidden"
+    assert support_by_surface["n8n orchestration"]["support_level"] == "demo_orchestration_only"
+    assert support_by_surface["Weaviate retrieval backend"]["support_level"] == "optional_evidence_gated"
     assert manifest["test_status"]["status"] == "not_run_by_packer"
     assert manifest["test_status"]["release_test_command"] == "make release-test"
     assert manifest["risk_summary"]["status"] == "included"
@@ -100,6 +104,10 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert "Risk register" in risk_register or "Risk Register" in risk_register
     assert "Known limitations" in known_limitations or "known limitations" in known_limitations
     assert "Support matrix" in support_matrix or "support matrix" in support_matrix
+    assert "Structured support levels" in support_matrix
+    assert "Production execute_query" in support_matrix
+    assert "`forbidden`" in support_matrix
+    assert "Oracle" in support_matrix and "`unsupported`" in support_matrix
     assert "dry-run release packet" in summary
     assert "Missing gate evidence" in summary
     assert "PR-7" in summary
