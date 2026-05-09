@@ -307,8 +307,8 @@ EVIDENCE_GATES: tuple[dict[str, object], ...] = (
         "paths": (
             "reports/productization/phase20_n8n_readiness_report.md",
             "reports/productization/final_n8n_readiness_evaluate_after_comment_rules.md",
+            "reports/productization/pr6_n8n_live_runtime_smoke.md",
         ),
-        "external_missing": ("live imported n8n workflow smoke output",),
     },
     {
         "gate": "PR-7 CI, observability, release packet",
@@ -566,6 +566,46 @@ def build_evidence_coverage(root: Path) -> list[dict[str, object]]:
     return coverage
 
 
+def build_n8n_status(root: Path) -> dict[str, object]:
+    live_smoke = Path("reports/productization/pr6_n8n_live_runtime_smoke.md")
+    readiness_report = Path("reports/productization/phase20_n8n_readiness_report.md")
+    if (root / live_smoke).exists():
+        return {
+            "status": "pr6_completed_live_runtime_smoke_present",
+            "readiness": "demo_orchestration_only_not_production",
+            "evidence": [str(live_smoke), str(readiness_report)],
+            "summary": "PR-6 live n8n runtime smoke evidence is present; n8n is demo orchestration over product APIs, not source of truth or production SQL execution.",
+        }
+    if (root / readiness_report).exists():
+        return {
+            "status": "template_readiness_only",
+            "readiness": "partial",
+            "evidence": [str(readiness_report)],
+            "summary": "n8n readiness docs/templates are present, but PR-6 live runtime smoke evidence is absent.",
+        }
+    return {
+        "status": "not_present",
+        "readiness": "missing",
+        "evidence": [],
+        "summary": "No n8n readiness or PR-6 live runtime smoke evidence was found in the release packet sources.",
+    }
+
+
+def build_n8n_status_section(n8n_status: dict[str, object]) -> str:
+    evidence = n8n_status.get("evidence") or []
+    evidence_text = ", ".join(str(item) for item in evidence) if evidence else "none"
+    lines = [
+        "## n8n status",
+        "",
+        f"- status: {n8n_status['status']}",
+        f"- readiness: {n8n_status['readiness']}",
+        f"- evidence: {evidence_text}",
+        f"- summary: {n8n_status['summary']}",
+        "",
+    ]
+    return "\n".join(lines)
+
+
 def build_missing_gate_evidence(coverage: Iterable[dict[str, object]]) -> list[dict[str, str]]:
     missing: list[dict[str, str]] = []
     for item in coverage:
@@ -620,7 +660,7 @@ def build_release_summary(
     missing_evidence: Iterable[str],
     missing_gates: Iterable[dict[str, str]],
     redaction_summary: RedactionSummary,
-    baseline_system_sql_evidence: Iterable[dict[str, str]] = (),
+    n8n_status: dict[str, object] | None = None,
 ) -> str:
     missing_lines = list(missing_evidence)
     gate_lines = list(missing_gates)
@@ -658,6 +698,8 @@ def build_release_summary(
         lines.extend(f"- {item['gate']}: {item['evidence_needed']}" for item in gate_lines)
     else:
         lines.append("- none")
+    if n8n_status is not None:
+        lines.extend(["", build_n8n_status_section(n8n_status).rstrip()])
     lines.extend(
         [
             "",
@@ -742,6 +784,7 @@ def build_manifest(
         "comment_mode_rules": list(COMMENT_MODE_RULES),
         "support_levels": list(SUPPORT_LEVELS),
         "known_limitations": list(KNOWN_LIMITATIONS),
+        "n8n_status": n8n_status,
         "test_status": {
             "status": "not_run_by_packer",
             "release_test_command": "make release-test",
@@ -772,7 +815,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
     dependency_snapshot_text, dependency_redactions = redact_text(dependency_snapshot_text)
     evidence_coverage = build_evidence_coverage(repo)
     missing_gate_evidence = build_missing_gate_evidence(evidence_coverage)
-    baseline_system_sql_evidence = build_baseline_system_sql_comparison_evidence(repo)
+    n8n_status = build_n8n_status(repo)
 
     matrix_text = evidence.get(str(SOURCE_FILES[0]), "")
     risk_text = evidence.get(str(SOURCE_FILES[1]), "")
@@ -786,7 +829,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         missing_evidence=missing_evidence,
         missing_gates=missing_gate_evidence,
         redaction_summary=RedactionSummary(counts={}, had_findings=False),
-        baseline_system_sql_evidence=baseline_system_sql_evidence,
+        n8n_status=n8n_status,
     )
     risk_register_text, risk_redactions = redact_text(risk_text)
     known_limitations_source = "\n".join(
@@ -817,7 +860,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         missing_evidence=missing_evidence,
         missing_gates=missing_gate_evidence,
         redaction_summary=redaction_summary,
-        baseline_system_sql_evidence=baseline_system_sql_evidence,
+        n8n_status=n8n_status,
     )
     readiness_matrix_raw = read_text(repo / READINESS_MATRIX_SOURCE)
     readiness_matrix_text, readiness_redactions = redact_text(readiness_matrix_raw)
@@ -844,7 +887,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         missing_evidence=missing_evidence,
         missing_gates=missing_gate_evidence,
         redaction_summary=redaction_summary,
-        baseline_system_sql_evidence=baseline_system_sql_evidence,
+        n8n_status=n8n_status,
     )
 
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -868,7 +911,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         evidence_coverage=evidence_coverage,
         redaction_summary=redaction_summary,
         dependency_snapshot_present=dependency_snapshot_present,
-        baseline_system_sql_evidence=baseline_system_sql_evidence,
+        n8n_status=n8n_status,
     )
     (out_dir / "release_manifest.json").write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n",
