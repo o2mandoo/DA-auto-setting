@@ -9,6 +9,7 @@ represented as safe source references, not live database connections.
 from __future__ import annotations
 
 import json
+import os
 import re
 import urllib.error
 import urllib.request
@@ -632,3 +633,59 @@ def _safe_id(value: str) -> str:
 
 def _title(value: str) -> str:
     return re.sub(r"[_-]+", " ", value).strip().title() or value
+
+
+def _pick_first_non_blank(env: Mapping[str, str], *names: str) -> str | None:
+    for name in names:
+        value = env.get(name)
+        if value is not None and value.strip():
+            return value.strip()
+    return None
+
+
+def _parse_bool(value: str | None, *, default: bool = False) -> bool:
+    if value is None or not value.strip():
+        return default
+    normalized = value.strip().casefold()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    raise ValueError("expected boolean-like value")
+
+
+def _parse_optional_int(value: str | None) -> int | None:
+    if value is None or not value.strip():
+        return None
+    return int(value.strip())
+
+
+def _parse_optional_float(value: str | None) -> float | None:
+    if value is None or not value.strip():
+        return None
+    return float(value.strip())
+
+
+def _normalized_optional_text(value: str | None, field_name: str) -> str | None:
+    if value is None:
+        return None
+    normalized = value.strip()
+    if not normalized:
+        raise ValueError(f"{field_name} must not be blank when provided")
+    return normalized
+
+
+def _normalized_optional_int(value: int | None, field_name: str) -> int | None:
+    if value is None:
+        return None
+    if value <= 0:
+        raise ValueError(f"{field_name} must be greater than zero when provided")
+    return value
+
+
+def _normalized_optional_float(value: float | None, field_name: str) -> float | None:
+    if value is None:
+        return None
+    if not (0.0 <= value <= 2.0):
+        raise ValueError(f"{field_name} must be between 0.0 and 2.0 when provided")
+    return value

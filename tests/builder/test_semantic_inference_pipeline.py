@@ -18,6 +18,7 @@ from semantic_builder.inference import (  # noqa: E402
     LocalProviderConfig,
     LocalSemanticInferenceProvider,
     generate_semantic_inference,
+    load_inference_provider_config,
 )
 
 
@@ -361,6 +362,35 @@ class SemanticInferencePipelineTests(unittest.TestCase):
                 provider_name = config.provider if hasattr(config, "provider") else config.model
                 self.assertEqual(provider_name, "local-test")
                 self.assertEqual(config.endpoint, "http://127.0.0.1:11434")
+
+    def test_provider_config_loads_supported_env_fields(self) -> None:
+        env = {
+            "SDC_LLM_ENABLED": "1",
+            "SDC_LLM_PROVIDER": "openai-compatible",
+            "SDC_LLM_ENDPOINT": "http://localhost:11434/v1",
+            "SDC_LLM_BASE_URL": "http://localhost:11434",
+            "SDC_LLM_MODEL": "qwen2.5:7b",
+            "SDC_LLM_API_KEY": "secret-placeholder",
+            "SDC_LLM_TIMEOUT": "30",
+            "SDC_LLM_MAX_TOKENS": "512",
+            "SDC_LLM_TEMPERATURE": "0.2",
+        }
+
+        config = load_inference_provider_config(env)
+
+        self.assertTrue(config.enabled)
+        self.assertEqual("openai-compatible", config.provider)
+        self.assertEqual("http://localhost:11434/v1", config.endpoint)
+        self.assertEqual("http://localhost:11434", config.base_url)
+        self.assertEqual("qwen2.5:7b", config.model)
+        self.assertEqual("secret-placeholder", config.api_key)
+        self.assertEqual(30, config.timeout)
+        self.assertEqual(512, config.max_tokens)
+        self.assertAlmostEqual(0.2, config.temperature)
+
+    def test_provider_config_normalizes_endpoint_to_base_url_when_missing(self) -> None:
+        config = load_inference_provider_config({"SDC_LLM_BASE_URL": "http://localhost:11434"})
+        self.assertEqual("http://localhost:11434", config.base_url)
 
 
 if __name__ == "__main__":
