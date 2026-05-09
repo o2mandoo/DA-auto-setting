@@ -86,6 +86,9 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert any(item["gate"].startswith("PR-7") and item["status"] == "partial" for item in manifest["evidence_coverage"])
     assert manifest["support_levels"]
     assert manifest["known_limitations"]
+    assert manifest["n8n_status"]["status"] == "pr6_completed_live_runtime_smoke_present"
+    assert manifest["n8n_status"]["readiness"] == "demo_orchestration_only_not_production"
+    assert "reports/productization/pr6_n8n_live_runtime_smoke.md" in manifest["n8n_status"]["evidence"]
     limitation_by_status = {item["status"]: item for item in manifest["known_limitations"]}
     assert "unsupported" in limitation_by_status
     assert "evidence_gated" in limitation_by_status
@@ -125,6 +128,8 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert "dry-run release packet" in summary
     assert "Missing gate evidence" in summary
     assert "PR-7" in summary
+    assert "## n8n status" in summary
+    assert "pr6_completed_live_runtime_smoke_present" in summary
     assert "Production Readiness Matrix" in readiness_matrix
     assert "PR-0 through PR-7" in evidence_index or "PR-0" in evidence_index
     assert "MCP" in surface_summary and "n8n" in surface_summary
@@ -144,6 +149,7 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert loaded["artifacts"]["risk_register"] == "risk_register.md"
     assert loaded["artifacts"]["known_limitations"] == "known_limitations.md"
     assert loaded["known_limitations"]
+    assert loaded["n8n_status"]["status"] == "pr6_completed_live_runtime_smoke_present"
     assert loaded["artifacts"]["support_matrix"] == "support_matrix.md"
     assert loaded["artifacts"]["readiness_matrix"] == "readiness_matrix.md"
     assert loaded["artifacts"]["dependency_snapshot"] == "dependency_snapshot.txt"
