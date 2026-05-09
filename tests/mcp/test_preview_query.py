@@ -3,12 +3,35 @@ from __future__ import annotations
 import sys
 import unittest
 from pathlib import Path
+from types import ModuleType
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "packages" / "semantic_contracts"))
 sys.path.insert(0, str(ROOT / "packages" / "semantic_registry"))
 sys.path.insert(0, str(ROOT / "packages" / "semantic_mcp" / "src"))
+
+if "semantic_registry.runtime" not in sys.modules:
+    runtime_stub = ModuleType("semantic_registry.runtime")
+
+    class _RuntimeGateStub:
+        def __init__(self, *args, **kwargs) -> None:  # pragma: no cover - collection shim only
+            pass
+
+        @classmethod
+        def from_packs(cls, *args, **kwargs):  # pragma: no cover - collection shim only
+            return cls()
+
+        def assess(self, *args, **kwargs):  # pragma: no cover - collection shim only
+            return {"valid": False, "execution_allowed": False}
+
+        def verify_sql(self, *args, **kwargs):  # pragma: no cover - collection shim only
+            return {"valid": False, "execution_allowed": False}
+
+    runtime_stub.AmbiguityGate = _RuntimeGateStub
+    runtime_stub.PolicyVerifier = _RuntimeGateStub
+    runtime_stub.SemanticVerifier = _RuntimeGateStub
+    sys.modules["semantic_registry.runtime"] = runtime_stub
 
 from semantic_mcp import inspect_registration_surface, preview_query  # noqa: E402
 from semantic_mcp.tools.preview_query import PreviewRuntimeUnavailable  # noqa: E402
