@@ -45,6 +45,8 @@ class DatasetManifestTests(unittest.TestCase):
         self.assertEqual(manifest["dataset_id"], "sinagong_tableau_2026")
         self.assertEqual(manifest["domain"], "korean_business_and_public_data")
         self.assertEqual(len([rel_path for rel_path in manifest["files"] if rel_path.endswith(".xlsx")]), 20)
+        self.assertEqual(len([rel_path for rel_path in manifest["files"] if rel_path.endswith(".yaml")]), 1)
+        self.assertEqual(len(manifest["files"]), 21, manifest["files"])
 
         expected_recursive = {
             f"{SINAGONG_ROOT}/{name}"
@@ -135,10 +137,12 @@ class DatasetManifestTests(unittest.TestCase):
         metrics = pack["metrics"]
         reverse_questions = pack["reverse_questions"]
         policy_notes = pack["policies"][0]["notes"]
+        ambiguity_rules = [rule for term in business_terms for rule in term["ambiguity_rules"]]
 
         self.assertEqual(len(business_terms), 20, business_terms)
         self.assertEqual(len(metrics), 20, metrics)
         self.assertEqual(len(reverse_questions), 20, reverse_questions)
+        self.assertEqual(len(ambiguity_rules), 20, ambiguity_rules)
         self.assertTrue(
             any("benchmark-only support pack" in note.casefold() for note in policy_notes),
             policy_notes,
@@ -150,6 +154,7 @@ class DatasetManifestTests(unittest.TestCase):
 
         self.assertEqual(len(metric_ids), 20, metrics)
         self.assertEqual(len(reverse_ids), 20, reverse_questions)
+        self.assertEqual(len({rule["id"] for rule in ambiguity_rules}), 20, ambiguity_rules)
 
         for term in business_terms:
             with self.subTest(term=term["id"]):
