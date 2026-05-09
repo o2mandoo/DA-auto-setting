@@ -15,8 +15,8 @@ class PostgresScanner:
 
     connector: DBConnector
     config: SafeScanConfig | None = None
-    connector_name: ClassVar[str] = "postgres"
-    source_detail_prefix: ClassVar[str] = "postgres"
+    connector_name: str = "postgres"
+    source_detail_prefix: str = "postgres"
 
     def scan(self) -> dict[str, Any]:
         config = self.config or SafeScanConfig()
