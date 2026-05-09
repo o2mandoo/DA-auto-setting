@@ -10,6 +10,48 @@
     "support_matrix": "support_matrix.md",
     "test_evidence": "test_evidence.md"
   },
+  "baseline_system_sql_comparison_evidence": [
+    {
+      "path": "reports/productization/phase15_sql_comparison_engine.md",
+      "semantics": "profile_only_not_executed",
+      "status": "available"
+    },
+    {
+      "path": "docs/product/BASELINE_COMPARISON_SPEC.md",
+      "semantics": "profile_only_not_executed",
+      "status": "available"
+    },
+    {
+      "path": "docs/product/PRODUCT_MODES.md",
+      "semantics": "profile_only_not_executed",
+      "status": "available"
+    },
+    {
+      "path": "docs/api/examples/compare_sql_request.json",
+      "semantics": "profile_only_not_executed",
+      "status": "available"
+    },
+    {
+      "path": "packages/semantic_registry/semantic_registry/product/comparison.py",
+      "semantics": "profile_only_not_executed",
+      "status": "available"
+    },
+    {
+      "path": "packages/semantic_mcp/src/semantic_mcp/tools/__init__.py",
+      "semantics": "profile_only_not_executed",
+      "status": "available"
+    },
+    {
+      "path": "reports/reality/db_fixture_comment_mode_comparison.json",
+      "semantics": "profile_only_not_executed",
+      "status": "available"
+    },
+    {
+      "path": "reports/reality/db_fixture_comment_mode_comparison_with_real_comments.json",
+      "semantics": "profile_only_not_executed",
+      "status": "available"
+    }
+  ],
   "evidence_coverage": [
     {
       "external_missing": [],
@@ -107,8 +149,8 @@
     "partial": 2,
     "present": 6
   },
-  "generated_at": "2026-05-09T14:19:17.051897+00:00",
-  "git_commit": "a67596a73237ea610047a92c8c16c2b935fd16f2",
+  "generated_at": "2026-05-09T15:33:05.098356+00:00",
+  "git_commit": "7fcce00604bbfb62edecb67e44afda8a3b73abda",
   "metadata_provenance_rules": [
     {
       "product_usable": true,
@@ -161,7 +203,7 @@
   ],
   "output_dir": "reports/release/release-test",
   "redactions": {
-    "email": 4,
+    "local_path": 2,
     "worker_id": 3
   },
   "release_id": "release-test",
@@ -187,7 +229,7 @@
     },
     "no_raw_pii_artifacts": {
       "redaction_findings": {
-        "email": 4,
+        "local_path": 2,
         "worker_id": 3
       },
       "status": "redacted_or_blocked"

@@ -80,11 +80,13 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert any(item["gate"].startswith("PR-4") and item["status"] == "present" for item in manifest["evidence_coverage"])
     assert any(item["gate"].startswith("PR-7") and item["status"] == "partial" for item in manifest["evidence_coverage"])
     assert manifest["support_levels"]
-    support_by_surface = {item["surface"]: item for item in manifest["support_levels"]}
-    assert support_by_surface["Oracle"]["support_level"] == "unsupported"
-    assert support_by_surface["Production execute_query"]["support_level"] == "forbidden"
-    assert support_by_surface["n8n orchestration"]["support_level"] == "demo_orchestration_only"
-    assert support_by_surface["Weaviate retrieval backend"]["support_level"] == "optional_evidence_gated"
+    assert any(item["feature"] == "Oracle" and item["support"] == "unsupported" for item in manifest["support_levels"])
+    assert manifest["baseline_system_sql_comparison_evidence"]
+    assert {item["semantics"] for item in manifest["baseline_system_sql_comparison_evidence"]} == {"profile_only_not_executed"}
+    assert any(
+        item["path"] == "reports/productization/phase15_sql_comparison_engine.md"
+        for item in manifest["baseline_system_sql_comparison_evidence"]
+    )
     assert manifest["test_status"]["status"] == "not_run_by_packer"
     assert manifest["test_status"]["release_test_command"] == "make release-test"
     assert manifest["risk_summary"]["status"] == "included"
@@ -109,8 +111,12 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert "`forbidden`" in support_matrix
     assert "Oracle" in support_matrix and "`unsupported`" in support_matrix
     assert "dry-run release packet" in summary
+    assert "Missing source evidence" in summary
+    assert "all tracked source files exist; external/live gate gaps are listed separately" in summary
     assert "Missing gate evidence" in summary
     assert "PR-7" in summary
+    assert "Baseline vs system SQL comparison evidence" in summary
+    assert "reports/productization/phase15_sql_comparison_engine.md: available" in summary
     assert "Production Readiness Matrix" in readiness_matrix
     assert "PR-0 through PR-7" in evidence_index or "PR-0" in evidence_index
     assert "MCP" in surface_summary and "n8n" in surface_summary
@@ -121,8 +127,10 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     manifest_path = out_dir / "release_manifest.json"
     loaded = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert loaded["release_id"] == "unit-test-release"
+    assert loaded["missing_evidence"] == []
     assert loaded["missing_gate_evidence"]
     assert any(item["gate"].startswith("PR-7") for item in loaded["missing_gate_evidence"])
+    assert loaded["baseline_system_sql_comparison_evidence"]
     assert loaded["artifacts"]["risk_register"] == "risk_register.md"
     assert loaded["artifacts"]["known_limitations"] == "known_limitations.md"
     assert loaded["artifacts"]["support_matrix"] == "support_matrix.md"

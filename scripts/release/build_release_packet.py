@@ -78,6 +78,17 @@ TEST_EVIDENCE_REFERENCES: tuple[Path, ...] = (
     Path("Makefile"),
 )
 
+BASELINE_SYSTEM_SQL_COMPARISON_SOURCES: tuple[Path, ...] = (
+    Path("reports/productization/phase15_sql_comparison_engine.md"),
+    Path("docs/product/BASELINE_COMPARISON_SPEC.md"),
+    Path("docs/product/PRODUCT_MODES.md"),
+    Path("docs/api/examples/compare_sql_request.json"),
+    Path("packages/semantic_registry/semantic_registry/product/comparison.py"),
+    Path("packages/semantic_mcp/src/semantic_mcp/tools/__init__.py"),
+    Path("reports/reality/db_fixture_comment_mode_comparison.json"),
+    Path("reports/reality/db_fixture_comment_mode_comparison_with_real_comments.json"),
+)
+
 METADATA_PROVENANCE_RULES: tuple[dict[str, object], ...] = (
     {
         "source": "real_db_comment",
@@ -515,9 +526,11 @@ def build_release_summary(
     missing_evidence: Iterable[str],
     missing_gates: Iterable[dict[str, str]],
     redaction_summary: RedactionSummary,
+    baseline_system_sql_evidence: Iterable[dict[str, str]] = (),
 ) -> str:
     missing_lines = list(missing_evidence)
     gate_lines = list(missing_gates)
+    baseline_sql_lines = list(baseline_system_sql_evidence)
     lines = [
         f"# Release Packet: {release_id}",
         "",
@@ -533,13 +546,13 @@ def build_release_summary(
         "- Support matrix included.",
         "- Secret-like and PII-like values are redacted before writing packet files.",
         "",
-        "## Missing evidence",
+        "## Missing source evidence",
         "",
     ]
     if missing_lines:
         lines.extend(f"- {item}" for item in missing_lines)
     else:
-        lines.append("- none")
+        lines.append("- none (all tracked source files exist; external/live gate gaps are listed separately below)")
     lines.extend(
         [
             "",
@@ -551,6 +564,18 @@ def build_release_summary(
         lines.extend(f"- {item['gate']}: {item['evidence_needed']}" for item in gate_lines)
     else:
         lines.append("- none")
+    lines.extend(
+        [
+            "",
+            "## Baseline vs system SQL comparison evidence",
+            "",
+        ]
+    )
+    if baseline_sql_lines:
+        for item in baseline_sql_lines:
+            lines.append(f"- {item['path']}: {item['status']}")
+    else:
+        lines.append("- unavailable (no current baseline/system SQL comparison evidence files found)")
     lines.extend(
         [
             "",
@@ -566,6 +591,21 @@ def build_release_summary(
     return "\n".join(lines).rstrip() + "\n"
 
 
+
+
+def build_baseline_system_sql_comparison_evidence(root: Path) -> list[dict[str, str]]:
+    evidence: list[dict[str, str]] = []
+    for source_path in BASELINE_SYSTEM_SQL_COMPARISON_SOURCES:
+        if (root / source_path).exists():
+            evidence.append(
+                {
+                    "path": str(source_path),
+                    "status": "available",
+                    "semantics": "profile_only_not_executed",
+                }
+            )
+    return evidence
+
 def build_manifest(
     release_id: str,
     generated_at: str,
@@ -576,6 +616,7 @@ def build_manifest(
     evidence_coverage: list[dict[str, object]],
     redaction_summary: RedactionSummary,
     dependency_snapshot_present: bool,
+    baseline_system_sql_evidence: list[dict[str, str]],
 ) -> dict[str, object]:
     coverage_counts = {
         status: sum(1 for item in evidence_coverage if item["status"] == status)
@@ -605,6 +646,7 @@ def build_manifest(
         "evidence_coverage_summary": coverage_counts,
         "metadata_provenance_rules": list(METADATA_PROVENANCE_RULES),
         "support_levels": list(SUPPORT_LEVELS),
+        "baseline_system_sql_comparison_evidence": baseline_system_sql_evidence,
         "test_status": {
             "status": "not_run_by_packer",
             "release_test_command": "make release-test",
@@ -635,6 +677,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
     dependency_snapshot_text, dependency_redactions = redact_text(dependency_snapshot_text)
     evidence_coverage = build_evidence_coverage(repo)
     missing_gate_evidence = build_missing_gate_evidence(evidence_coverage)
+    baseline_system_sql_evidence = build_baseline_system_sql_comparison_evidence(repo)
 
     matrix_text = evidence.get(str(SOURCE_FILES[0]), "")
     risk_text = evidence.get(str(SOURCE_FILES[1]), "")
@@ -648,6 +691,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         missing_evidence=missing_evidence,
         missing_gates=missing_gate_evidence,
         redaction_summary=RedactionSummary(counts={}, had_findings=False),
+        baseline_system_sql_evidence=baseline_system_sql_evidence,
     )
     risk_register_text, risk_redactions = redact_text(risk_text)
     known_limitations_source = "\n".join(
@@ -677,6 +721,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         missing_evidence=missing_evidence,
         missing_gates=missing_gate_evidence,
         redaction_summary=redaction_summary,
+        baseline_system_sql_evidence=baseline_system_sql_evidence,
     )
     readiness_matrix_raw = read_text(repo / READINESS_MATRIX_SOURCE)
     readiness_matrix_text, readiness_redactions = redact_text(readiness_matrix_raw)
@@ -703,6 +748,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         missing_evidence=missing_evidence,
         missing_gates=missing_gate_evidence,
         redaction_summary=redaction_summary,
+        baseline_system_sql_evidence=baseline_system_sql_evidence,
     )
 
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -726,6 +772,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         evidence_coverage=evidence_coverage,
         redaction_summary=redaction_summary,
         dependency_snapshot_present=dependency_snapshot_present,
+        baseline_system_sql_evidence=baseline_system_sql_evidence,
     )
     (out_dir / "release_manifest.json").write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n",
