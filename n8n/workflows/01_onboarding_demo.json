@@ -15,7 +15,7 @@
     },
     {
       "parameters": {
-        "content": "Calls onboarding API only. No production connections. API failures must remain visible."
+        "content": "DB-backed onboarding demo only. Selected comment mode is explicit in the template body: no_comments for the default fixture run, with real_comments only when the manifest supplies them and synthetic_comments always marked fixture-only. No production connections, no silent fallback, and API failures must remain visible."
       },
       "id": "01 Onboarding Demo-safety-note",
       "name": "Safety Gate Note",
@@ -41,7 +41,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "{\"dataset_id\": \"sinagong_tableau_2026\", \"source_root\": \"docs/reference/test_datasets/sinagong_tableau_2026\"}",
+        "jsonBody": "{\"dataset_id\": \"sinagong_tableau_2026\", \"source_root\": \"docs/reference/test_datasets/sinagong_tableau_2026\", \"fixture_mode\": \"DB_BACKED_ONBOARDING_DEMO\", \"selected_comment_mode\": \"no_comments\", \"provenance_warnings\": [\"real_comments only when manifest-provided\", \"synthetic_comments remain fixture-only\", \"no silent fallback to DuckDB, SQLite, or unapproved DBs\"], \"next_actions\": [\"Run builder scan\", \"Run profile\", \"Run build-pack\"]}",
         "options": {
           "response": {
             "response": {
