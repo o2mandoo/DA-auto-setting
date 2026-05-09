@@ -3,7 +3,7 @@
 The comparison is product-external evidence for the onboarding/demo harness. It
 does not execute SQL and it does not promote fixture metadata into product
 truth. If live DB execution is later requested, it must go through the explicit
-PostgreSQL fixture safety gate in ``postgres_fixture_loader``.
+backend-specific fixture safety gate; no backend silently substitutes for another.
 """
 
 from __future__ import annotations
@@ -17,12 +17,14 @@ import json
 from semantic_builder.metadata import attach_metadata_gaps, provenance_for_comment
 
 from .fixture_modes import FixtureCommentMode, TEST_ONLY_MARKER, build_fixture_table_plan
+from .mysql_fixture_loader import build_mysql_sql_plan
 from .postgres_fixture_loader import build_postgres_sql_plan
 
 
 @dataclass(frozen=True)
 class FixtureModeComparison:
     mode: str
+    backend: str
     available: bool
     table_name: str
     useful_metadata_coverage: float
@@ -45,6 +47,7 @@ def compare_comment_modes(
     table_name: str,
     columns: list[str],
     real_comments: Mapping[str, Any] | None = None,
+    backend: str = "postgres",
 ) -> list[FixtureModeComparison]:
     """Return deterministic mode comparisons for no/real/synthetic comments.
 
@@ -54,6 +57,7 @@ def compare_comment_modes(
 
     if not columns:
         raise ValueError("columns must not be empty")
+    normalized_backend = _normalize_backend(backend)
     modes = [
         FixtureCommentMode.NO_COMMENTS,
         FixtureCommentMode.REAL_COMMENTS,
@@ -67,6 +71,7 @@ def compare_comment_modes(
             columns=columns,
             mode=mode,
             real_comments=real_comments,
+            backend=normalized_backend,
         )
         for mode in modes
     ]
@@ -90,6 +95,7 @@ def _compare_one_mode(
     columns: list[str],
     mode: FixtureCommentMode,
     real_comments: Mapping[str, Any] | None,
+    backend: str,
 ) -> FixtureModeComparison:
     real_available = _has_real_comments(real_comments)
     available = mode != FixtureCommentMode.REAL_COMMENTS or real_available
@@ -102,7 +108,7 @@ def _compare_one_mode(
         mode=mode,
         real_comments=effective_comments,
     )
-    sql_plan = build_postgres_sql_plan(plan)
+    sql_plan = _build_sql_plan(plan, backend=backend)
     table_comment = plan.table_comment
     column_comments = plan.column_comments
     record = _record_for_mode(table_name=table_name, columns=columns, table_comment=table_comment, column_comments=column_comments)
@@ -133,6 +139,7 @@ def _compare_one_mode(
 
     return FixtureModeComparison(
         mode=mode.value,
+        backend=backend,
         available=available,
         table_name=table_name,
         useful_metadata_coverage=coverage,
@@ -141,9 +148,34 @@ def _compare_one_mode(
         pack_draft_quality=_quality_label(mode=mode, available=available, coverage=coverage, reverse_questions=reverse_questions),
         runtime_warnings=sorted(warning_set),
         baseline_vs_system_sql_difference=_baseline_difference(mode=mode, available=available),
-        sql_comment_statements=sum(1 for statement in sql_plan.statements if statement.startswith("COMMENT ON ")),
+        sql_comment_statements=_count_comment_statements(sql_plan.statements, backend=backend),
         notes=_notes(mode=mode, available=available),
     )
+
+
+def _normalize_backend(backend: str) -> str:
+    normalized = backend.strip().casefold()
+    if normalized in {"postgres", "postgresql"}:
+        return "postgres"
+    if normalized == "mysql":
+        return "mysql"
+    raise ValueError(f"unsupported fixture backend: {backend}; expected postgres or mysql")
+
+
+def _build_sql_plan(plan, *, backend: str):
+    if backend == "postgres":
+        return build_postgres_sql_plan(plan)
+    if backend == "mysql":
+        return build_mysql_sql_plan(plan)
+    raise ValueError(f"unsupported fixture backend: {backend}")
+
+
+def _count_comment_statements(statements: list[str], *, backend: str) -> int:
+    if backend == "postgres":
+        return sum(1 for statement in statements if statement.startswith("COMMENT ON "))
+    if backend == "mysql":
+        return sum(statement.count(" COMMENT") for statement in statements if statement.startswith("CREATE TABLE "))
+    return 0
 
 
 def _record_for_mode(
@@ -246,12 +278,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--table", required=True)
     parser.add_argument("--columns", required=True, help="Comma-separated column names")
     parser.add_argument("--out", required=True)
+    parser.add_argument("--backend", choices=("postgres", "mysql"), default="postgres")
     args = parser.parse_args(argv)
     comparisons = compare_comment_modes(
         dataset_id=args.dataset_id,
         schema_name=args.schema,
         table_name=args.table,
         columns=[column.strip() for column in args.columns.split(",") if column.strip()],
+        backend=args.backend,
     )
     write_comment_mode_comparison(args.out, comparisons)
     return 0

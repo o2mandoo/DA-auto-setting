@@ -29,6 +29,7 @@ class FixtureSqlPlan:
     row_count: int = 0
     checksum: str | None = None
     mode: str = "no_comments"
+    backend: str = "postgres"
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -73,6 +74,7 @@ def build_postgres_sql_plan(plan: FixtureTablePlan, rows: list[Mapping[str, Any]
         row_count=len(rows),
         checksum=_checksum(rows),
         mode=plan.mode.value,
+        backend="postgres",
     )
 
 
