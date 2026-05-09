@@ -26,7 +26,7 @@ class OptionalDBConnectorTests(unittest.TestCase):
             side_effect=ModuleNotFoundError("pymysql"),
         ):
             with self.assertRaisesRegex(ConnectorDependencyError, "pymysql"):
-                MySQLConnector("mysql://user:pass@localhost/demo")
+                MySQLConnector("mysql://user:pass@localhost/demo").connect()
 
     def test_mysql_connector_lists_tables_through_read_only_information_schema(self) -> None:
         connection = _RecordingConnection(
