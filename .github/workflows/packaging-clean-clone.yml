@@ -1,0 +1,36 @@
+name: packaging-clean-clone
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Install editable local packages
+        run: |
+          python -m pip install -e packages/semantic_contracts
+          python -m pip install -e packages/semantic_registry
+          python -m pip install -e packages/semantic_mcp
+          python -m pip install -e 'packages/semantic_builder[test]'
+
+      - name: Validate clone-ready setup helper
+        run: python scripts/setup/clone_ready_setup.py
+
+      - name: Validate environment contract
+        run: bash scripts/setup/env_check.sh
+
+      - name: Run packaging smoke tests
+        run: python -m unittest discover -s tests/packaging -v
