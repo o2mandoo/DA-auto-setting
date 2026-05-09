@@ -55,6 +55,7 @@ No production `execute_query` is permitted in the v1 target.
 | R-18 | Productization work edits runtime artifacts or feature code outside lane. | Medium | Low | Keep this run docs-only; verifier checks no code feature files changed. | `git diff --name-only` scoped to `reports/productization/PRODUCTION_READINESS_MATRIX.md` and `reports/productization/PRODUCTION_RISK_REGISTER.md`. | readiness-risk-docs + verifier | Mitigated-by-gate |
 | R-19 | Full `make test` is too slow/flaky and gets skipped without recording why. | Medium | Medium | Worker/verifier must run it or capture exact blocker; targeted checks are not a substitute for final PR evidence. | `make test` command output or exact impossible reason; targeted tests listed separately. | verifier/CI lane | Open |
 | R-20 | Docker-first pressure hides clone-ready package failures. | Medium | Medium | Run PR-1 clean venv before any Docker/devcontainer promotion; Docker can be a later convenience layer. | Clean venv logs; no Docker-only pass claims. | package/release lane | Mitigated-by-gate |
+| R-21 | Release/supply-chain evidence is incomplete: dependency pins, lock snapshot, artifact provenance, or package integrity are missing. | High | Medium | PR-7 must attach dependency snapshot, release candidate identifier, artifact provenance, and package install verification before any production distribution claim. | `pip freeze`/lock snapshot, package install logs, release tag, artifact checksums or provenance note, CI release job output. | release/CI lane | Open |
 
 ## Gate ownership summary
 
@@ -66,7 +67,7 @@ No production `execute_query` is permitted in the v1 target.
 | PR-4 DB fixture/read-only evidence | DB lane | R-06, R-09, R-10, R-11 |
 | PR-5 retrieval/Weaviate optional evidence | retrieval lane | R-06, R-07, R-08 |
 | PR-6 n8n workflow smoke | n8n lane | R-12 |
-| PR-7 CI/observability/release packet | CI/release/verifier lane | R-01, R-14, R-15, R-16, R-19 |
+| PR-7 CI/observability/release packet | CI/release/verifier lane | R-01, R-14, R-15, R-16, R-19, R-21 |
 
 ## Minimum verification packet for risk closure
 
