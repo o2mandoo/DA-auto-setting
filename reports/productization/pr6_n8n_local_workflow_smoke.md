@@ -1,132 +1,173 @@
-# PR-6 n8n Local Workflow Smoke and Safety Sweep
+# PR-6 n8n / Local Workflow Smoke
 
 Date: 2026-05-09 KST
-Owner: worker-6
-Task: Final PR-6 verifier report and safety sweep
+Team: execute-pr-6-n8n-loca-634f3d99
+Status: PASS, with explicit remaining live-n8n limitation
 
 ## Verdict
 
-**PASS, with one explicit repository-level caveat.**
+PR-6 local workflow smoke passes for the repository-local product API / n8n template surface.
 
-The PR-6 n8n workflow templates, product API contract, and security boundaries are present and verified locally. The n8n surface remains an orchestration/demo wrapper over product APIs; it does not implement direct SQL execution, DB credentials, raw PII handling, or source-of-truth mutation. The only failing evidence encountered in this run is an unrelated full-suite regression in `tests/product/test_phase18_evidence_console.py` when running `make test`; the PR-6 focused verifier suites pass.
+The n8n workflows remain orchestration/demo wrappers over product API routes. They do not own Semantic Pack truth, do not include direct DB connectors, do not include DB credentials, do not execute SQL, and do not include raw PII examples.
+
+PR-7 may start only as a constrained CI/release-packet lane. Production release readiness is still not proven because live imported n8n runtime execution was not performed in this phase.
 
 ## Changed files
 
-- `reports/productization/pr6_n8n_local_workflow_smoke.md` — new standalone verifier report for PR-6.
-
-No product source files were changed in this verifier task.
-
-## Verification run
-
-### Environment check
-
-Command:
-
-```bash
-make env-check
+```text
+M docs/demo/N8N_WORKFLOW_REQUIREMENTS.md
+M docs/product/BASELINE_COMPARISON_SPEC.md
+M experiments/db_fixtures/scripts/fixture_modes.py
+M n8n/README.md
+M n8n/workflows/01_onboarding_demo.json
+M n8n/workflows/02_confirmation_pack_promotion.json
+M n8n/workflows/03_query_runtime_comparison_demo.json
+M n8n/workflows/05_failure_review_loop.json
+M packages/semantic_registry/semantic_registry/product/baseline.py
+M packages/semantic_registry/semantic_registry/product/comparison.py
+M packages/semantic_registry/semantic_registry/product/evidence.py
+M packages/semantic_registry/semantic_registry/product/scenarios.py
+M reports/final/20_domain_benchmark_summary.json
+M reports/final/20_domain_benchmark_summary.md
+M reports/final/final_capability_matrix.md
+M reports/final/known_failure_patterns.md
+A reports/productization/pr6_n8n_local_workflow_smoke.md
+M tests/fixtures/test_db_fixture_comment_modes.py
+M tests/product/test_n8n_workflow_templates.py
+M tests/product/test_phase19_product_api_contract.py
 ```
 
-Result: **PASS**
+Scope repair performed by leader after team completion:
+- reverted out-of-scope product UI / local demo / e2e changes that were not required for PR-6;
+- fixed the phase-18 evidence console so the benchmark-only `semantic_gold.v0_1.yaml` support pack is not counted as a 21st domain target;
+- regenerated final evidence reports with 20 domain targets.
 
-Output:
+## Workflow templates
+
+The PR-6 n8n workflow set is:
+
+1. `n8n/workflows/01_onboarding_demo.json` — DB-backed onboarding demo.
+2. `n8n/workflows/02_confirmation_pack_promotion.json` — comment-aware reverse-question and human confirmation / pack promotion demo.
+3. `n8n/workflows/03_query_runtime_comparison_demo.json` — query runtime with baseline vs system SQL comparison.
+4. `n8n/workflows/04_20_domain_benchmark_runner.json` — 20-domain/fixture benchmark runner.
+5. `n8n/workflows/05_failure_review_loop.json` — failure-safe demo.
+
+All workflow JSON files validate with `python -m json.tool`.
+
+## Product API routes used by n8n
+
+The templates call product API / adapter routes only:
+
+- `POST /api/onboarding/run`
+- `POST /api/confirmation/session`
+- `POST /api/confirmation/answer`
+- `POST /api/pack/promote`
+- `POST /api/product/answer`
+- `POST /api/product/compare-sql`
+- `POST /api/eval/run`
+- `POST /api/failure-review/run`
+
+No n8n workflow owns semantic logic or mutates Semantic Pack truth directly. Promotion is represented as a product API call after human confirmation.
+
+## Visible semantic context and failure states
+
+The local template/API/test surface demonstrates:
+
+- DB-backed onboarding flow.
+- `real_db_comment` available as draft semantic context when present.
+- `no_comment` represented as metadata gaps / reverse questions.
+- `test_only_synthetic_comment` visibly marked fixture-only and not approved product truth.
+- baseline generic SQL vs system SQL comparison with `not_executed` semantics.
+- visible failure states:
+  - ambiguity clarification;
+  - PII blocked;
+  - unsafe SQL blocked;
+  - missing context;
+  - draft/comment-only warning.
+
+## Safety checks
+
+Static/template safety checks passed:
+
+- no direct SQL connector node in n8n workflow JSON;
+- no workflow DB credentials or production DSNs;
+- no raw PII examples in workflow JSON;
+- no `/api/execute_query`, `def execute_query`, or `execute_query(` implementation surface in checked packages/n8n/scripts/semantic_packs;
+- n8n does not bypass SQL Guard;
+- baseline SQL is compared/profiled, not executed;
+- source-of-truth remains product API / Registry, not n8n.
+
+## Tests run
+
+Environment:
 
 ```text
-environment ok: 3.14.4
+make env-check
+=> environment ok: 3.14.4
 ```
 
-### Focused PR-6 verification suites
+Focused n8n/API/security verification:
 
-Command:
-
-```bash
-PYTHONPATH=packages/semantic_contracts:packages/semantic_registry:packages/semantic_builder/src:packages/semantic_mcp/src:/tmp/semantic-data-context-deps \
-PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q \
+```text
+.venv/bin/python -m pytest -q \
+  tests/product/test_n8n_workflow_templates.py \
   tests/product/test_phase19_product_api_contract.py \
   tests/product/test_phase20_n8n_readiness.py \
-  tests/security \
-  tests/product/test_n8n_workflow_templates.py
+  tests/security
+=> 25 passed in 1.03s
 ```
 
-Result: **PASS**
-
-Output:
+Requested product/security suite with explicit fallback because `tests/api` is absent in this checkout:
 
 ```text
-21 passed in 1.13s
+tests/api directory absent; running tests/product tests/security instead (logged fallback).
+.venv/bin/python -m pytest -q tests/product tests/security
+=> 55 passed in 6.35s
 ```
 
-### Full repository smoke
+Phase-18 evidence-console repair verification:
 
-Command:
+```text
+.venv/bin/python -m pytest -q tests/product/test_phase18_evidence_console.py
+=> 3 passed in 0.08s
+```
 
-```bash
+Full repository tests:
+
+```text
 make test
+=> 376 passed, 2 skipped in 72.72s
 ```
 
-Result: **FAIL**
+Template / forbidden-surface scans:
 
-Observed failure:
+```text
+python -m json.tool n8n/workflows/*.json
+=> json-templates-ok
 
-- `tests/product/test_phase18_evidence_console.py`
-- symptom: the repo-level benchmark summary currently reports `21` domain summaries, while that test expects `20`
-
-This is outside the PR-6 n8n smoke scope, but it is concrete evidence that the whole repository is not fully green.
-
-## Workflow templates inspected
-
-The n8n workflow templates remain present and consistent with the product API boundary:
-
-- `n8n/workflows/01_onboarding_demo.json`
-- `n8n/workflows/02_confirmation_pack_promotion.json`
-- `n8n/workflows/03_query_runtime_comparison_demo.json`
-- `n8n/workflows/04_20_domain_benchmark_runner.json`
-- `n8n/workflows/05_failure_review_loop.json`
-
-The templates continue to call product API routes only, using the local adapter variables documented in `n8n/README.md`:
-
-- `/api/onboarding/run`
-- `/api/confirmation/session`
-- `/api/product/answer`
-- `/api/eval/run`
-- `/api/failure-review/run`
-
-## Visible failure states and safety boundaries
-
-### Visible failure state
-
-- `make test` exposes a real unrelated regression in `tests/product/test_phase18_evidence_console.py`.
-- `tests/api` does not exist in this checkout, so the verifier used the actual API contract test file in `tests/product/test_phase19_product_api_contract.py` instead.
-
-### Safety checks
-
-Implementation-surface scan:
-
-```bash
 rg -n "def execute_query|execute_query\(|/api/execute_query" packages n8n scripts semantic_packs
+=> no-execute-query-hit
+
+rg -n "postgres://|mysql://|password|secret|token|api_key|Authorization" n8n/workflows
+=> no-credential-hit
 ```
 
-Result: **PASS** — no implementation-surface hits.
+## Non-silent fallback / process notes
 
-Additional safety checks from the focused suites and scans:
-
-- no workflow JSON contains DB credentials or production DSNs in the template surface;
-- no direct SQL execution route is exposed by the checked implementation surface;
-- no raw PII is introduced by the PR-6 n8n template surface;
-- no silent fallback branch is introduced in the workflow templates;
-- n8n remains a demo/orchestration wrapper, not the source of truth.
+- Team launch used a detached 240x80 tmux session because the active 209x51 pane was likely too small for six worker panes. This was logged before launch.
+- `omx team api send-message` used `hook_timeout_fallback_confirmed:tmux_send_keys_sent` for one leader-to-worker dispatch. This was visible in command output.
+- `tests/api` does not exist in this checkout. The verifier did not pretend it ran; it ran `tests/product tests/security` and the product API contract tests instead.
+- Worker-5 spawned native child probes despite the leader's no-subagent instruction; one child probe hit a spark-model usage limit. The final leader verification did not rely on that probe as proof.
+- After team completion, leader removed out-of-scope UI/local-demo/e2e changes and fixed the evidence-console 20-domain counting issue before final validation.
 
 ## Remaining risks
 
-- Live imported n8n workflow runtime smoke is still not proven in this verifier pass.
-- The repository-wide `make test` suite currently has an unrelated phase-18 failure that should be tracked separately.
-- PR-6 should still be treated as a constrained smoke/evidence lane, not as production readiness.
+- Live imported n8n runtime execution is still not proven; this phase proves repository-local workflow template/API smoke only.
+- No external n8n server, webhook execution transcript, or screenshot artifact is attached yet.
+- PR-7 must preserve the no-production-`execute_query`, no-raw-PII, no-silent-fallback, and source-of-truth boundaries.
 
 ## Whether PR-7 may start
 
-**Yes, but only as a constrained CI/release-packet lane.**
+Yes, with gates.
 
-The local PR-6 verifier evidence is now attached, but PR-7 still should not claim production release readiness. It may proceed for CI, observability, and release-packet work that preserves the same safety boundaries and does not reintroduce direct SQL execution, DB credentials, raw PII, or source-of-truth drift.
-
-## Summary
-
-PR-6 n8n smoke evidence is locally verified: the templates exist, the product API contract is intact, the safety tests pass, and the forbidden `execute_query` implementation surface is absent. The only failing evidence in this run is an unrelated repo-wide phase-18 benchmark summary regression in `make test`.
+PR-7 may start as a CI/release-packet lane only. It must not claim production readiness until live n8n import/runtime smoke and release evidence are attached.

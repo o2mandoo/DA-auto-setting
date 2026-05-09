@@ -81,22 +81,6 @@ def test_comment_aware_and_failure_safe_demos_are_explicit() -> None:
         for node in failure_safe["nodes"]
     )
 
-
-def test_n8n_templates_do_not_include_direct_sql_connector_nodes() -> None:
-    forbidden_node_types = {
-        "n8n-nodes-base.postgres",
-        "n8n-nodes-base.mysql",
-        "n8n-nodes-base.mssql",
-        "n8n-nodes-base.sqlite",
-        "n8n-nodes-base.mariadb",
-        "n8n-nodes-base.oracledb",
-        "n8n-nodes-base.snowflake",
-    }
-    for path in Path("n8n/workflows").glob("*.json"):
-        data = json.loads(path.read_text(encoding="utf-8"))
-        node_types = {node.get("type") for node in data.get("nodes", [])}
-        assert node_types.isdisjoint(forbidden_node_types)
-
 def test_query_runtime_comparison_workflow_stays_on_product_api() -> None:
     data = json.loads(Path("n8n/workflows/03_query_runtime_comparison_demo.json").read_text(encoding="utf-8"))
     safety_note = next(

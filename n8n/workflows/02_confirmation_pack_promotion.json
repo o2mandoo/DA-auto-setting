@@ -1,5 +1,5 @@
 {
-  "name": "02 Comment-aware Reverse Question Demo",
+  "name": "02 Comment-Aware Reverse Question Demo",
   "active": false,
   "nodes": [
     {
@@ -15,7 +15,7 @@
     },
     {
       "parameters": {
-        "content": "Open a confirmation session to surface comment-aware reverse questions. No-comment gaps, real-comment draft context, and synthetic fixture-only comments must remain visible; do not mutate approved packs in place."
+        "content": "Open a confirmation session to surface comment-aware reverse questions. No-comment gaps, real-comment draft context, and synthetic fixture-only comments must remain visible; do not mutate approved packs in place; pack promotion must happen only through the product API after human confirmation."
       },
       "id": "02 Confirmation Pack Promotion-safety-note",
       "name": "Safety Gate Note",

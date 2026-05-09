@@ -65,7 +65,15 @@ def build_product_readiness_report(
 ) -> ProductReadinessReport:
     manifest = yaml.safe_load(Path(manifest_path).read_text(encoding="utf-8"))
     dataset_id = manifest["dataset_id"]
-    files = list(manifest.get("files", []))
+    # The Sinagong manifest includes a benchmark-only semantic-gold support pack
+    # alongside the 20 workbook/domain files. The product evidence console is a
+    # 20-domain file-corpus view, so support packs must not be counted as target
+    # domains or the evidence surface will over-claim a 21st domain.
+    files = [
+        source_file
+        for source_file in manifest.get("files", [])
+        if str(source_file).startswith("docs/reference/test_datasets/")
+    ]
     artifact = Path(benchmark_root) / dataset_id / "benchmark.json"
     summary: dict[str, Any] = {}
     if artifact.exists():

@@ -12,7 +12,6 @@ import json
 from pathlib import Path
 from semantic_builder.cli import main as builder_main
 from semantic_builder.eval import run_benchmark_manifest, write_benchmark_report
-from experiments.db_fixtures.scripts.mode_comparison import compare_comment_modes
 from semantic_contracts import ConfirmationStatus, HumanConfirmation, PackStatus, ProposalStatus, load_pack_yaml
 from semantic_mcp import (
     inspect_registration_surface,
@@ -115,23 +114,6 @@ def main() -> int:
         max_rows=2,
         audit_root=RUNTIME / "preview_audit",
     )
-    comment_mode_comparisons = [
-        comparison.to_dict()
-        for comparison in compare_comment_modes(
-            dataset_id="demo_company.revenue",
-            schema_name="semantic_fixture_demo",
-            table_name="orders",
-            columns=["status", "created_at", "customer_email"],
-            real_comments={
-                "table": "Order lifecycle comment",
-                "columns": {
-                    "status": "Order lifecycle state",
-                    "created_at": "Record created timestamp",
-                },
-            },
-            backend="postgres",
-        )
-    ]
     eval_run = run_benchmark_manifest(ROOT / "eval" / "datasets" / "demo_company_revenue.yaml")
     write_benchmark_report(eval_run, eval_json, eval_md)
 
@@ -171,11 +153,6 @@ def main() -> int:
             "blocked_sql_execution_allowed": validation["execution_allowed"],
             "preview_ok": preview.get("ok"),
             "preview_execution_allowed": preview.get("execution_allowed"),
-        },
-        "comment_mode_comparison_panel": {
-            "selected_comment_mode": "no_comments",
-            "table_name": "orders",
-            "comparisons": comment_mode_comparisons,
         },
         "eval_summary": eval_run.summary,
         "safety": {
