@@ -82,10 +82,20 @@ is used to explain and rank those hits, not to fabricate unavailable context.
 If the domain phrase is unknown, retrieval returns explicit warnings instead of
 quietly matching broad generic tokens like `고객`.
 
+Semantic-gold evaluation cases record the same `query_understanding` payload
+alongside retrieval metrics such as `recall_at_k`, `mrr`, first-hit rank, and
+missing ids.  Those metrics describe retrieval quality; they do not change the
+backend truth contract.
+
+Benchmark-only support packs may improve understanding and scoring for curated
+evaluation cases, but they are not approved product truth and must not be
+treated as a source of operational customer facts.
+
 ## Verification reference
 
 The retrieval boundary is verified in Phase 7 with local tests and the phase report:
 
+- `reports/productization/PR5_SEMANTIC_RETRIEVAL_EVIDENCE.md`
 - `reports/phases/phase7_vdb_card_index_retrieval.md`
 - `reports/benchmarks/weaviate_mode_comparison_report.md`
 - `tests/registry/test_card_flattening.py`
