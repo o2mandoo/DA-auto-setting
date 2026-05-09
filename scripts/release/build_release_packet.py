@@ -127,6 +127,28 @@ METADATA_PROVENANCE_RULES: tuple[dict[str, object], ...] = (
     },
 )
 
+COMMENT_MODE_RULES: tuple[dict[str, str], ...] = (
+    {
+        "comment_mode": "real_comments",
+        "metadata_source": "real_db_comment",
+        "product_rule": "Usable only as draft Text-to-SQL context with provenance/status and comment-only warnings.",
+        "fallback_rule": "If real catalog or manifest comments are absent, mark the mode unavailable; do not synthesize replacements.",
+    },
+    {
+        "comment_mode": "no_comments",
+        "metadata_source": "no_comment",
+        "product_rule": "Represents an explicit metadata gap and reverse-question input, not context truth.",
+        "fallback_rule": "Do not fabricate comments or replace missing semantics with generated text.",
+    },
+    {
+        "comment_mode": "synthetic_comments",
+        "metadata_source": "test_only_synthetic_comment",
+        "product_rule": "Fixture/lab evidence only; excluded from approved product context and human truth by default.",
+        "fallback_rule": "Never promote generated comments to real comments or approved truth automatically.",
+    },
+)
+
+
 KNOWN_LIMITATIONS: tuple[dict[str, str], ...] = (
     {
         "limitation": "Release status is dry-run/local validation, not production ready.",
@@ -420,6 +442,21 @@ def build_source_reference_block(title: str, source_paths: Iterable[Path], root:
     return "\n".join(lines)
 
 
+def build_comment_mode_rules() -> str:
+    lines = [
+        "## DB comment-mode rules",
+        "",
+        "| Comment mode | Metadata source | Product rule | Fallback rule |",
+        "|---|---|---|---|",
+    ]
+    for item in COMMENT_MODE_RULES:
+        lines.append(
+            "| `{comment_mode}` | `{metadata_source}` | {product_rule} | {fallback_rule} |".format(**item)
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
 def build_api_mcp_n8n_summary(root: Path, missing: list[str]) -> str:
     lines = [
         "# API / MCP / n8n Surface Summary",
@@ -443,6 +480,8 @@ def build_api_mcp_n8n_summary(root: Path, missing: list[str]) -> str:
             "- Product API and MCP surfaces remain validation-first and do not expose production execute_query.",
             "- Baseline versus system SQL comparison is profile-only and non-executing.",
             "- n8n workflow evidence remains orchestration-only and must surface backend/comment warnings explicitly.",
+            "",
+            build_comment_mode_rules().rstrip(),
         ]
     )
     return "\n".join(lines) + "\n"
@@ -700,6 +739,7 @@ def build_manifest(
         "evidence_coverage": evidence_coverage,
         "evidence_coverage_summary": coverage_counts,
         "metadata_provenance_rules": list(METADATA_PROVENANCE_RULES),
+        "comment_mode_rules": list(COMMENT_MODE_RULES),
         "support_levels": list(SUPPORT_LEVELS),
         "known_limitations": list(KNOWN_LIMITATIONS),
         "test_status": {
