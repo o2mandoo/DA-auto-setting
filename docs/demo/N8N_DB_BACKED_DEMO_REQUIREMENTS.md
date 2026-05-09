@@ -10,7 +10,7 @@ Every DB-backed demo workflow must show the selected fixture/comment mode:
 
 - `no_comments`: no catalog comments; scanner should emit metadata gaps and reverse questions.
 - `real_comments`: source/manifest-provided comments; scanner should emit draft product context with `real_db_comment` provenance.
-- `synthetic_comments`: generated lab comments marked `TEST_ONLY_SYNTHETIC_METADATA`; fixture-only and excluded from approved product context.
+- `synthetic_comments`: generated lab comments marked `TEST_ONLY_SYNTHETIC_METADATA`; fixture-only and excluded from approved product context. For MySQL fixtures this marker must appear on every generated table and column comment before the comment can be treated as synthetic fixture evidence.
 
 If `real_comments` are requested but the manifest has no real comments, the workflow must display that as unavailable. It must not generate synthetic comments as a silent replacement.
 
@@ -39,10 +39,10 @@ The supported DB-backed demo targets are PostgreSQL fixtures and explicit MySQL 
 - No production SQL execution or `execute_query` path.
 - No checked-in credentials.
 - No raw PII in sample payloads.
-- No hidden PostgreSQL/DuckDB/SQLite fallback when a MySQL target was requested.
-- No hidden DuckDB/SQLite fallback when a PostgreSQL fixture was requested.
-- Live fixture DB access requires the target-specific opt-in environment variables above and demo-only schema/database names.
-- Unsupported DBs such as Oracle must fail explicitly until real connectors are implemented.
+- No hidden DuckDB/SQLite fallback when a Postgres fixture was requested.
+- Live fixture DB execution requires `SEMANTIC_CONTEXT_FIXTURE_DB=1` and `semantic_fixture_*` schema/database names.
+- MySQL must use the explicit read-only MySQL connector path. If the MySQL driver, DSN, fixture schema, or live server is unavailable, the workflow must report the MySQL evidence as unavailable (for example `live_mysql_not_run`) rather than falling back to PostgreSQL, DuckDB, SQLite, or generated sidecar comments.
+- Oracle and any unsupported DBs must fail explicitly until real connectors are implemented.
 
 ## Minimum workflows
 
@@ -62,3 +62,10 @@ The supported DB-backed demo targets are PostgreSQL fixtures and explicit MySQL 
 - Product API/adapter invocation is stable from n8n,
 - PostgreSQL and MySQL comparison artifacts show the requested target and evidence status,
 - failures are visible as failures rather than silently rerouted.
+
+
+## MySQL-specific fixture rule
+
+MySQL synthetic comments are allowed only in fixture/lab modes. They must include `TEST_ONLY_SYNTHETIC_METADATA` on generated table comments and generated column comments, must be surfaced as `metadata_source=test_only_synthetic_comment`, and must not be promoted into approved Semantic Pack or Text-to-SQL context. Real MySQL catalog comments are different: when read from `information_schema.tables.table_comment` or `information_schema.columns.column_comment`, they are draft `real_db_comment` metadata until human confirmation.
+
+No workflow may silently replace a requested MySQL scan with PostgreSQL, DuckDB, SQLite, cached JSON, or LLM-generated comments. Missing MySQL evidence is a visible gap, not a fallback success.
