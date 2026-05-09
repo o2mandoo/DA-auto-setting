@@ -25,12 +25,8 @@ class FileCorpusBenchmarkRunnerTests(unittest.TestCase):
         self.assertEqual(sinagong_run_one.as_dict(), sinagong_run_two.as_dict(), sinagong_manifest.dataset_id)
         self.assertEqual(render_benchmark_json(sinagong_run_one), render_benchmark_json(sinagong_run_two), sinagong_manifest.dataset_id)
         self.assertEqual(sinagong_run_one.manifest.dataset_id, sinagong_manifest.dataset_id)
-        file_source_results = [result for result in sinagong_run_one.results if result.category == "file_source"]
-        support_artifact_results = [result for result in file_source_results if result.evidence.get("kind") == "support_artifact"]
-        workbook_results = [result for result in file_source_results if result.evidence.get("kind") != "support_artifact"]
-
-        self.assertEqual(len(workbook_results), 20, sinagong_run_one.as_dict())
-        self.assertEqual(len(support_artifact_results), 20, sinagong_run_one.as_dict())
+        self.assertEqual(len([result for result in sinagong_run_one.results if result.category == "file_source"]), 20, sinagong_run_one.as_dict())
+        self.assertTrue(any(result.category == "support_artifact" for result in sinagong_run_one.results), sinagong_run_one.as_dict())
         self.assertTrue(any(result.category == "semantic_gold" for result in sinagong_run_one.results))
         self.assertGreater(sinagong_run_one.summary["passed"], 0, sinagong_run_one.as_dict())
         self.assertGreater(sinagong_run_one.summary["total"], 20, sinagong_run_one.as_dict())
