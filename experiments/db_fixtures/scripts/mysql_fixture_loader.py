@@ -63,8 +63,7 @@ ConnectionFactory = Callable[[str], Any]
 def assert_mysql_fixture_environment(
     *,
     dsn: str,
-    schema_name: str | None = None,
-    database_name: str | None = None,
+    schema_name: str,
     env: Mapping[str, str] | None = None,
 ) -> MySQLFixtureSafetyResult:
     """Return whether a MySQL fixture DSN is safe for optional live loading."""
@@ -74,8 +73,8 @@ def assert_mysql_fixture_environment(
     reasons: list[str] = []
     if source_env.get(FIXTURE_GATE_ENV) != "1":
         reasons.append(f"{FIXTURE_GATE_ENV}=1 is required")
-    if not fixture_name.startswith("semantic_fixture_"):
-        reasons.append("database/schema name must start with semantic_fixture_*")
+    if not schema_name.startswith("semantic_fixture_"):
+        reasons.append("schema_name must start with semantic_fixture_*")
     parsed = urlparse(dsn)
     if parsed.scheme and parsed.scheme not in {"mysql", "mysql+pymysql"}:
         reasons.append(
