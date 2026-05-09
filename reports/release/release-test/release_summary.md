@@ -1,7 +1,7 @@
 # Release Packet: release-test
 
-- generated_at: 2026-05-09T13:59:47.562073+00:00
-- git_commit: 8e1ad29f04a2ce03f7abd16589916bf707a97f81
+- generated_at: 2026-05-09T14:02:59.605639+00:00
+- git_commit: 3474ee45c9b86f557abfc5fbd891aa5917fe8d59
 - status: dry-run release packet
 
 ## Evidence snapshot
@@ -28,4 +28,4 @@
 
 ## Redaction summary
 
-- worker_id: 1
+- worker_id: 3

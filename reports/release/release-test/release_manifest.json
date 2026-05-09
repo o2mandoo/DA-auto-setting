@@ -1,12 +1,17 @@
 {
   "artifacts": {
+    "api_mcp_n8n_surface_summary": "api_mcp_n8n_surface_summary.md",
+    "dependency_snapshot": "dependency_snapshot.txt",
+    "evidence_index": "evidence_index.md",
     "known_limitations": "known_limitations.md",
+    "readiness_matrix": "readiness_matrix.md",
     "release_summary": "release_summary.md",
     "risk_register": "risk_register.md",
-    "support_matrix": "support_matrix.md"
+    "support_matrix": "support_matrix.md",
+    "test_evidence": "test_evidence.md"
   },
-  "generated_at": "2026-05-09T13:59:47.562073+00:00",
-  "git_commit": "8e1ad29f04a2ce03f7abd16589916bf707a97f81",
+  "generated_at": "2026-05-09T14:02:59.605639+00:00",
+  "git_commit": "3474ee45c9b86f557abfc5fbd891aa5917fe8d59",
   "missing_evidence": [],
   "missing_gate_evidence": [
     {
@@ -45,12 +50,13 @@
       "status": "missing"
     }
   ],
-  "output_dir": "/Users/jtm427/Desktop/workplace/data/semantic-data-context/.omx/team/execute-release-packe-63d0350b/worktrees/worker-1/reports/release/release-test",
+  "output_dir": "reports/release/release-test",
   "redactions": {
-    "worker_id": 1
+    "worker_id": 3
   },
   "release_id": "release-test",
   "safety_checks": {
+    "dependency_snapshot_present": true,
     "no_production_execute_query_claim": true,
     "no_raw_pii_claim": true,
     "no_silent_fallback_claim": true,
