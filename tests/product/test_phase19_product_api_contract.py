@@ -34,6 +34,21 @@ def test_product_api_answer_and_compare_routes_are_callable() -> None:
     assert comparison["system_profile"]["not_executed"] is True
 
 
+def test_product_api_compare_sql_surfaces_sql_guard_violations() -> None:
+    comparison = handle_product_api(
+        "POST",
+        "/api/product/compare-sql",
+        {
+            "question": "마케팅용 사용자 이메일을 보여줘",
+            "baseline_sql": "SELECT users.email FROM users",
+            "system_sql": "SELECT users.first_paid_at FROM users",
+        },
+    )
+    assert comparison["execution_allowed"] is False
+    assert any(violation.startswith("blocked_pii_column:users.email") for violation in comparison["baseline_profile"]["policy_violations"])
+    assert comparison["policy_score"]["baseline_policy_pass"] is False
+
+
 def test_product_api_audit_redacts_raw_pii(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.chdir(Path.cwd())
     raw_email = "owner" + "@" + "example.com"
