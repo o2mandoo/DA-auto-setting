@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Mapping
 
 from semantic_contracts import SemanticPack
 
@@ -129,23 +129,23 @@ def _where_columns(sql: str) -> list[str]:
 def _coerce_query_plan(plan: QueryPlan | Any, packs: Iterable[SemanticPack]) -> QueryPlan:
     if isinstance(plan, QueryPlan):
         return plan
-    required_terms = list(getattr(plan, "required_terms", []))
-    required_metrics = list(getattr(plan, "required_metrics", []))
-    selected_verified_query = getattr(plan, "selected_verified_query", None)
+    required_terms = list(_field(plan, "required_terms", []))
+    required_metrics = list(_field(plan, "required_metrics", []))
+    selected_verified_query = _field(plan, "selected_verified_query")
     if selected_verified_query is None:
         selected_verified_query = _select_verified_query_for_cards(packs, required_terms, required_metrics)
     return QueryPlan(
         required_terms=required_terms,
         required_metrics=required_metrics,
-        candidate_tables=list(getattr(plan, "candidate_tables", [])),
-        join_recipes=list(getattr(plan, "join_recipes", [])),
-        filters=list(getattr(plan, "filters", [])),
-        group_by=list(getattr(plan, "group_by", [])),
+        candidate_tables=list(_field(plan, "candidate_tables", [])),
+        join_recipes=list(_field(plan, "join_recipes", [])),
+        filters=list(_field(plan, "filters", [])),
+        group_by=list(_field(plan, "group_by", [])),
         selected_verified_query=selected_verified_query,
-        used_cards=list(getattr(plan, "used_cards", [])),
-        confidence=float(getattr(plan, "confidence", 0.0)),
-        warnings=list(getattr(plan, "warnings", [])),
-        sql_draft_allowed=bool(getattr(plan, "sql_draft_allowed", selected_verified_query is not None)),
+        used_cards=list(_field(plan, "used_cards", [])),
+        confidence=float(_field(plan, "confidence", 0.0)),
+        warnings=list(_field(plan, "warnings", [])),
+        sql_draft_allowed=bool(_field(plan, "sql_draft_allowed", selected_verified_query is not None)),
     )
 
 
@@ -161,3 +161,9 @@ def _select_verified_query_for_cards(
             if term_set.issuperset(verified_query.related_terms) and metric_set.issuperset(verified_query.related_metrics):
                 return verified_query.id
     return None
+
+
+def _field(obj: Any, name: str, default: Any = None) -> Any:
+    if isinstance(obj, Mapping):
+        return obj.get(name, default)
+    return getattr(obj, name, default)

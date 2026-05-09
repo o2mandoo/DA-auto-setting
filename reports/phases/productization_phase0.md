@@ -63,6 +63,7 @@ Task 18 remains `failed` in the OMX team state because a worker hit a lifecycle 
 - `3987982` — clone-ready packaging checks.
 - `594b57b` / `f0f4acd` — registry runtime compatibility layer.
 - `2331661` — leader reconciliation for provider/runtime regression tests.
+- pending current commit — runtime ambiguity/MCP verifier full-suite fix after `make test` surfaced 3 failures.
 
 ## Verification
 
@@ -90,11 +91,22 @@ PYTHONPATH="packages/semantic_contracts:packages/semantic_registry:packages/sema
 # PASS
 ```
 
+
+Full-suite rerun after final runtime ambiguity/MCP verifier fix:
+
+```bash
+make env-check
+# environment ok: 3.14.4
+
+make test
+# 251 passed, 2 skipped
+```
+
 Worker evidence also reported:
 
 - `make env-check` -> environment ok.
 - `make demo` -> demo artifacts written under root `runtime/phase12_demo`.
-- `make test` -> `245 passed, 2 skipped` in worker-2 worktree before leader reconciliation.
+- `make test` -> `251 passed, 2 skipped` in the leader checkout after final runtime ambiguity/MCP verifier fix.
 - targeted runtime regression tests -> `21 passed` after runtime compatibility layer in worker-2.
 
 ## No-silent-fallback evidence

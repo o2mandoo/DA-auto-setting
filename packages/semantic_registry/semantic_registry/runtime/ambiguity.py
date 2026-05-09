@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Mapping
 
 from semantic_contracts import SemanticPack
 
@@ -77,7 +77,7 @@ class AmbiguityGate:
         else:
             plan = plan_domain_query("demo_company.revenue", question, role=role, pack_root=effective_root)
         verdict = self.assess(plan)
-        if not plan.required_terms and not plan.required_metrics and plan.selected_verified_query is None:
+        if not _field(plan, "required_terms", []) and not _field(plan, "required_metrics", []) and _field(plan, "selected_verified_query") is None:
             verdict["unresolved_terms"] = (question,)
             verdict["requires_clarification"] = True
         return AmbiguityGateResult(
@@ -94,11 +94,11 @@ class AmbiguityGate:
         warnings: list[RuntimeWarning] = []
         unresolved_terms: tuple[str, ...] = ()
 
-        required_terms = list(getattr(plan, "required_terms", []))
-        required_metrics = list(getattr(plan, "required_metrics", []))
-        selected_verified_query = getattr(plan, "selected_verified_query", None)
+        required_terms = list(_field(plan, "required_terms", []))
+        required_metrics = list(_field(plan, "required_metrics", []))
+        selected_verified_query = _field(plan, "selected_verified_query")
 
-        for planned in getattr(plan, "ambiguities", []):
+        for planned in _field(plan, "ambiguities", []):
             ambiguities.append(_planned_ambiguity_to_runtime(planned))
 
         if len(required_metrics) > 1:
@@ -115,9 +115,10 @@ class AmbiguityGate:
             unresolved_terms = (selected_verified_query or "unresolved_question",)
 
         if self.packs:
+            ambiguities.extend(self._reverse_question_ambiguities(required_terms, required_metrics, ambiguities))
             warnings.extend(self._draft_warnings(plan))
 
-        plan_warnings = list(getattr(plan, "warnings", []))
+        plan_warnings = list(_field(plan, "warnings", []))
         if not ambiguities and plan_warnings:
             for warning in plan_warnings:
                 if warning == "clarification_required_before_sql_draft":
@@ -134,8 +135,8 @@ class AmbiguityGate:
 
     def _draft_warnings(self, plan: QueryPlan) -> list[RuntimeWarning]:
         draft_warnings: list[RuntimeWarning] = []
-        required_terms = list(getattr(plan, "required_terms", []))
-        required_metrics = list(getattr(plan, "required_metrics", []))
+        required_terms = list(_field(plan, "required_terms", []))
+        required_metrics = list(_field(plan, "required_metrics", []))
         for pack in self.packs:
             terms = {term.id: term for term in pack.business_terms}
             metrics = {metric.id: metric for metric in pack.metrics}
@@ -160,6 +161,30 @@ class AmbiguityGate:
                         )
                     )
         return draft_warnings
+
+    def _reverse_question_ambiguities(
+        self,
+        required_terms: Iterable[str],
+        required_metrics: Iterable[str],
+        existing: Iterable[RuntimeAmbiguity],
+    ) -> list[RuntimeAmbiguity]:
+        targets = set(required_terms) | set(required_metrics)
+        seen_ids = {ambiguity.id for ambiguity in existing}
+        result: list[RuntimeAmbiguity] = []
+        for pack in self.packs:
+            for question in pack.reverse_questions:
+                if question.target not in targets or question.id in seen_ids:
+                    continue
+                seen_ids.add(question.id)
+                result.append(
+                    RuntimeAmbiguity(
+                        id=question.id,
+                        target=question.target,
+                        question=question.question,
+                        reason=question.reason,
+                    )
+                )
+        return result
 
 
 def evaluate_ambiguity_gate_dict(
@@ -188,10 +213,10 @@ def evaluate_ambiguity_gate_dict(
 
 def _planned_ambiguity_to_runtime(planned: Any) -> RuntimeAmbiguity:
     return RuntimeAmbiguity(
-        id=str(getattr(planned, "id", None) or "runtime.ambiguity"),
-        target=getattr(planned, "target", None),
-        question=str(getattr(planned, "question", "")),
-        reason=getattr(planned, "reason", None),
+        id=str(_field(planned, "id") or "runtime.ambiguity"),
+        target=_field(planned, "target"),
+        question=str(_field(planned, "question", "")),
+        reason=_field(planned, "reason"),
     )
 
 
@@ -213,3 +238,9 @@ def _dict_to_ambiguity(payload: dict[str, Any]) -> RuntimeAmbiguity:
         reason=payload.get("reason"),
         choices=tuple(payload.get("choices", ())),
     )
+
+
+def _field(obj: Any, name: str, default: Any = None) -> Any:
+    if isinstance(obj, Mapping):
+        return obj.get(name, default)
+    return getattr(obj, name, default)
