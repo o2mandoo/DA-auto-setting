@@ -125,6 +125,52 @@ class DatasetManifestTests(unittest.TestCase):
             for rel_path in manifest.files:
                 self.assertTrue((ROOT / rel_path).exists(), rel_path)
 
+    def test_sinagong_support_pack_has_one_term_metric_and_reverse_question_per_domain(self) -> None:
+        pack_path = ROOT / "semantic_packs" / "sinagong_tableau_2026" / "semantic_gold.v0_1.yaml"
+        self.assertTrue(pack_path.exists(), pack_path)
+
+        pack = yaml.safe_load(pack_path.read_text())["semantic_pack"]
+
+        business_terms = pack["business_terms"]
+        metrics = pack["metrics"]
+        reverse_questions = pack["reverse_questions"]
+        policy_notes = pack["policies"][0]["notes"]
+
+        self.assertEqual(len(business_terms), 20, business_terms)
+        self.assertEqual(len(metrics), 20, metrics)
+        self.assertEqual(len(reverse_questions), 20, reverse_questions)
+        self.assertTrue(
+            any("benchmark-only support pack" in note.casefold() for note in policy_notes),
+            policy_notes,
+        )
+
+        metric_ids = {metric["id"] for metric in metrics}
+        reverse_targets = {rq["target"] for rq in reverse_questions}
+        reverse_ids = {rq["id"] for rq in reverse_questions}
+
+        self.assertEqual(len(metric_ids), 20, metrics)
+        self.assertEqual(len(reverse_ids), 20, reverse_questions)
+
+        for term in business_terms:
+            with self.subTest(term=term["id"]):
+                self.assertTrue(term["term"], term)
+                self.assertGreaterEqual(len(term["aliases"]), 1, term)
+                self.assertEqual(len(term["ambiguity_rules"]), 1, term)
+                self.assertEqual(len(term["related_metrics"]), 1, term)
+                self.assertIn(term["related_metrics"][0], metric_ids, term)
+                self.assertIn(term["id"], reverse_targets, term)
+
+        for metric in metrics:
+            with self.subTest(metric=metric["id"]):
+                self.assertTrue(metric["label"], metric)
+                self.assertTrue(metric["description"].startswith("Semantic-gold benchmark metric"), metric)
+                self.assertTrue(metric["formula_sql"].startswith("VALIDATION_ONLY_NO_SQL"), metric)
+
+        for rq in reverse_questions:
+            with self.subTest(reverse_question=rq["id"]):
+                self.assertTrue(rq["question"], rq)
+                self.assertTrue(rq["reason"].startswith("Benchmark support pack must expose"), rq)
+
 
 if __name__ == "__main__":
     unittest.main()
