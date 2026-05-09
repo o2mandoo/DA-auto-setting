@@ -25,6 +25,26 @@ Backend selection is explicit. The harness must not fall back from a requested M
 - Oracle is not implemented by this fixture harness.
 - No silent fallback: DuckDB/SQLite smoke exports, if added, must be explicitly selected and cannot replace a requested Postgres or MySQL run.
 
+
+## Optional local live fixture services
+
+For PR-4/live evidence reruns, use the product-external Docker Compose file:
+
+```bash
+.venv/bin/python -m pip install -r requirements-live-db.txt
+docker compose -f experiments/db_fixtures/docker-compose.live.yml up -d
+export SEMANTIC_CONTEXT_FIXTURE_DB=1
+export SEMANTIC_CONTEXT_POSTGRES_FIXTURE_DSN=postgresql://sdc_fixture:sdc_fixture_pw@localhost:55432/semantic_fixture_postgres_scope_c
+export SEMANTIC_CONTEXT_MYSQL_FIXTURE_DSN=mysql://sdc_fixture:sdc_fixture_pw@localhost:33306/semantic_fixture_mysql_scope_c
+.venv/bin/python -m experiments.db_fixtures.scripts.postgres_live_evidence --output reports/reality/postgres_live_fixture_evidence.json
+.venv/bin/python -m experiments.db_fixtures.scripts.mysql_live_evidence --output reports/reality/mysql_live_fixture_evidence.json
+```
+
+The Compose credentials are fixture-only local defaults. They must not be reused
+for production services. If any selected backend is unavailable, the evidence
+writer must report the exact unavailable state; it must not reroute to another
+DB or cached artifact.
+
 ## n8n handoff criterion
 
 n8n live work may start only after DB-backed evidence proves:

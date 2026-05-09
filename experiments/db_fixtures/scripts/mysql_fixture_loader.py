@@ -13,7 +13,7 @@ import hashlib
 import importlib
 import os
 from typing import Any, Callable, Mapping, Sequence
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 from .fixture_modes import FixtureTablePlan
 
@@ -217,7 +217,26 @@ def _pymysql_connection_factory() -> ConnectionFactory | None:
     connect = getattr(driver, "connect", None)
     if not callable(connect):
         return None
-    return connect
+
+    def connect_from_dsn(dsn: str) -> Any:
+        parsed = urlparse(dsn)
+        if parsed.scheme in {"mysql", "mysql+pymysql"}:
+            database = unquote((parsed.path or "").lstrip("/")) or None
+            kwargs: dict[str, Any] = {
+                "host": parsed.hostname or "localhost",
+                "port": parsed.port or 3306,
+                "user": unquote(parsed.username or ""),
+                "password": unquote(parsed.password or ""),
+                "charset": "utf8mb4",
+                "connect_timeout": 5,
+                "autocommit": False,
+            }
+            if database is not None:
+                kwargs["database"] = database
+            return connect(**kwargs)
+        return connect(dsn)
+
+    return connect_from_dsn
 
 
 def _execute_statements(connection: Any, statements: Sequence[str]) -> int:

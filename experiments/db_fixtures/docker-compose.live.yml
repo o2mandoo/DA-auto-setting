@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: semantic-data-context-pr4-postgres
+    ports:
+      - "55432:5432"
+    environment:
+      POSTGRES_USER: sdc_fixture
+      POSTGRES_PASSWORD: sdc_fixture_pw
+      POSTGRES_DB: semantic_fixture_postgres_scope_c
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sdc_fixture -d semantic_fixture_postgres_scope_c"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  mysql:
+    image: mysql:8.0
+    container_name: semantic-data-context-pr4-mysql
+    ports:
+      - "33306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: sdc_fixture_root_pw
+      MYSQL_DATABASE: semantic_fixture_mysql_scope_c
+      MYSQL_USER: sdc_fixture
+      MYSQL_PASSWORD: sdc_fixture_pw
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -usdc_fixture -psdc_fixture_pw --silent"]
+      interval: 2s
+      timeout: 2s
+      retries: 60

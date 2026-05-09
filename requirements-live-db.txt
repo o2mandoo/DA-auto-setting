@@ -1,0 +1,4 @@
+# Optional local live DB fixture dependencies.
+# These are product-external validation tools, not production runtime requirements.
+psycopg[binary]>=3.2,<4
+PyMySQL>=1.1,<2

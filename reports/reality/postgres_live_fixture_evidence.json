@@ -3,18 +3,16 @@
   "fixture_only": true,
   "fallback_used": false,
   "fallback_backend": null,
-  "dsn_configured": false,
+  "dsn_configured": true,
   "status": {
     "backend": "postgres",
-    "status": "pending",
-    "attempted": false,
-    "safe": false,
-    "reasons": [
-      "SEMANTIC_CONTEXT_POSTGRES_FIXTURE_DSN is not set; no fallback backend was used"
-    ],
-    "executed_statement_count": 0,
-    "row_count": 0,
-    "plan_checksum": null
+    "status": "loaded",
+    "attempted": true,
+    "safe": true,
+    "reasons": [],
+    "executed_statement_count": 9,
+    "row_count": 2,
+    "plan_checksum": "0a96cada577b449c"
   },
   "sql_plan": {
     "schema_name": "semantic_fixture_postgres_scope_c",
@@ -35,5 +33,5 @@
     "mode": "real_comments",
     "backend": "postgres"
   },
-  "generated_at": "2026-05-09T11:39:47.250439+00:00"
+  "generated_at": "2026-05-09T11:47:05.901744+00:00"
 }

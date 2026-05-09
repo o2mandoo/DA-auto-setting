@@ -106,3 +106,34 @@ def test_mysql_live_loader_executes_only_when_local_gate_passes() -> None:
     assert connection.closed is True
     assert all("postgres" not in statement.lower() for statement in connection.cursor_obj.statements)
 
+
+
+def test_pymysql_connection_factory_parses_fixture_dsn(monkeypatch) -> None:
+    from experiments.db_fixtures.scripts import mysql_fixture_loader
+
+    calls = []
+
+    class _FakePyMySQL:
+        @staticmethod
+        def connect(**kwargs):
+            calls.append(kwargs)
+            return object()
+
+    monkeypatch.setitem(__import__("sys").modules, "pymysql", _FakePyMySQL)
+
+    factory = mysql_fixture_loader._pymysql_connection_factory()
+    assert factory is not None
+    factory("mysql://sdc_fixture:sdc_fixture_pw@localhost:33306/semantic_fixture_mysql_scope_c")
+
+    assert calls == [
+        {
+            "host": "localhost",
+            "port": 33306,
+            "user": "sdc_fixture",
+            "password": "sdc_fixture_pw",
+            "charset": "utf8mb4",
+            "connect_timeout": 5,
+            "autocommit": False,
+            "database": "semantic_fixture_mysql_scope_c",
+        }
+    ]
