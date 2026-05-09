@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from semantic_builder.connectors.db import ColumnMetadata, SafeScanConfig, TableMetadata
+from semantic_builder.inference.reverse_questions import generate_reverse_questions
 from semantic_builder.metadata import TEST_ONLY_SYNTHETIC_METADATA_MARKER
 from semantic_builder.scanner import MySQLScanner, PostgresScanner
 
@@ -89,6 +90,34 @@ def test_missing_comments_are_no_comment_gaps_without_scanner_failure() -> None:
     table_reasons = {gap["metadata_gap_reason"] for gap in table["metadata_gaps"]}
     assert "missing_table_comment" in table_reasons
     assert "multiple_candidate_date_columns" in table_reasons
+
+
+def test_missing_mysql_comments_create_no_comment_reverse_question_inputs() -> None:
+    table = _scan_mysql(_CommentConnector(table_comment=None, column_comments={}))
+    assert table["metadata_provenance"][0]["metadata_source"] == "no_comment"
+    assert table["metadata_provenance"][0]["metadata_gap_reason"] == "missing_db_comment"
+
+    status = next(col for col in table["columns"] if col["column_name"] == "status")
+    status_provenance = status["metadata_provenance"][0]
+    assert status_provenance["metadata_source"] == "no_comment"
+    assert status_provenance["metadata_gap_reason"] == "missing_db_comment"
+    assert status_provenance["can_use_for_text2sql"] is False
+    assert {gap["metadata_gap_reason"] for gap in status["metadata_gaps"]} >= {
+        "missing_column_comment",
+        "abstract_column_without_comment",
+    }
+
+    questions = generate_reverse_questions([table])
+    gap_question = next(
+        question
+        for question in questions
+        if question["category"] == "metadata_gap"
+        and question["target"] == "column.orders.status"
+        and question["metadata_gap_reason"] == "abstract_column_without_comment"
+    )
+    assert gap_question["evidence_source"] == "no_comment"
+    assert gap_question["expected_answer_type"] == "value_dictionary"
+    assert gap_question["candidate_options"]
 
 
 def test_synthetic_comments_are_detected_as_test_only() -> None:
