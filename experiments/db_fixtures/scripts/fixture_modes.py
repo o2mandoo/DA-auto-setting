@@ -1,7 +1,8 @@
 """Product-external DB fixture comment mode helpers.
 
 This module is for experiments only. Synthetic comments generated here are
-TEST_ONLY_SYNTHETIC_METADATA and must never be treated as approved product truth.
+fixture-only, carry TEST_ONLY_SYNTHETIC_METADATA, and must never be treated as
+approved product truth.
 """
 
 from __future__ import annotations
@@ -77,8 +78,8 @@ def build_fixture_table_plan(
         table_name=table_name,
         columns=columns,
         mode=comment_mode,
-        table_comment=f"{TEST_ONLY_MARKER}: synthetic fixture comment for {dataset_id}.{table_name}",
-        column_comments={column: f"{TEST_ONLY_MARKER}: synthetic fixture meaning for {table_name}.{column}" for column in columns},
+        table_comment=f"{TEST_ONLY_MARKER}: fixture-only synthetic fixture comment for {dataset_id}.{table_name}",
+        column_comments={column: f"{TEST_ONLY_MARKER}: fixture-only synthetic fixture meaning for {table_name}.{column}" for column in columns},
         is_test_only=True,
     )
 
