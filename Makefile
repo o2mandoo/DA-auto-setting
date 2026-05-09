@@ -1,5 +1,7 @@
 VENV_DIR ?= .venv
 PYTHON ?= $(VENV_DIR)/bin/python
+RELEASE_ID ?= release-$(shell date -u +%Y%m%dT%H%M%SZ)
+RELEASE_OUT ?= reports/release
 LOCAL_PYTHONPATH := packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src
 
 .PHONY: setup test demo env-check clean-runtime release-pack
@@ -25,4 +27,4 @@ clean-runtime:
 	rm -rf runtime/phase12_demo runtime/hardening_feedback
 
 release-pack:
-	$(PYTHON) scripts/release/release_pack.py
+	$(PYTHON) scripts/release/build_release_packet.py --release-id $(RELEASE_ID) --out $(RELEASE_OUT)
