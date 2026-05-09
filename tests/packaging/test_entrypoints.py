@@ -17,10 +17,10 @@ class EntrypointPackagingTests(unittest.TestCase):
         self.assertIn('semantic-mcp = "semantic_mcp.server:main"', mcp)
 
     def test_cli_modules_import_without_side_effects(self) -> None:
-        from semantic_builder.cli import main as builder_main
-        from semantic_builder.eval.cli import main as eval_main
-        from semantic_registry.cli import main as registry_main
-        from semantic_mcp.server import main as mcp_main
+        from semantic_builder.cli import main as builder_main  # type: ignore[import-untyped]
+        from semantic_builder.eval.cli import main as eval_main  # type: ignore[import-untyped]
+        from semantic_registry.cli import main as registry_main  # type: ignore[import-untyped]
+        from semantic_mcp.server import main as mcp_main  # type: ignore[import-untyped]
 
         self.assertTrue(callable(builder_main))
         self.assertTrue(callable(eval_main))
