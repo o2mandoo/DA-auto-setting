@@ -15,7 +15,7 @@
     },
     {
       "parameters": {
-        "content": "Most important demo. Show baseline not_executed, system validation, differences, and failure state. Do not run SQL directly."
+        "content": "Most important demo. Show baseline not_executed, system validation, differences, and failure state. Do not run SQL directly or add database connector nodes."
       },
       "id": "03 Query Runtime Comparison Demo-safety-note",
       "name": "Safety Gate Note",

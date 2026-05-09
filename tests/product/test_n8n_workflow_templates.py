@@ -44,6 +44,22 @@ def test_n8n_templates_call_only_product_api_routes_and_no_credentials() -> None
         assert data["meta"]["semanticDataContext"]["route"] in allowed_routes
 
 
+def test_n8n_templates_do_not_include_direct_sql_connector_nodes() -> None:
+    forbidden_node_types = {
+        "n8n-nodes-base.postgres",
+        "n8n-nodes-base.mysql",
+        "n8n-nodes-base.mssql",
+        "n8n-nodes-base.sqlite",
+        "n8n-nodes-base.mariadb",
+        "n8n-nodes-base.oracledb",
+        "n8n-nodes-base.snowflake",
+    }
+    for path in Path("n8n/workflows").glob("*.json"):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        node_types = {node.get("type") for node in data.get("nodes", [])}
+        assert node_types.isdisjoint(forbidden_node_types)
+
+
 def test_n8n_readme_documents_safety_boundary() -> None:
     text = Path("n8n/README.md").read_text(encoding="utf-8")
     assert "no credentials" in text
