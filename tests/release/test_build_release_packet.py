@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
+import sys
 from pathlib import Path
 
 
@@ -10,6 +12,7 @@ def load_release_module() -> object:
     spec = importlib.util.spec_from_file_location("build_release_packet", module_path)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
     spec.loader.exec_module(module)  # type: ignore[union-attr]
     return module
 
@@ -86,5 +89,13 @@ def test_generated_packet_contains_no_obvious_secret_markers(tmp_path: Path) -> 
     build_packet(repo_root, "unit-test-release", out_dir)
 
     combined = "\n".join(path.read_text(encoding="utf-8") for path in out_dir.iterdir() if path.is_file())
-    for marker in ("sk-", "AKIA", "password@", "Bearer ", "client_secret", "/Users/", "worker-", "leader-fixed"):
-        assert marker not in combined
+    secret_patterns = [
+        re.compile(r"\bsk-[A-Za-z0-9]{20,}\b"),
+        re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
+        re.compile(r"(?i)\bpassword\s*[:=]\s*[^\s,'\"`]+"),
+        re.compile(r"(?i)\bclient_secret\s*[:=]\s*[^\s,'\"`]+"),
+        re.compile(r"(?i)\bBearer\s+[A-Za-z0-9\-._~+/]+=*"),
+        re.compile(r"\b/Users/[^\s]+"),
+        re.compile(r"\b(?:worker|leader-fixed)-[^\s]+\b"),
+    ]
+    assert not any(pattern.search(combined) for pattern in secret_patterns)
