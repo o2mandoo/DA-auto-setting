@@ -135,3 +135,44 @@ This recheck makes the explicit no-silent-fallback boundary visible in both test
 - Live Weaviate remains optional unless `SEMANTIC_WEAVIATE_*` is configured; fake backend coverage proves mode/filter forwarding but not live recall quality.
 - Domain-specific synonym coverage is currently pack-driven. Other domains will need generated or confirmed pack aliases/terms before retrieval can behave as richly as the demo revenue pack.
 - The 20-dataset DB fixture metadata is intentionally synthetic and test-only; it validates environment readiness, not semantic truth quality.
+
+## 2026-05-09 final coverage update
+
+Final semantic-gold coverage for the Sinagong benchmark pack is now explicit in the regression suite:
+
+- 20 business terms
+- 20 metrics
+- 20 ambiguity rules
+- 20 reverse questions
+- manifest references 20 `.xlsx` source files plus 1 YAML benchmark-only support pack
+
+Final verification run set:
+
+```bash
+PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src /Users/jtm427/Desktop/workplace/data/semantic-data-context/.venv/bin/python -m pytest -q tests/eval/test_dataset_manifests.py
+# 5 passed
+
+PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src /Users/jtm427/Desktop/workplace/data/semantic-data-context/.venv/bin/python -m pytest -q tests/eval/test_file_corpus_benchmarks.py
+# 6 passed in 40.61s
+
+PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src /Users/jtm427/Desktop/workplace/data/semantic-data-context/.venv/bin/python -m pytest -q tests/mcp/test_tools.py
+# 6 passed in 0.81s
+
+PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src /Users/jtm427/Desktop/workplace/data/semantic-data-context/.venv/bin/python -m pytest -q tests/mcp/test_search_context.py tests/eval/test_eval_runner.py
+# 24 passed, 1 skipped in 10.52s
+
+PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src /Users/jtm427/Desktop/workplace/data/semantic-data-context/.venv/bin/python -m pytest -q tests/mcp/test_search_context.py tests/registry/test_vdb_backend.py
+# 22 passed, 1 skipped in 0.95s
+```
+
+No-silent-fallback status remains unchanged:
+
+- `query_understanding` is still returned for semantic-gold retrieval cases.
+- Explicit Weaviate failure remains explicit and does not silently downgrade to keyword search.
+- Unknown or low-confidence domain phrases continue to surface warnings instead of fabricated hits.
+
+Remaining risk summary:
+
+- live Weaviate recall quality still depends on optional external configuration
+- other domains remain pack-driven and need their own verified alias/term/metric coverage
+- fixture metadata is test-only synthetic data and not approved product truth
