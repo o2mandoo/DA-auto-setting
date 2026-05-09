@@ -246,6 +246,95 @@ class SemanticInferencePipelineTests(unittest.TestCase):
                         ]
                     )
 
+    def test_local_provider_missing_endpoint_or_model_errors_explicitly(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            profiles = tmp / "column_profiles.jsonl"
+            profiles.write_text(
+                json.dumps(
+                    {
+                        "table_name": "orders",
+                        "row_count": 1,
+                        "columns": [],
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            hypotheses = tmp / "semantic_hypotheses.jsonl"
+            questions = tmp / "onboarding_questions.jsonl"
+
+            with self.assertRaisesRegex(ValueError, "requires an endpoint"):
+                builder_main(
+                    [
+                        "infer-semantics",
+                        "--profiles",
+                        str(profiles),
+                        "--hypotheses-out",
+                        str(hypotheses),
+                        "--questions-out",
+                        str(questions),
+                        "--provider",
+                        "local",
+                        "--local-enabled",
+                        "--local-model",
+                        "local-test",
+                    ]
+                )
+
+    def test_local_provider_invalid_response_is_explicit_failure_without_mock_fallback(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            profiles = tmp / "column_profiles.jsonl"
+            hypotheses = tmp / "semantic_hypotheses.jsonl"
+            questions = tmp / "onboarding_questions.jsonl"
+            profiles.write_text(
+                json.dumps(
+                    {
+                        "table_name": "orders",
+                        "row_count": 1,
+                        "columns": [
+                            {
+                                "name": "order_id",
+                                "type_guess": "string",
+                                "null_ratio": 0.0,
+                                "cardinality_estimate": 1,
+                                "join_key_candidate": True,
+                                "pii": {"is_pii": False, "categories": []},
+                            }
+                        ],
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            with patch("semantic_builder.cli.LocalSemanticInferenceProvider") as mock_provider:
+                mock_provider.return_value.infer.return_value = {"hypotheses": "not-a-list", "onboarding_questions": []}
+                with self.assertRaisesRegex(ValueError, "explicit semantic inference provider .* failed"):
+                    builder_main(
+                        [
+                            "infer-semantics",
+                            "--profiles",
+                            str(profiles),
+                            "--hypotheses-out",
+                            str(hypotheses),
+                            "--questions-out",
+                            str(questions),
+                            "--provider",
+                            "local",
+                            "--local-enabled",
+                            "--local-model",
+                            "local-test",
+                            "--local-endpoint",
+                            "http://127.0.0.1:11434",
+                        ]
+                    )
+                mock_provider.assert_called_once()
+                self.assertFalse(hypotheses.exists(), "explicit local failure must not write fallback mock output")
+
     def test_cli_honors_explicit_provider_selection_flags_and_env(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)

@@ -231,7 +231,12 @@ def _infer_semantics(
         local_model=local_model,
         local_endpoint=local_endpoint,
     )
-    result = generate_semantic_inference(load_inference_profile_jsonl(profiles), provider=provider)
+    try:
+        result = generate_semantic_inference(load_inference_profile_jsonl(profiles), provider=provider)
+    except Exception as exc:
+        if provider is not None:
+            raise ValueError(f"explicit semantic inference provider {provider_name} failed: {exc}") from exc
+        raise
     write_jsonl(result["hypotheses"], hypotheses_out)
     write_jsonl(result["onboarding_questions"], questions_out)
     return 0
@@ -252,6 +257,8 @@ def _select_inference_provider(
         model_key = "provider" if "provider" in LocalProviderConfig.__annotations__ else "model"
         if local_model is not None:
             config_kwargs[model_key] = local_model
+            if "model" in LocalProviderConfig.__annotations__:
+                config_kwargs["model"] = local_model
         config = LocalProviderConfig(**config_kwargs)
         return LocalSemanticInferenceProvider(config)
     raise ValueError(f"Unsupported inference provider: {provider_name}")

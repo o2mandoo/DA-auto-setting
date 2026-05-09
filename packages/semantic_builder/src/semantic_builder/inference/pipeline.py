@@ -48,6 +48,7 @@ class LocalProviderConfig:
 
     enabled: bool = False
     provider: str | None = None
+    model: str | None = None
     endpoint: str | None = None
     api_key: str | None = None
     timeout_s: float = 30.0
@@ -73,10 +74,19 @@ class LocalSemanticInferenceProvider:
         self._client = client
         if not self.config.enabled:
             raise ValueError("local semantic inference provider requires explicit enabled=True config")
-        if not str(self.config.model or "").strip():
+        resolved_model = str(self.config.model or self.config.provider or "").strip()
+        if not resolved_model:
             raise ValueError("local semantic inference provider requires a model")
         if not str(self.config.endpoint or "").strip():
             raise ValueError("local semantic inference provider requires an endpoint")
+        self.config = LocalProviderConfig(
+            enabled=self.config.enabled,
+            provider=self.config.provider,
+            model=resolved_model,
+            endpoint=self.config.endpoint,
+            api_key=self.config.api_key,
+            timeout_s=self.config.timeout_s,
+        )
 
     def infer(self, profile_records: Sequence[ProfileRecord]) -> dict[str, list[JsonObject]]:
         payload = self._build_request_payload(profile_records)

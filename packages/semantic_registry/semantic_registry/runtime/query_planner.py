@@ -41,12 +41,36 @@ class DomainQueryPlanner:
 
     def plan(self, question: str, role: str | None = None) -> QueryPlan:
         registry_plan = self._registry_planner.plan(question, role=role)
-        selected_verified_query = _select_verified_query(self.packs, question, registry_plan.required_terms, registry_plan.required_metrics)
+        required_metrics = list(registry_plan.required_metrics)
+        candidate_tables = list(registry_plan.candidate_tables)
+        filters = list(registry_plan.filters)
+        if not required_metrics and _looks_generic_revenue_question(question):
+            revenue_metrics = _revenue_metrics(self.packs)
+            required_metrics = [metric.id for metric in revenue_metrics]
+            candidate_tables = _unique(
+                [
+                    *candidate_tables,
+                    *(table for metric in revenue_metrics for table in metric.required_tables),
+                ]
+            )
+            filters = _unique(
+                [
+                    *filters,
+                    *(flt for metric in revenue_metrics for flt in metric.default_filters),
+                ]
+            )
+
+        selected_verified_query = _select_verified_query(
+            self.packs,
+            question,
+            registry_plan.required_terms,
+            required_metrics,
+        )
         used_cards = _unique(
             [
                 *registry_plan.required_terms,
-                *registry_plan.required_metrics,
-                *registry_plan.candidate_tables,
+                *required_metrics,
+                *candidate_tables,
                 *registry_plan.join_recipes,
                 *( [selected_verified_query.id] if selected_verified_query is not None else [] ),
             ]
@@ -60,10 +84,10 @@ class DomainQueryPlanner:
             confidence = 0.9
         return QueryPlan(
             required_terms=list(registry_plan.required_terms),
-            required_metrics=list(registry_plan.required_metrics),
-            candidate_tables=list(registry_plan.candidate_tables),
+            required_metrics=required_metrics,
+            candidate_tables=candidate_tables,
             join_recipes=list(registry_plan.join_recipes),
-            filters=list(registry_plan.filters),
+            filters=filters,
             group_by=[],
             selected_verified_query=selected_verified_query.id if selected_verified_query is not None else None,
             used_cards=used_cards,
@@ -138,10 +162,17 @@ def _select_verified_query(
     required_metrics: Iterable[str],
 ) -> Any | None:
     normalized_question = _normalize(question)
+    term_set = set(required_terms)
+    metric_set = set(required_metrics)
     for pack in packs:
         for verified_query in pack.verified_queries:
             if _normalize(verified_query.question) == normalized_question:
                 return verified_query
+    if _has_verified_query_scope(question):
+        for pack in packs:
+            for verified_query in pack.verified_queries:
+                if term_set.issuperset(verified_query.related_terms) and metric_set.issuperset(verified_query.related_metrics):
+                    return verified_query
     return None
 
 
@@ -155,6 +186,26 @@ def _find_verified_query(packs: Iterable[SemanticPack], query_id: str) -> Any | 
 
 def _normalize(value: str) -> str:
     return re.sub(r"\s+", " ", value.casefold()).strip()
+
+
+def _looks_generic_revenue_question(question: str) -> bool:
+    normalized = _normalize(question)
+    return ("매출" in normalized or "revenue" in normalized) and "순매출" not in normalized and "총매출" not in normalized
+
+
+def _revenue_metrics(packs: Iterable[SemanticPack]) -> list[Any]:
+    metrics: list[Any] = []
+    for pack in packs:
+        for metric in pack.metrics:
+            text = _normalize(" ".join(str(getattr(metric, attr, "")) for attr in ("id", "name", "label", "description")))
+            if "revenue" in text or "매출" in text:
+                metrics.append(metric)
+    return metrics
+
+
+def _has_verified_query_scope(question: str) -> bool:
+    normalized = _normalize(question)
+    return any(token in normalized for token in ("월별", "월간", "지난달", "monthly", "month"))
 
 
 def _unique(values: Iterable[Any]) -> list[Any]:
