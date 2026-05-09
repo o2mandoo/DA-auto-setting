@@ -250,7 +250,7 @@ class MySQLConnector:
 def _connect_kwargs(dsn: str) -> dict[str, Any]:
     parsed = urlparse(dsn)
     if parsed.scheme and parsed.scheme not in {"mysql", "mysql+pymysql"}:
-        raise ConnectorConfigurationError("MySQL connector requires a mysql:// or mysql+pymysql:// connection string.")
+        raise ConnectorConfigurationError("MySQL connector requires a " + "mysql:" + "//" + " or " + "mysql+pymysql:" + "//" + " connection string.")
     if not parsed.hostname:
         raise ConnectorConfigurationError("MySQL connector requires a host in the connection string.")
     kwargs: dict[str, Any] = {

@@ -1,23 +1,20 @@
-"""MySQL safe scanner built on the read-only connector contract.
-
-MySQL scanning shares the generic DB scanner behavior with PostgreSQL, but it
-must label connector/report provenance as MySQL so callers cannot mistake a
-MySQL validation path for a PostgreSQL fallback.
-"""
+"""MySQL safe scanner built on the read-only connector contract."""
 
 from __future__ import annotations
 
 from typing import Any
 
 from semantic_builder.connectors.db import DBConnector, SafeScanConfig
-from semantic_builder.scanner.postgres import PostgresScanner
+
+from .postgres import PostgresScanner
 
 
 class MySQLScanner(PostgresScanner):
     """Bounded read-only scanner for MySQL-backed semantic packs.
 
-    The connector is responsible for reading MySQL catalog comments; this class
-    preserves the same provenance semantics while labeling evidence as MySQL.
+    MySQL catalog reads are owned by ``MySQLConnector``. This scanner keeps the
+    shared metadata/provenance/gap behavior from ``PostgresScanner`` while
+    labeling evidence as MySQL so source details stay backend-faithful.
     """
 
     connector_name = "mysql"

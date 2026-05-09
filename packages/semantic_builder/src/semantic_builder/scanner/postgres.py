@@ -105,24 +105,7 @@ class PostgresScanner:
         return attach_metadata_gaps({"table_name": table.table_name, "columns": [profile]})["columns"][0]
 
 
-class MySQLScanner(PostgresScanner):
-    """Bounded read-only scanner for MySQL-backed semantic packs.
-
-    The connector is responsible for reading MySQL catalog comments; this class
-    preserves the same provenance semantics while labeling evidence as MySQL.
-    """
-
-    connector_name = "mysql"
-    source_detail_prefix = "mysql"
-
-
 def scan_postgres_database(connector: DBConnector, *, config: SafeScanConfig | None = None) -> dict[str, Any]:
     """Convenience wrapper for callers that prefer a functional API."""
 
     return PostgresScanner(connector=connector, config=config).scan()
-
-
-def scan_mysql_database(connector: DBConnector, *, config: SafeScanConfig | None = None) -> dict[str, Any]:
-    """Convenience wrapper for MySQL connectors that implement DBConnector."""
-
-    return MySQLScanner(connector=connector, config=config).scan()
