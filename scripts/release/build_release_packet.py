@@ -116,6 +116,46 @@ METADATA_PROVENANCE_RULES: tuple[dict[str, object], ...] = (
     },
 )
 
+KNOWN_LIMITATIONS: tuple[dict[str, str], ...] = (
+    {
+        "limitation": "Release status is dry-run/local validation, not production ready.",
+        "impact": "Production promotion still requires CI logs, release approval, and signed candidate evidence.",
+        "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
+        "status": "open",
+    },
+    {
+        "limitation": "Production SQL execution is forbidden.",
+        "impact": "No production execute_query route, MCP tool, n8n node, or handler is included in v1 scope.",
+        "evidence": "docs/product/PRODUCTION_MODE_ADR.md",
+        "status": "contract_boundary",
+    },
+    {
+        "limitation": "Live external services are optional and evidence-gated.",
+        "impact": "Missing live DB/VDB/n8n/CI runs remain visible gaps or skips instead of pass claims.",
+        "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
+        "status": "evidence_gated",
+    },
+    {
+        "limitation": "Oracle is unsupported.",
+        "impact": "Unsupported backends must fail explicitly and must not be represented by fake fixture success.",
+        "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
+        "status": "unsupported",
+    },
+    {
+        "limitation": "Synthetic comments are fixture-only.",
+        "impact": "Generated comments may support lab/debug comparisons but cannot become approved product truth automatically.",
+        "evidence": "docs/product/METADATA_PROVENANCE_RULES.md",
+        "status": "contract_boundary",
+    },
+    {
+        "limitation": "n8n remains demo orchestration only.",
+        "impact": "n8n must call product APIs, display backend/comment warnings, and avoid duplicating Semantic Pack logic.",
+        "evidence": "reports/productization/pr6_n8n_live_runtime_smoke.md",
+        "status": "demo_only",
+    },
+)
+
+
 SUPPORT_LEVELS: tuple[dict[str, str], ...] = (
     {
         "surface": "Semantic Pack contracts",
@@ -421,6 +461,21 @@ def build_test_evidence() -> str:
 
 
 
+def build_structured_known_limitations() -> str:
+    lines = [
+        "## Structured known limitations",
+        "",
+        "| Limitation | Impact | Evidence | Status |",
+        "|---|---|---|---|",
+    ]
+    for item in KNOWN_LIMITATIONS:
+        lines.append(
+            "| {limitation} | {impact} | {evidence} | `{status}` |".format(**item)
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
 def build_structured_support_matrix() -> str:
     lines = [
         "## Structured support levels",
@@ -605,6 +660,7 @@ def build_manifest(
         "evidence_coverage_summary": coverage_counts,
         "metadata_provenance_rules": list(METADATA_PROVENANCE_RULES),
         "support_levels": list(SUPPORT_LEVELS),
+        "known_limitations": list(KNOWN_LIMITATIONS),
         "test_status": {
             "status": "not_run_by_packer",
             "release_test_command": "make release-test",
@@ -653,6 +709,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
     known_limitations_source = "\n".join(
         section
         for section in (
+            build_structured_known_limitations(),
             extract_markdown_section(final_report, "Known limitations"),
             extract_markdown_section(validation_text, "Current known limitations"),
         )
