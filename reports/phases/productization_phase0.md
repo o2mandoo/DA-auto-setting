@@ -64,7 +64,7 @@ Task 18 remains `failed` in the OMX team state because a worker hit a lifecycle 
 - `594b57b` / `f0f4acd` — registry runtime compatibility layer.
 - `2331661` — leader reconciliation for provider/runtime regression tests.
 - `5294139` — runtime ambiguity/MCP verifier full-suite fix after `make test` surfaced 3 failures.
-- pending current commit — post-shutdown provider/env-template reconciliation after worker merge.
+- `58b2f3e` — post-shutdown provider/env-template reconciliation after worker merge.
 
 ## Verification
 
