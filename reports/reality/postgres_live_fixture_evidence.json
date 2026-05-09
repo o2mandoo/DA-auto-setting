@@ -1,0 +1,39 @@
+{
+  "backend": "postgres",
+  "fixture_only": true,
+  "fallback_used": false,
+  "fallback_backend": null,
+  "dsn_configured": false,
+  "status": {
+    "backend": "postgres",
+    "status": "pending",
+    "attempted": false,
+    "safe": false,
+    "reasons": [
+      "SEMANTIC_CONTEXT_POSTGRES_FIXTURE_DSN is not set; no fallback backend was used"
+    ],
+    "executed_statement_count": 0,
+    "row_count": 0,
+    "plan_checksum": null
+  },
+  "sql_plan": {
+    "schema_name": "semantic_fixture_postgres_scope_c",
+    "table_name": "orders",
+    "statements": [
+      "CREATE SCHEMA IF NOT EXISTS \"semantic_fixture_postgres_scope_c\";",
+      "DROP TABLE IF EXISTS \"semantic_fixture_postgres_scope_c\".\"orders\";",
+      "CREATE TABLE \"semantic_fixture_postgres_scope_c\".\"orders\" (\"status\" TEXT, \"amount\" TEXT, \"order_date\" TEXT);",
+      "COMMENT ON TABLE \"semantic_fixture_postgres_scope_c\".\"orders\" IS 'Fixture-only order table for PostgreSQL scope C validation';",
+      "COMMENT ON COLUMN \"semantic_fixture_postgres_scope_c\".\"orders\".\"amount\" IS 'Order amount represented as fixture text';",
+      "COMMENT ON COLUMN \"semantic_fixture_postgres_scope_c\".\"orders\".\"order_date\" IS 'Order date represented as fixture text';",
+      "COMMENT ON COLUMN \"semantic_fixture_postgres_scope_c\".\"orders\".\"status\" IS 'Order lifecycle status';",
+      "INSERT INTO \"semantic_fixture_postgres_scope_c\".\"orders\" (\"status\", \"amount\", \"order_date\") VALUES ('PAID', '100.00', '2026-01-01');",
+      "INSERT INTO \"semantic_fixture_postgres_scope_c\".\"orders\" (\"status\", \"amount\", \"order_date\") VALUES ('REFUNDED', '20.00', '2026-01-02');"
+    ],
+    "row_count": 2,
+    "checksum": "0a96cada577b449c",
+    "mode": "real_comments",
+    "backend": "postgres"
+  },
+  "generated_at": "2026-05-09T11:39:47.250439+00:00"
+}
