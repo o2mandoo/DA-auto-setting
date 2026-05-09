@@ -22,10 +22,30 @@ Related contracts:
 - `docs/execution/RETRIEVAL_LAYER.md`
 - `docs/setup/README.md`
 
+## Drivers
+
+- Make the v1 production target clone-ready and verifiable from a fresh local
+  checkout.
+- Preserve the current validation-first architecture: Semantic Pack source of
+  truth, MCP tool surface, planner/guard checks, and local/demo preview only.
+- Keep the product safe for demos without implying production DB execution,
+  dashboard/BI ownership, SaaS operations, or production credential handling.
+- Require visible evidence for missing capabilities; no silent fallback is
+  allowed after a concrete backend, provider, workflow step, or adapter is
+  selected.
+- Leave room for a thin local HTTP adapter so n8n or UI prototypes can call the
+  same contracts without moving business rules out of the repo.
+
 ## Decision
 
 Production mode is a stricter operating boundary over the existing product
 modes, not a new SQL execution engine or dashboard product.
+
+Chosen v1 target: clone-ready package + MCP + optional local HTTP adapter.
+The package remains the source of product behavior, MCP remains the agent-facing
+interface, and any HTTP adapter is a thin transport layer with
+health/readiness/OpenAPI/error/correlation-ID behavior only. The adapter must
+not add `execute_query`, BI/SaaS behavior, or hidden fallback behavior.
 
 The system remains validation-first:
 
@@ -39,11 +59,39 @@ The system remains validation-first:
 5. Every selected backend/provider must either run as selected or fail with an
    explicit component-level error.
 
+## Alternatives considered
+
+| Alternative | Decision | Reason |
+|---|---|---|
+| MCP-only, no HTTP adapter | Rejected for v1 target | Too narrow for clone-ready demos that need n8n or simple HTTP orchestration, even though MCP remains the core interface. |
+| Full SaaS/BI/runtime SQL product | Rejected | Conflicts with current non-goals: no BI/SaaS, no production SQL execution, no production auth/billing/tenant operations. |
+| Docker-first production app | Rejected as the primary target | Useful later, but it would hide clone-readiness and local package correctness behind container packaging before the contracts are stable. |
+| Live DB/VDB mandatory evidence | Rejected as a hard requirement | PostgreSQL/MySQL/Weaviate evidence can be explicit and optional; production readiness must not be faked when live services are unavailable. |
+| Clone-ready package + MCP + optional local HTTP adapter | Chosen | Preserves current safety contracts while giving demos and workflow tools a realistic integration surface. |
+
+## Why chosen
+
+The chosen target keeps the smallest production-like surface that can be
+verified today. It supports local clone readiness, MCP-based agent workflows,
+and optional HTTP orchestration without turning this repository into a BI/SaaS
+platform or a production database execution runtime.
+
+This also keeps ownership clear:
+
+- Packages own contracts, planning, validation, registry state, builder outputs,
+  retrieval seams, and evidence generation.
+- MCP exposes those contracts to agents and tools.
+- The optional local HTTP adapter can expose the same contracts to n8n or demos
+  without changing the business logic.
+- Missing production-grade capabilities remain explicit follow-ups, not hidden
+  behavior.
+
 ## Production-mode invariants
 
 Any deployment-like use of this repo must preserve these invariants:
 
-- No production SQL execution route exists.
+- No production SQL execution route exists, including no production
+  `execute_query` function, API route, or MCP tool.
 - `preview_query` remains local/demo-only, validation-gated, row-limited, and
   audited; it is not a general production query runner.
 - SQL validation is SELECT-only and blocks multi-statement SQL, unknown or
@@ -53,11 +101,12 @@ Any deployment-like use of this repo must preserve these invariants:
   summaries.
 - Approved packs are immutable through feedback/confirmation flows; promotion
   must be explicit, validated, versioned, and auditable.
-- Explicit Weaviate/VDB selection must not silently fall back to keyword search.
+- Explicit Weaviate/VDB selection must not silently fall back to keyword search;
+  no silent fallback is allowed after any explicit backend/provider selection.
 - Production credentials must not be stored in this repo, docs examples,
   workflow JSON, tests, or runtime artifacts.
-- Dashboard UI, SaaS multi-tenancy, billing, seats, and production auth are
-  outside this repository's current product scope.
+- Dashboard UI, BI/SaaS ownership, SaaS multi-tenancy, billing, seats, and
+  production auth are outside this repository's current product scope.
 
 ## Production-mode gate
 
@@ -106,6 +155,36 @@ leader/product approval.
 - Future deployment work can add adapters around these contracts, but cannot
   weaken the no-execution, no-PII, no-silent-fallback, and approved-pack
   immutability rules without superseding this ADR.
+
+## Support levels
+
+| Surface | v1 support level | Boundary |
+|---|---|---|
+| Clone-ready package install/import | Required | Must work from a clean local checkout without production credentials. |
+| Semantic Pack validation/registry/planner/guard | Required | Source-of-truth and validation-first behavior must remain in packages. |
+| MCP server/tools | Required | Tooling surface remains validation/planning/preview-only; no production `execute_query`. |
+| Optional local HTTP adapter | Supported target | Thin transport over package contracts; no independent product logic, no BI/SaaS, no SQL execution. |
+| Weaviate/VDB | Optional explicit backend | If selected and unavailable, return explicit configuration/backend errors; no silent fallback. |
+| PostgreSQL/MySQL evidence | Fixture/demo/read-only validation only | Missing live evidence must be reported as pending/unavailable, not treated as production readiness. |
+| Oracle connector | Unsupported for v1 | Requires separate scope, evidence, and safety review. |
+| Dashboard, SaaS, auth, billing, observability, release ops | Out of scope | Requires separate ADRs and production threat model. |
+
+## Follow-ups
+
+- PR-1: prove clean-venv clone readiness without relying on
+  `/tmp/semantic-data-context-deps`.
+- PR-2: add the optional local HTTP adapter with `/healthz`, `/readyz`, OpenAPI,
+  typed errors, correlation IDs, and no `execute_query`.
+- PR-3: keep product/evidence docs synchronized with the ADR support levels.
+- PR-4: make DB evidence explicit: PostgreSQL remains metadata/profile/demo
+  validation, and MySQL remains fixture/demo until live read-only evidence
+  exists.
+- PR-5: keep Weaviate evidence optional and explicit; backend failures must not
+  become keyword fallback success.
+- PR-6: add production-style observability/release/security planning only after
+  the no-BI/SaaS and no-production-execution boundary is preserved.
+- PR-7: re-run productization verification across ADR, readiness matrix, risk
+  register, and test evidence before claiming any broader readiness.
 
 ## Verification expectations
 
