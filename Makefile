@@ -2,7 +2,7 @@ VENV_DIR ?= .venv
 PYTHON ?= $(VENV_DIR)/bin/python
 LOCAL_PYTHONPATH := packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src
 
-.PHONY: setup test demo env-check clean-runtime
+.PHONY: setup test demo env-check clean-runtime release-pack
 
 setup:
 	python3 -m venv $(VENV_DIR)
@@ -23,3 +23,6 @@ env-check:
 
 clean-runtime:
 	rm -rf runtime/phase12_demo runtime/hardening_feedback
+
+release-pack:
+	$(PYTHON) scripts/release/release_pack.py
