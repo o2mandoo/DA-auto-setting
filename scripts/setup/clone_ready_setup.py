@@ -31,7 +31,7 @@ def main() -> int:
     print("  cp .env.example .env")
     print(
         "  export PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:"
-        "packages/semantic_registry:packages/semantic_mcp/src:/tmp/semantic-data-context-deps"
+        "packages/semantic_registry:packages/semantic_mcp/src"
     )
     print("  python3 scripts/demo/run_local_demo.py")
     print("  python3 -m unittest tests.builder.test_semantic_inference_pipeline -v")

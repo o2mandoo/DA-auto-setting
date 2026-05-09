@@ -60,7 +60,7 @@ SDC_LLM_TEMPERATURE=0.2
 ## 4) Run the local demo
 
 ```bash
-PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src:/tmp/semantic-data-context-deps \
+PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src \
 python3 scripts/demo/run_local_demo.py
 ```
 
@@ -68,7 +68,7 @@ python3 scripts/demo/run_local_demo.py
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 \
-PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src:/tmp/semantic-data-context-deps \
+PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src \
 python3 -m unittest discover -s tests -v
 ```
 
