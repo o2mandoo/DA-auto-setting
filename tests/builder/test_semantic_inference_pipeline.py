@@ -392,6 +392,58 @@ class SemanticInferencePipelineTests(unittest.TestCase):
         config = load_inference_provider_config({"SDC_LLM_BASE_URL": "http://localhost:11434"})
         self.assertEqual("http://localhost:11434", config.base_url)
 
+    def test_local_provider_build_request_sanitizes_profile_records_and_requests_json(self) -> None:
+        provider = LocalSemanticInferenceProvider(
+            LocalProviderConfig(enabled=True, provider="local-http", model="qwen2.5:7b", endpoint="http://localhost:11434/v1")
+        )
+        request = provider.build_request(
+            [
+                {
+                    "table_name": "users",
+                    "source_ref": {"type": "postgresql", "name": "warehouse.public.users"},
+                    "columns": [
+                        {
+                            "name": "email",
+                            "type_guess": "string",
+                            "pii": {"is_pii": True, "categories": ["email"]},
+                            "top_values": [{"value": "ada@example.com", "count": 1}],
+                            "numeric_min": 1,
+                            "numeric_max": 2,
+                        }
+                    ],
+                }
+            ]
+        )
+
+        self.assertEqual({"type": "json_object"}, request["response_format"])
+        self.assertIn("strict JSON", request["instructions"])
+        self.assertEqual("local-http", request["provider"])
+        self.assertEqual("qwen2.5:7b", request["model"])
+        self.assertNotIn("ada@example.com", json.dumps(request, ensure_ascii=False))
+        self.assertEqual([], request["profile_records"][0]["columns"][0]["top_values"])
+        self.assertNotIn("numeric_min", request["profile_records"][0]["columns"][0])
+        self.assertNotIn("numeric_max", request["profile_records"][0]["columns"][0])
+
+    def test_local_provider_parse_response_requires_json_object_with_expected_keys(self) -> None:
+        provider = LocalSemanticInferenceProvider(LocalProviderConfig(enabled=True))
+
+        parsed = provider.parse_response(
+            json.dumps(
+                {
+                    "hypotheses": [{"id": "hyp.table.users", "status": "draft"}],
+                    "onboarding_questions": [{"id": "question.users.email", "status": "open"}],
+                }
+            )
+        )
+
+        self.assertEqual(["hyp.table.users"], [item["id"] for item in parsed["hypotheses"]])
+        self.assertEqual(["question.users.email"], [item["id"] for item in parsed["onboarding_questions"]])
+
+        with self.assertRaisesRegex(ValueError, "valid JSON"):
+            provider.parse_response("{not-json")
+        with self.assertRaisesRegex(ValueError, "must contain hypotheses and onboarding_questions arrays"):
+            provider.parse_response({"hypotheses": {}, "onboarding_questions": []})
+
 
 if __name__ == "__main__":
     unittest.main()

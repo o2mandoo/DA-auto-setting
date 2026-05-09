@@ -150,6 +150,45 @@ class LocalSemanticInferenceProvider:
             raise ValueError("local semantic inference provider response must contain list values")
         return {"hypotheses": hypotheses, "onboarding_questions": questions}
 
+    def build_request(self, profile_records: Sequence[ProfileRecord]) -> JsonObject:
+        """Build a strict-JSON provider request from sanitized records."""
+
+        return {
+            "provider": self.config.provider or self.name,
+            "model": self.config.model,
+            "endpoint": self.config.endpoint,
+            "base_url": self.config.base_url,
+            "api_key": self.config.api_key,
+            "timeout": self.config.timeout,
+            "max_tokens": self.config.max_tokens,
+            "temperature": self.config.temperature,
+            "response_format": {"type": "json_object"},
+            "instructions": (
+                "Return strict JSON with only 'hypotheses' and 'onboarding_questions' keys. "
+                "Do not emit markdown, prose, or extra keys."
+            ),
+            "profile_records": [_sanitize_profile_record(record) for record in profile_records],
+        }
+
+    def parse_response(self, payload: Any) -> dict[str, list[JsonObject]]:
+        """Parse strict JSON provider output into the inference artifact shape."""
+
+        if isinstance(payload, str):
+            try:
+                payload = json.loads(payload)
+            except json.JSONDecodeError as exc:
+                raise ValueError("provider response must be valid JSON") from exc
+        if not isinstance(payload, Mapping):
+            raise ValueError("provider response must be a JSON object")
+        hypotheses = payload.get("hypotheses", [])
+        questions = payload.get("onboarding_questions", [])
+        if not isinstance(hypotheses, list) or not isinstance(questions, list):
+            raise ValueError("provider response must contain hypotheses and onboarding_questions arrays")
+        return {
+            "hypotheses": _dedupe_by_id([item for item in hypotheses if isinstance(item, Mapping)]),
+            "onboarding_questions": _dedupe_by_id([item for item in questions if isinstance(item, Mapping)]),
+        }
+
 
 class DeterministicMockInferenceProvider:
     """Deterministic provider used by tests and offline CLI runs.
