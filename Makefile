@@ -1,5 +1,5 @@
 PYTHON ?= python3
-PYTHONPATH := packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src:/tmp/semantic-data-context-deps
+PYTHONPATH := packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src
 export PYTHONPATH
 
 .PHONY: setup test demo env-check clean-runtime
