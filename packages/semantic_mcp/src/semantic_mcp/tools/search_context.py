@@ -191,10 +191,28 @@ def _run_backend(
             raise SearchBackendConfigurationError(
                 "weaviate backend selected, but backend_config is required; no keyword fallback was used"
             )
-        backend = backend_cls(**_weaviate_backend_init_kwargs(backend_cls, backend_config))
-        if hasattr(backend, "index_pack"):
-            for pack in packs:
-                backend.index_pack(pack)
+        try:
+            from semantic_registry.retrieval import WeaviateUnavailableError
+        except ModuleNotFoundError as exc:  # pragma: no cover - guarded by _optional_weaviate_backend.
+            raise SearchBackendConfigurationError(
+                "weaviate backend selected, but semantic_registry.retrieval is unavailable; no keyword fallback was used"
+            ) from exc
+
+        try:
+            backend = backend_cls(**_weaviate_backend_init_kwargs(backend_cls, backend_config))
+            if hasattr(backend, "index_pack"):
+                for pack in packs:
+                    backend.index_pack(pack)
+                return _invoke_search(
+                    backend,
+                    query=query,
+                    card_types=card_types,
+                    limit=limit,
+                    filters=filters,
+                    query_mode=query_mode,
+                    query_vector=query_vector,
+                ), []
+            backend.index_documents(_search_documents_from_packs(packs))
             return _invoke_search(
                 backend,
                 query=query,
@@ -204,16 +222,8 @@ def _run_backend(
                 query_mode=query_mode,
                 query_vector=query_vector,
             ), []
-        backend.index_documents(_search_documents_from_packs(packs))
-        return _invoke_search(
-            backend,
-            query=query,
-            card_types=card_types,
-            limit=limit,
-            filters=filters,
-            query_mode=query_mode,
-            query_vector=query_vector,
-        ), []
+        except WeaviateUnavailableError as exc:
+            raise SearchBackendConfigurationError(str(exc)) from exc
 
     raise SearchBackendConfigurationError(f"Unsupported search backend: {selected_backend}")
 
