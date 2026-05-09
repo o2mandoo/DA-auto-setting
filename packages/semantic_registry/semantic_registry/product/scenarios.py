@@ -6,7 +6,7 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 from semantic_registry.product.api import FAILURE_STATES, post_product_answer
 
