@@ -10,6 +10,16 @@ Verifier report for the PR-3 safe runtime lane. This refresh uses the
 canonical leader/main checkout at `/Users/jtm427/Desktop/workplace/data/semantic-data-context`
 after the env-check correction requested by the leader.
 
+Context:
+
+- task-6 initially captured stale detached-worker failures and produced the
+  earlier fail/stale report.
+- task-7 corrected the env-check wiring on canonical leader/main so the local
+  repo check now passes cleanly.
+- Environment note: `.venv/bin/python -m pytest` is not the acceptance runner
+  here because that interpreter does not provide `pytest`; the canonical test
+  evidence uses `/tmp/pr1-manager-final-venv/bin/python`.
+
 ## Changed files
 
 - `reports/productization/PR3_MCP_SAFE_RUNTIME_EVIDENCE.md`
@@ -29,6 +39,13 @@ Result:
 ```text
 environment ok: 3.14.4
 ```
+
+### ENVIRONMENT NOTE: `.venv` pytest miss
+
+The canonical `.venv` interpreter is not the test runner for this refresh.
+Earlier local smoke validation showed `No module named pytest` from
+`.venv/bin/python -m pytest`, so the acceptance evidence below uses
+`/tmp/pr1-manager-final-venv/bin/python` instead.
 
 ### PASS: combined PR-3 acceptance sweep in canonical leader/main checkout
 
