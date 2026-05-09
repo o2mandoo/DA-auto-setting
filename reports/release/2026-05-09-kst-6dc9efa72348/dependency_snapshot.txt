@@ -38,10 +38,10 @@ PyYAML==6.0.3
 referencing==0.37.0
 rpds-py==0.30.0
 ruff==0.15.12
--e git+ssh://<redacted_email>/o2mandoo/DA-auto-setting.git@0baf5dd2acbe25f12bfcec1597ec3887fc9a538c#egg=semantic_builder&subdirectory=packages/semantic_builder
--e git+ssh://<redacted_email>/o2mandoo/DA-auto-setting.git@0baf5dd2acbe25f12bfcec1597ec3887fc9a538c#egg=semantic_contracts&subdirectory=packages/semantic_contracts
--e git+ssh://<redacted_email>/o2mandoo/DA-auto-setting.git@0baf5dd2acbe25f12bfcec1597ec3887fc9a538c#egg=semantic_mcp&subdirectory=packages/semantic_mcp
--e git+ssh://<redacted_email>/o2mandoo/DA-auto-setting.git@0baf5dd2acbe25f12bfcec1597ec3887fc9a538c#egg=semantic_registry&subdirectory=packages/semantic_registry
+-e git+ssh://<redacted_email>/o2mandoo/DA-auto-setting.git@a67596a73237ea610047a92c8c16c2b935fd16f2#egg=semantic_builder&subdirectory=packages/semantic_builder
+-e git+ssh://<redacted_email>/o2mandoo/DA-auto-setting.git@a67596a73237ea610047a92c8c16c2b935fd16f2#egg=semantic_contracts&subdirectory=packages/semantic_contracts
+-e git+ssh://<redacted_email>/o2mandoo/DA-auto-setting.git@a67596a73237ea610047a92c8c16c2b935fd16f2#egg=semantic_mcp&subdirectory=packages/semantic_mcp
+-e git+ssh://<redacted_email>/o2mandoo/DA-auto-setting.git@a67596a73237ea610047a92c8c16c2b935fd16f2#egg=semantic_registry&subdirectory=packages/semantic_registry
 sse-starlette==3.4.2
 starlette==1.0.0
 typing-inspection==0.4.2

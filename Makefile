@@ -4,7 +4,7 @@ RELEASE_ID ?= release-$(shell date -u +%Y%m%dT%H%M%SZ)
 RELEASE_OUT ?= reports/release
 LOCAL_PYTHONPATH := packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src
 
-.PHONY: setup test demo env-check clean-runtime release-pack
+.PHONY: setup test demo env-check clean-runtime release-pack release-test
 
 setup:
 	python3 -m venv $(VENV_DIR)
@@ -28,3 +28,6 @@ clean-runtime:
 
 release-pack:
 	$(PYTHON) scripts/release/build_release_packet.py --release-id $(RELEASE_ID) --out $(RELEASE_OUT)
+
+release-test:
+	$(PYTHON) -m pytest -q tests/release

@@ -82,6 +82,7 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert manifest["support_levels"]
     assert any(item["feature"] == "Oracle" and item["support"] == "unsupported" for item in manifest["support_levels"])
     assert manifest["test_status"]["status"] == "not_run_by_packer"
+    assert manifest["test_status"]["release_test_command"] == "make release-test"
     assert manifest["risk_summary"]["status"] == "included"
     assert manifest["safety_proof"]["no_production_execute_query"]["status"] == "prohibited"
     assert manifest["safety_proof"]["no_synthetic_metadata_as_product_truth"]["status"] == "fixture_only"
@@ -106,6 +107,7 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert "PR-0 through PR-7" in evidence_index or "PR-0" in evidence_index
     assert "MCP" in surface_summary and "n8n" in surface_summary
     assert "Test Evidence" in test_evidence
+    assert "make release-test" in test_evidence
     assert dependency_snapshot.strip() != ""
 
     manifest_path = out_dir / "release_manifest.json"

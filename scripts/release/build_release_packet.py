@@ -378,7 +378,7 @@ def build_test_evidence() -> str:
             "## Suggested verification commands",
             "",
             "- `make PYTHON=python3 release-pack RELEASE_ID=<id> RELEASE_OUT=reports/release`",
-            "- `python3 -m pytest -q tests/release/test_build_release_packet.py`",
+            "- `make release-test`",
             "",
             "These commands are representative release-smoke evidence references; execution results are captured by the worker run.",
         ]
@@ -557,7 +557,7 @@ def build_manifest(
         "support_levels": list(SUPPORT_LEVELS),
         "test_status": {
             "status": "not_run_by_packer",
-            "release_test_command": "python3 -m pytest -q tests/release/test_build_release_packet.py",
+            "release_test_command": "make release-test",
             "note": "The release packer records test references; verifier lanes must attach real command output.",
         },
         "risk_summary": {

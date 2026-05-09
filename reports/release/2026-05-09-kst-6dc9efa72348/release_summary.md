@@ -1,7 +1,7 @@
 # Release Packet: 2026-05-09-kst-6dc9efa72348
 
-- generated_at: 2026-05-09T14:13:21.931663+00:00
-- git_commit: 0baf5dd2acbe25f12bfcec1597ec3887fc9a538c
+- generated_at: 2026-05-09T14:19:17.439187+00:00
+- git_commit: a67596a73237ea610047a92c8c16c2b935fd16f2
 - status: dry-run release packet
 
 ## Evidence snapshot

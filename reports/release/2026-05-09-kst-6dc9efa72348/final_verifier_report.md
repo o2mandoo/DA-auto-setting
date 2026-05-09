@@ -99,7 +99,7 @@ The packet and its source evidence explicitly preserve:
 Command:
 
 ```bash
-.venv/bin/python -m pytest -q tests/release
+make release-test
 ```
 
 Observed output:
@@ -110,8 +110,8 @@ Observed output:
 
 Interpretation:
 
-- The release-specific tests pass when run through the repository venv with pytest.
-- A prior `unittest discover -s` probe returned no tests; the pytest path is the supported release verification path for this checkout.
+- The release-specific tests pass through the repo Makefile target.
+- The target uses `$(PYTHON)`, which defaults to `.venv/bin/python`, so it does not depend on system `python3` having pytest installed.
 
 ## Correction lane status
 
@@ -139,7 +139,7 @@ Fresh leader checks:
 
 ```bash
 make env-check
-.venv/bin/python -m pytest -q tests/release
+make release-test
 make PYTHON=.venv/bin/python release-pack RELEASE_ID=release-test RELEASE_OUT=reports/release
 make PYTHON=.venv/bin/python release-pack RELEASE_ID=2026-05-09-kst-6dc9efa72348 RELEASE_OUT=reports/release
 ```
