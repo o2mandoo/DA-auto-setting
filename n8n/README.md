@@ -21,3 +21,13 @@ These workflow JSON files are importable demo templates for the Semantic Data Co
 - SQL text is passed only to product comparison/validation APIs.
 - n8n must display API failure states directly.
 - n8n must not implement a hidden substitute branch when a provider/backend fails.
+
+## Live runtime smoke
+
+Run the real n8n runtime smoke with Docker:
+
+```bash
+make n8n-live-smoke
+```
+
+The smoke imports the workflow JSON files into `n8nio/n8n:2.19.5`, executes them with `n8n execute --id=...`, and verifies the product adapter audit log. See `docs/demo/N8N_LIVE_RUNTIME_SMOKE.md` for details and non-silent environment notes.

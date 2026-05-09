@@ -2,9 +2,11 @@ VENV_DIR ?= .venv
 PYTHON ?= $(VENV_DIR)/bin/python
 RELEASE_ID ?= release-$(shell date -u +%Y%m%dT%H%M%SZ)
 RELEASE_OUT ?= reports/release
+N8N_IMAGE ?= n8nio/n8n:2.19.5
+N8N_LIVE_OUT ?= runtime/n8n_live_smoke/latest
 LOCAL_PYTHONPATH := packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src
 
-.PHONY: setup test demo env-check clean-runtime release-pack release-test
+.PHONY: setup test demo env-check clean-runtime release-pack release-test n8n-live-smoke
 
 setup:
 	python3 -m venv $(VENV_DIR)
@@ -31,3 +33,7 @@ release-pack:
 
 release-test:
 	$(PYTHON) -m pytest -q tests/release
+
+
+n8n-live-smoke:
+	$(PYTHON) scripts/n8n/live_runtime_smoke.py --image $(N8N_IMAGE) --out $(N8N_LIVE_OUT)
