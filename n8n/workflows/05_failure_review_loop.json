@@ -1,0 +1,128 @@
+{
+  "name": "05 Failure Review Loop",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "05 Failure Review Loop-manual",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Runs red-team scenarios. Failure states are review evidence, not hidden fallback branches."
+      },
+      "id": "05 Failure Review Loop-safety-note",
+      "name": "Safety Gate Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SDC_PRODUCT_API_BASE_URL}}/api/failure-review/run",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-sdc-demo-key",
+              "value": "={{$env.SDC_DEMO_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"scenario_set\": \"phase17_red_team\"}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": false
+            }
+          }
+        }
+      },
+      "id": "05 Failure Review Loop-api",
+      "name": "POST /api/failure-review/run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{$json.status || $json.mode || $json.space_id}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "05 Failure Review Loop-if",
+      "name": "Show API result or fail visibly",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        520,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "POST /api/failure-review/run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST /api/failure-review/run": {
+      "main": [
+        [
+          {
+            "node": "Show API result or fail visibly",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "semanticDataContext": {
+      "route": "/api/failure-review/run",
+      "noSilentFallback": true,
+      "noSqlRun": true,
+      "noRawPiiSamples": true
+    }
+  }
+}

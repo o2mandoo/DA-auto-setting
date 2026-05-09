@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Semantic Data Context Product Demo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Semantic Data Context Product Demo</h1>
+    <p>Semantic Pack 기반 시스템 SQL과 물리 스키마 baseline SQL을 나란히 비교합니다.</p>
+  </header>
+  <nav>
+    <button data-page="query-demo">Query Demo</button>
+    <button data-page="onboarding-status">Onboarding Status</button>
+    <button data-page="question-queue">Question Queue</button>
+    <button data-page="benchmark-evidence">Benchmark/Evidence</button>
+    <button data-page="failure-review">Failure Review</button>
+  </nav>
+  <main>
+    <section id="query-demo" class="page active">
+      <h2>Query Demo</h2>
+      <label>Question <input id="question" value="월별 신규 고객 순매출을 보여줘" /></label>
+      <label>Role <input id="role" value="marketing_analyst" /></label>
+      <label>Mode <select id="mode"><option>C_QUERY_RUNTIME</option><option>A_ONBOARDING</option><option>B_REGISTRY</option><option>D_BENCHMARK</option></select></label>
+      <button id="load-sample">Load Sample Response</button>
+      <div class="grid">
+        <article id="baseline-sql-panel"><h3>Baseline SQL</h3><pre></pre><p class="badge">not_executed=true</p></article>
+        <article id="system-sql-panel"><h3>System SQL</h3><pre></pre><p class="badge">execution_allowed=false</p></article>
+      </div>
+      <article id="difference-summary-panel"><h3>Difference Summary</h3><ul></ul></article>
+      <article id="applied-definitions-panel"><h3>Applied Definitions</h3><pre></pre></article>
+      <article id="verification-panel"><h3>Verification</h3><pre></pre></article>
+      <article id="failure-state-panel"><h3>Failure State</h3><pre></pre></article>
+      <article id="preview-result-panel"><h3>Preview Result</h3><pre></pre></article>
+      <article id="suggested-actions-panel"><h3>Suggested Actions</h3><ul></ul></article>
+    </section>
+    <section id="onboarding-status" class="page"><h2>Onboarding Status</h2><p>Builder scan/profile/pack-draft evidence and confirmation status appear here.</p></section>
+    <section id="question-queue" class="page"><h2>Question Queue</h2><p>Reverse questions and human confirmation tasks appear here.</p></section>
+    <section id="benchmark-evidence" class="page"><h2>Benchmark/Evidence</h2><p>20-domain evidence, Weaviate/BM25/hybrid results, and capability matrix appear here.</p></section>
+    <section id="failure-review" class="page"><h2>Failure Review</h2><p>Red-team scenarios and structured failure states appear here.</p></section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

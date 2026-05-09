@@ -1,0 +1,12 @@
+body { font-family: system-ui, sans-serif; margin: 0; color: #18202a; background: #f7f8fb; }
+header, nav, main { padding: 16px 24px; }
+nav { display: flex; gap: 8px; background: #fff; border-block: 1px solid #dde3ee; }
+button { border: 1px solid #9ba8bb; background: #fff; border-radius: 8px; padding: 8px 12px; }
+.page { display: none; }
+.page.active { display: block; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+article { background: #fff; border: 1px solid #dde3ee; border-radius: 12px; margin: 12px 0; padding: 16px; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #101827; color: #e7edf7; padding: 12px; border-radius: 8px; }
+.badge { display: inline-block; padding: 4px 8px; border-radius: 999px; background: #eef6ff; color: #084b83; font-weight: 600; }
+label { display: inline-flex; flex-direction: column; gap: 4px; margin: 8px 12px 8px 0; }
+input, select { padding: 8px; border: 1px solid #9ba8bb; border-radius: 8px; min-width: 220px; }

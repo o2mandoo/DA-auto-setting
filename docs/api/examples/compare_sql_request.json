@@ -1,0 +1,7 @@
+{
+  "question": "월별 신규 고객 순매출을 보여줘",
+  "baseline_sql": "SELECT DATE_TRUNC('month', users.created_at), SUM(payments.amount) FROM users JOIN payments ON users.user_id = payments.user_id GROUP BY 1",
+  "system_sql": "SELECT DATE_TRUNC('month', users.first_paid_at), SUM(payments.amount - payments.refund_amount - payments.discount_amount) FROM users JOIN payments ON users.user_id = payments.user_id WHERE payments.status = 'PAID' GROUP BY 1",
+  "space_id": "demo_company.revenue",
+  "role": "marketing_analyst"
+}

@@ -1,0 +1,231 @@
+{
+  "mode": "C_QUERY_RUNTIME",
+  "question": "월별 신규 고객 순매출을 보여줘",
+  "role": "marketing_analyst",
+  "space_id": "demo_company.revenue",
+  "baseline_sql_panel": {
+    "sql": "SELECT DATE_TRUNC('month', users.created_at) AS month, SUM(payments.amount) AS revenue FROM users JOIN payments ON users.user_id = payments.user_id WHERE users.created_at >= {start_date} AND users.created_at < {end_date} GROUP BY 1",
+    "provider": "mock",
+    "warnings": [
+      "physical_schema_only",
+      "baseline_not_executed"
+    ],
+    "risk_notes": [
+      {
+        "category": "date_basis",
+        "severity": "high",
+        "message": "Baseline uses users.created_at instead of confirmed first-paid date.",
+        "evidence": []
+      },
+      {
+        "category": "metric_basis",
+        "severity": "high",
+        "message": "Baseline sums gross amount and misses refund/discount columns.",
+        "evidence": []
+      }
+    ],
+    "not_executed": true
+  },
+  "system_sql_panel": {
+    "sql": "SELECT DATE_TRUNC('month', users.first_paid_at) AS month, SUM(payments.amount - payments.refund_amount - payments.discount_amount) AS net_revenue\nFROM users\nJOIN payments ON users.user_id = payments.user_id\nWHERE users.first_paid_at >= {start_date}\n  AND users.first_paid_at < {end_date}\n  AND payments.status = 'PAID'\nGROUP BY 1",
+    "source": "verified_query_template",
+    "selected_terms": [
+      "term.new_customer"
+    ],
+    "selected_metrics": [
+      "metric.net_revenue"
+    ],
+    "selected_tables": [
+      "users",
+      "payments"
+    ],
+    "selected_joins": [
+      "join.users_payments"
+    ],
+    "warnings": [
+      "Aggregated revenue and campaign analysis are allowed.",
+      "Raw user PII columns are blocked from retrieval payloads and SQL planning output.",
+      "Use users.user_id for joins; do not expose email, phone, or name.",
+      "SQL execution is out of scope; validation only.",
+      "clarification_required_before_sql_draft"
+    ],
+    "execution_allowed": false
+  },
+  "difference_summary_panel": {
+    "items": [
+      {
+        "category": "wrong_date_basis",
+        "severity": "high",
+        "message": "Baseline does not use the confirmed first-paid date basis for 신규 고객.",
+        "baseline_evidence": [
+          "users.created_at"
+        ],
+        "system_evidence": [
+          "users.first_paid_at"
+        ],
+        "expected_semantic_refs": [
+          "term.new_customer",
+          "users.first_paid_at"
+        ]
+      },
+      {
+        "category": "wrong_metric_basis",
+        "severity": "high",
+        "message": "Baseline misses refund/discount deductions required by 순매출.",
+        "baseline_evidence": [
+          "SUM(payments.amount)"
+        ],
+        "system_evidence": [
+          "payments.refund_amount",
+          "payments.discount_amount"
+        ],
+        "expected_semantic_refs": [
+          "metric.net_revenue"
+        ]
+      },
+      {
+        "category": "missing_value_filter",
+        "severity": "medium",
+        "message": "Baseline misses the semantic/default paid-status filter.",
+        "baseline_evidence": [
+          "users.created_at >= {start_date} AND users.created_at < {end_date}"
+        ],
+        "system_evidence": [
+          "users.first_paid_at >= {start_date}\n  AND users.first_paid_at < {end_date}\n  AND payments.status = ''"
+        ],
+        "expected_semantic_refs": [
+          "value_dict.payments.status",
+          "metric.net_revenue"
+        ]
+      }
+    ],
+    "recommendation": {
+      "decision": "prefer_system_with_warnings",
+      "next_actions": [
+        "Show high-risk baseline differences in the UI."
+      ],
+      "rationale": "Baseline has material semantic or safety risk."
+    }
+  },
+  "applied_definitions_panel": {
+    "business_terms": [
+      {
+        "id": "term.new_customer",
+        "term": "신규 고객",
+        "definition": "A user whose first successful payment timestamp falls within the analysis period.",
+        "sql_condition": "users.first_paid_at >= {start_date} AND users.first_paid_at < {end_date}",
+        "status": "draft"
+      }
+    ],
+    "metrics": [
+      {
+        "id": "metric.net_revenue",
+        "name": "net_revenue",
+        "label": "순매출",
+        "formula_sql": "SUM(payments.amount - payments.refund_amount - payments.discount_amount)",
+        "date_basis": "payments.paid_at",
+        "status": "draft"
+      }
+    ],
+    "policies": [
+      {
+        "id": "policy.marketing_safe_revenue",
+        "allowed_tables": [
+          "users",
+          "payments",
+          "campaigns"
+        ],
+        "blocked_columns": [
+          "users.email",
+          "users.phone",
+          "users.name"
+        ]
+      }
+    ],
+    "verified_queries": [
+      {
+        "id": "verified_query.monthly_new_customer_revenue",
+        "question": "월별 신규 고객 순매출을 보여줘",
+        "sql": "SELECT DATE_TRUNC('month', users.first_paid_at) AS month, SUM(payments.amount - payments.refund_amount - payments.discount_amount) AS net_revenue\nFROM users\nJOIN payments ON users.user_id = payments.user_id\nWHERE users.first_paid_at >= {start_date}\n  AND users.first_paid_at < {end_date}\n  AND payments.status = 'PAID'\nGROUP BY 1",
+        "status": "confirmed"
+      }
+    ]
+  },
+  "verification_panel": {
+    "policy_verdict": {
+      "valid": true,
+      "execution_allowed": false,
+      "checks": {
+        "select_only": "pass",
+        "multi_statement": "pass",
+        "allowed_tables": "pass",
+        "blocked_columns": "pass"
+      },
+      "referenced_tables": [
+        "users",
+        "payments"
+      ],
+      "referenced_columns": [
+        "users.first_paid_at",
+        "payments.amount",
+        "payments.refund_amount",
+        "payments.discount_amount",
+        "users.user_id",
+        "payments.user_id",
+        "payments.status",
+        "users",
+        "first_paid_at",
+        "month",
+        "payments",
+        "amount",
+        "refund_amount",
+        "discount_amount",
+        "net_revenue"
+      ],
+      "warnings": [],
+      "errors": [],
+      "verifier": "policy"
+    },
+    "semantic_verdict": {
+      "verifier": "semantic",
+      "valid": true,
+      "execution_allowed": false,
+      "errors": [],
+      "reasons": [],
+      "warnings": [],
+      "required_business_term_condition_columns": [
+        "payments.status",
+        "users.first_paid_at"
+      ]
+    },
+    "preview_eligible": true,
+    "execution_allowed": false
+  },
+  "failure_state_panel": {
+    "state": "clarification_required",
+    "message": "The Semantic Pack requires clarification before a final answer.",
+    "reasons": [
+      "Aggregated revenue and campaign analysis are allowed.",
+      "Raw user PII columns are blocked from retrieval payloads and SQL planning output.",
+      "Use users.user_id for joins; do not expose email, phone, or name.",
+      "SQL execution is out of scope; validation only.",
+      "clarification_required_before_sql_draft"
+    ],
+    "next_actions": [
+      "Ask the listed reverse question."
+    ]
+  },
+  "preview_result_panel": {
+    "status": "not_requested",
+    "columns": [],
+    "rows": [],
+    "errors": [],
+    "execution_allowed": false
+  },
+  "suggested_actions_panel": {
+    "actions": [
+      "Ask the listed reverse question."
+    ]
+  },
+  "execution_allowed": false
+}

@@ -1,0 +1,7 @@
+{
+  "question": "월별 신규 고객 순매출을 보여줘",
+  "space_id": "demo_company.revenue",
+  "role": "marketing_analyst",
+  "mode": "C_QUERY_RUNTIME",
+  "include_preview": false
+}

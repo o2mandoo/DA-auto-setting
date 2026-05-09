@@ -1,0 +1,128 @@
+{
+  "name": "04 20 Domain Benchmark Runner",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "04 20 Domain Benchmark Runner-manual",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Runs evidence API and displays missing evidence explicitly. Do not invent per-domain pass rates."
+      },
+      "id": "04 20 Domain Benchmark Runner-safety-note",
+      "name": "Safety Gate Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SDC_PRODUCT_API_BASE_URL}}/api/eval/run",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-sdc-demo-key",
+              "value": "={{$env.SDC_DEMO_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"dataset_id\": \"sinagong_tableau_2026\", \"evidence_mode\": \"manifest_and_existing_reports\"}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": false
+            }
+          }
+        }
+      },
+      "id": "04 20 Domain Benchmark Runner-api",
+      "name": "POST /api/eval/run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{$json.status || $json.mode || $json.space_id}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "04 20 Domain Benchmark Runner-if",
+      "name": "Show API result or fail visibly",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        520,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "POST /api/eval/run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST /api/eval/run": {
+      "main": [
+        [
+          {
+            "node": "Show API result or fail visibly",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "semanticDataContext": {
+      "route": "/api/eval/run",
+      "noSilentFallback": true,
+      "noSqlRun": true,
+      "noRawPiiSamples": true
+    }
+  }
+}

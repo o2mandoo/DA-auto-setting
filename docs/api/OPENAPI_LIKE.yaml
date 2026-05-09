@@ -1,0 +1,64 @@
+openapi: 3.1.0
+info:
+  title: Semantic Data Context Product API
+  version: 0.1.0-local
+security:
+  - demoHeader: []
+components:
+  securitySchemes:
+    demoHeader:
+      type: apiKey
+      in: header
+      name: x-sdc-demo-key
+  schemas:
+    ProductAnswerRequest:
+      type: object
+      required: [question]
+      properties:
+        question: {type: string}
+        space_id: {type: string, default: demo_company.revenue}
+        role: {type: string, default: marketing_analyst}
+        mode: {type: string, enum: [A_ONBOARDING, B_REGISTRY, C_QUERY_RUNTIME, D_BENCHMARK]}
+        include_preview: {type: boolean, default: false}
+    CompareSqlRequest:
+      type: object
+      required: [question, baseline_sql]
+      properties:
+        question: {type: string}
+        baseline_sql: {type: string}
+        system_sql: {type: string, nullable: true}
+        space_id: {type: string}
+        role: {type: string}
+paths:
+  /api/onboarding/run:
+    post:
+      summary: Record onboarding request
+      x-safety: no production connections
+  /api/confirmation/session:
+    post:
+      summary: Open confirmation session
+      x-safety: no approved-pack mutation
+  /api/confirmation/answer:
+    post:
+      summary: Record human answer
+      x-safety: audit only
+  /api/pack/promote:
+    post:
+      summary: Validate explicit promotion preconditions
+      x-safety: versioned proposal only
+  /api/product/answer:
+    post:
+      summary: Return answer comparison view model
+      x-safety: execution_allowed is always false
+  /api/product/compare-sql:
+    post:
+      summary: Compare SQL text candidates
+      x-safety: no SQL execution
+  /api/eval/run:
+    post:
+      summary: Run/read product evidence
+      x-safety: reports only
+  /api/failure-review/run:
+    post:
+      summary: Run failure-safe red-team scenarios
+      x-safety: reports only

@@ -1,0 +1,6 @@
+{
+  "session_id": "confirm-demo-company-revenue",
+  "question_id": "rq.net_revenue.refund_timing",
+  "answer": "결제월 기준으로 차감",
+  "reviewer": "data_steward"
+}

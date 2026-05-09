@@ -239,6 +239,31 @@ def validate_sql(
 
 
 
+
+def compare_baseline_vs_system_sql(
+    space_id: str,
+    question: str,
+    baseline_sql: str | None,
+    system_sql: str | None,
+    role: str | None = "marketing_analyst",
+    pack_root: str | Path = DEFAULT_PACK_ROOT,
+    root: str | Path | None = None,
+) -> dict[str, Any]:
+    """Compare baseline and Semantic Pack SQL drafts without executing either."""
+
+    from semantic_registry.product.comparison import compare_baseline_vs_system_sql as compare_sql
+
+    effective_root = root if root is not None else pack_root
+    return compare_sql(
+        question=question,
+        baseline_sql=baseline_sql,
+        system_sql=system_sql,
+        space_id=space_id,
+        role=role,
+        pack_root=effective_root,
+    ).to_dict()
+
+
 def record_feedback(
     space_id: str,
     feedback_type: str,

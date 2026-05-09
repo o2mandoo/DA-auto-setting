@@ -1,0 +1,128 @@
+{
+  "name": "02 Confirmation Pack Promotion",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "02 Confirmation Pack Promotion-manual",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Start confirmation session first. Human approval is required before pack promotion. Do not mutate approved packs in place."
+      },
+      "id": "02 Confirmation Pack Promotion-safety-note",
+      "name": "Safety Gate Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SDC_PRODUCT_API_BASE_URL}}/api/confirmation/session",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-sdc-demo-key",
+              "value": "={{$env.SDC_DEMO_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"space_id\": \"demo_company.revenue\"}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": false
+            }
+          }
+        }
+      },
+      "id": "02 Confirmation Pack Promotion-api",
+      "name": "POST /api/confirmation/session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{$json.status || $json.mode || $json.space_id}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "02 Confirmation Pack Promotion-if",
+      "name": "Show API result or fail visibly",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        520,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "POST /api/confirmation/session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST /api/confirmation/session": {
+      "main": [
+        [
+          {
+            "node": "Show API result or fail visibly",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "semanticDataContext": {
+      "route": "/api/confirmation/session",
+      "noSilentFallback": true,
+      "noSqlRun": true,
+      "noRawPiiSamples": true
+    }
+  }
+}

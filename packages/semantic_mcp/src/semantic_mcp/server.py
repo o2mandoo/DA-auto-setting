@@ -24,6 +24,7 @@ REGISTERED_TOOLS = (
     "validate_sql",
     "preview_query",
     "record_feedback",
+    "compare_baseline_vs_system_sql",
 )
 
 REGISTERED_RESOURCES = (
@@ -59,6 +60,7 @@ def create_server() -> Any:
         plan_data_query,
         preview_query,
         record_feedback,
+        compare_baseline_vs_system_sql,
         resolve_business_terms,
         search_semantic_context,
         validate_sql,
@@ -77,6 +79,7 @@ def create_server() -> Any:
         validate_sql,
         preview_query,
         record_feedback,
+        compare_baseline_vs_system_sql,
     ):
         server.tool()(tool)
 

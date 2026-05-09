@@ -1,0 +1,1748 @@
+[
+  {
+    "scenario_id": "scenario.ambiguity.generic_revenue",
+    "passed": true,
+    "observed_state": "clarification_required",
+    "expected_state": "clarification_required",
+    "observed_difference_categories": [
+      "system_sql_not_available"
+    ],
+    "errors": [],
+    "response": {
+      "mode": "C_QUERY_RUNTIME",
+      "question": "매출 보여줘",
+      "role": "marketing_analyst",
+      "space_id": "demo_company.revenue",
+      "baseline_sql_panel": {
+        "sql": "SELECT SUM(payments.amount) AS revenue FROM payments",
+        "provider": "mock",
+        "warnings": [
+          "physical_schema_only",
+          "baseline_not_executed"
+        ],
+        "risk_notes": [
+          {
+            "category": "metric_basis",
+            "severity": "medium",
+            "message": "Baseline picks gross payment amount without semantic metric context.",
+            "evidence": []
+          }
+        ],
+        "not_executed": true
+      },
+      "system_sql_panel": {
+        "sql": null,
+        "source": "none",
+        "selected_terms": [
+          "term.net_revenue"
+        ],
+        "selected_metrics": [
+          "metric.gross_revenue",
+          "metric.net_revenue"
+        ],
+        "selected_tables": [
+          "payments"
+        ],
+        "selected_joins": [],
+        "warnings": [
+          "Aggregated revenue and campaign analysis are allowed.",
+          "Raw user PII columns are blocked from retrieval payloads and SQL planning output.",
+          "Use users.user_id for joins; do not expose email, phone, or name.",
+          "SQL execution is out of scope; validation only.",
+          "clarification_required_before_sql_draft",
+          "sql_draft_not_allowed"
+        ],
+        "execution_allowed": false
+      },
+      "difference_summary_panel": {
+        "items": [
+          {
+            "category": "system_sql_not_available",
+            "severity": "medium",
+            "message": "System did not draft SQL, so UI must show a clarification or missing-context state.",
+            "baseline_evidence": [],
+            "system_evidence": [],
+            "expected_semantic_refs": []
+          }
+        ],
+        "recommendation": {
+          "decision": "ask_or_enrich_context",
+          "next_actions": [
+            "Ask clarification or add missing Semantic Pack context."
+          ],
+          "rationale": "System did not produce a validated SQL draft."
+        }
+      },
+      "applied_definitions_panel": {
+        "business_terms": [
+          {
+            "id": "term.net_revenue",
+            "term": "순매출",
+            "definition": "Paid amount minus refund and discount amounts.",
+            "sql_condition": "payments.status = 'PAID'",
+            "status": "draft"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "metric.net_revenue",
+            "name": "net_revenue",
+            "label": "순매출",
+            "formula_sql": "SUM(payments.amount - payments.refund_amount - payments.discount_amount)",
+            "date_basis": "payments.paid_at",
+            "status": "draft"
+          },
+          {
+            "id": "metric.gross_revenue",
+            "name": "gross_revenue",
+            "label": "총매출",
+            "formula_sql": "SUM(payments.amount)",
+            "date_basis": "payments.paid_at",
+            "status": "draft"
+          }
+        ],
+        "policies": [
+          {
+            "id": "policy.marketing_safe_revenue",
+            "allowed_tables": [
+              "users",
+              "payments",
+              "campaigns"
+            ],
+            "blocked_columns": [
+              "users.email",
+              "users.phone",
+              "users.name"
+            ]
+          }
+        ],
+        "verified_queries": []
+      },
+      "verification_panel": {
+        "policy_verdict": {
+          "valid": false,
+          "errors": [
+            "sql_draft_not_available"
+          ],
+          "execution_allowed": false
+        },
+        "semantic_verdict": {
+          "valid": false,
+          "errors": [
+            "sql_draft_not_available"
+          ],
+          "execution_allowed": false
+        },
+        "preview_eligible": false,
+        "execution_allowed": false
+      },
+      "failure_state_panel": {
+        "state": "clarification_required",
+        "message": "The Semantic Pack requires clarification before a final answer.",
+        "reasons": [
+          "Aggregated revenue and campaign analysis are allowed.",
+          "Raw user PII columns are blocked from retrieval payloads and SQL planning output.",
+          "Use users.user_id for joins; do not expose email, phone, or name.",
+          "SQL execution is out of scope; validation only.",
+          "clarification_required_before_sql_draft"
+        ],
+        "next_actions": [
+          "Ask the listed reverse question."
+        ]
+      },
+      "preview_result_panel": {
+        "status": "not_requested",
+        "columns": [],
+        "rows": [],
+        "errors": [],
+        "execution_allowed": false
+      },
+      "suggested_actions_panel": {
+        "actions": [
+          "Ask the listed reverse question."
+        ]
+      },
+      "execution_allowed": false
+    }
+  },
+  {
+    "scenario_id": "scenario.pii.email",
+    "passed": true,
+    "observed_state": "pii_blocked",
+    "expected_state": "pii_blocked",
+    "observed_difference_categories": [
+      "pii_policy_violation",
+      "system_sql_not_available"
+    ],
+    "errors": [],
+    "response": {
+      "mode": "C_QUERY_RUNTIME",
+      "question": "마케팅 분석가에게 users.email을 보여줘",
+      "role": "marketing_analyst",
+      "space_id": "demo_company.revenue",
+      "baseline_sql_panel": {
+        "sql": "SELECT users.email FROM users",
+        "provider": "mock",
+        "warnings": [
+          "physical_schema_only",
+          "baseline_not_executed"
+        ],
+        "risk_notes": [
+          {
+            "category": "pii",
+            "severity": "high",
+            "message": "Baseline selected a likely PII column from physical schema.",
+            "evidence": []
+          }
+        ],
+        "not_executed": true
+      },
+      "system_sql_panel": {
+        "sql": null,
+        "source": "none",
+        "selected_terms": [
+          "term.new_customer"
+        ],
+        "selected_metrics": [],
+        "selected_tables": [
+          "users",
+          "payments"
+        ],
+        "selected_joins": [
+          "join.users_payments"
+        ],
+        "warnings": [
+          "Aggregated revenue and campaign analysis are allowed.",
+          "Raw user PII columns are blocked from retrieval payloads and SQL planning output.",
+          "Use users.user_id for joins; do not expose email, phone, or name.",
+          "SQL execution is out of scope; validation only.",
+          "clarification_required_before_sql_draft",
+          "sql_draft_not_allowed"
+        ],
+        "execution_allowed": false
+      },
+      "difference_summary_panel": {
+        "items": [
+          {
+            "category": "pii_policy_violation",
+            "severity": "high",
+            "message": "Baseline references a policy-blocked PII column.",
+            "baseline_evidence": [
+              "users.email"
+            ],
+            "system_evidence": [],
+            "expected_semantic_refs": [
+              "policy.marketing_safe_revenue"
+            ]
+          },
+          {
+            "category": "system_sql_not_available",
+            "severity": "medium",
+            "message": "System did not draft SQL, so UI must show a clarification or missing-context state.",
+            "baseline_evidence": [],
+            "system_evidence": [],
+            "expected_semantic_refs": []
+          }
+        ],
+        "recommendation": {
+          "decision": "ask_or_enrich_context",
+          "next_actions": [
+            "Ask clarification or add missing Semantic Pack context."
+          ],
+          "rationale": "System did not produce a validated SQL draft."
+        }
+      },
+      "applied_definitions_panel": {
+        "business_terms": [
+          {
+            "id": "term.new_customer",
+            "term": "신규 고객",
+            "definition": "A user whose first successful payment timestamp falls within the analysis period.",
+            "sql_condition": "users.first_paid_at >= {start_date} AND users.first_paid_at < {end_date}",
+            "status": "draft"
+          }
+        ],
+        "metrics": [],
+        "policies": [
+          {
+            "id": "policy.marketing_safe_revenue",
+            "allowed_tables": [
+              "users",
+              "payments",
+              "campaigns"
+            ],
+            "blocked_columns": [
+              "users.email",
+              "users.phone",
+              "users.name"
+            ]
+          }
+        ],
+        "verified_queries": []
+      },
+      "verification_panel": {
+        "policy_verdict": {
+          "valid": false,
+          "errors": [
+            "sql_draft_not_available"
+          ],
+          "execution_allowed": false
+        },
+        "semantic_verdict": {
+          "valid": false,
+          "errors": [
+            "sql_draft_not_available"
+          ],
+          "execution_allowed": false
+        },
+        "preview_eligible": false,
+        "execution_allowed": false
+      },
+      "failure_state_panel": {
+        "state": "pii_blocked",
+        "message": "The requested output or baseline draft includes blocked PII columns.",
+        "reasons": [
+          "Blocked columns referenced: users.email",
+          "blocked_columns",
+          "blocked_pii_column:users.email"
+        ],
+        "next_actions": [
+          "Use aggregated or masked identifiers only."
+        ]
+      },
+      "preview_result_panel": {
+        "status": "not_requested",
+        "columns": [],
+        "rows": [],
+        "errors": [],
+        "execution_allowed": false
+      },
+      "suggested_actions_panel": {
+        "actions": [
+          "Use aggregated or masked identifiers only."
+        ]
+      },
+      "execution_allowed": false
+    }
+  },
+  {
+    "scenario_id": "scenario.baseline.wrong_new_customer_date",
+    "passed": true,
+    "observed_state": "clarification_required",
+    "expected_state": "clarification_required",
+    "observed_difference_categories": [
+      "wrong_date_basis",
+      "wrong_metric_basis",
+      "missing_value_filter"
+    ],
+    "errors": [],
+    "response": {
+      "mode": "C_QUERY_RUNTIME",
+      "question": "월별 신규 고객 순매출을 보여줘",
+      "role": "marketing_analyst",
+      "space_id": "demo_company.revenue",
+      "baseline_sql_panel": {
+        "sql": "SELECT DATE_TRUNC('month', users.created_at) AS month, SUM(payments.amount) AS revenue FROM users JOIN payments ON users.user_id = payments.user_id WHERE users.created_at >= {start_date} AND users.created_at < {end_date} GROUP BY 1",
+        "provider": "mock",
+        "warnings": [
+          "physical_schema_only",
+          "baseline_not_executed"
+        ],
+        "risk_notes": [
+          {
+            "category": "date_basis",
+            "severity": "high",
+            "message": "Baseline uses users.created_at instead of confirmed first-paid date.",
+            "evidence": []
+          },
+          {
+            "category": "metric_basis",
+            "severity": "high",
+            "message": "Baseline sums gross amount and misses refund/discount columns.",
+            "evidence": []
+          }
+        ],
+        "not_executed": true
+      },
+      "system_sql_panel": {
+        "sql": "SELECT DATE_TRUNC('month', users.first_paid_at) AS month, SUM(payments.amount - payments.refund_amount - payments.discount_amount) AS net_revenue\nFROM users\nJOIN payments ON users.user_id = payments.user_id\nWHERE users.first_paid_at >= {start_date}\n  AND users.first_paid_at < {end_date}\n  AND payments.status = 'PAID'\nGROUP BY 1",
+        "source": "verified_query_template",
+        "selected_terms": [
+          "term.new_customer"
+        ],
+        "selected_metrics": [
+          "metric.net_revenue"
+        ],
+        "selected_tables": [
+          "users",
+          "payments"
+        ],
+        "selected_joins": [
+          "join.users_payments"
+        ],
+        "warnings": [
+          "Aggregated revenue and campaign analysis are allowed.",
+          "Raw user PII columns are blocked from retrieval payloads and SQL planning output.",
+          "Use users.user_id for joins; do not expose email, phone, or name.",
+          "SQL execution is out of scope; validation only.",
+          "clarification_required_before_sql_draft"
+        ],
+        "execution_allowed": false
+      },
+      "difference_summary_panel": {
+        "items": [
+          {
+            "category": "wrong_date_basis",
+            "severity": "high",
+            "message": "Baseline does not use the confirmed first-paid date basis for 신규 고객.",
+            "baseline_evidence": [
+              "users.created_at"
+            ],
+            "system_evidence": [
+              "users.first_paid_at"
+            ],
+            "expected_semantic_refs": [
+              "term.new_customer",
+              "users.first_paid_at"
+            ]
+          },
+          {
+            "category": "wrong_metric_basis",
+            "severity": "high",
+            "message": "Baseline misses refund/discount deductions required by 순매출.",
+            "baseline_evidence": [
+              "SUM(payments.amount)"
+            ],
+            "system_evidence": [
+              "payments.refund_amount",
+              "payments.discount_amount"
+            ],
+            "expected_semantic_refs": [
+              "metric.net_revenue"
+            ]
+          },
+          {
+            "category": "missing_value_filter",
+            "severity": "medium",
+            "message": "Baseline misses the semantic/default paid-status filter.",
+            "baseline_evidence": [
+              "users.created_at >= {start_date} AND users.created_at < {end_date}"
+            ],
+            "system_evidence": [
+              "users.first_paid_at >= {start_date}\n  AND users.first_paid_at < {end_date}\n  AND payments.status = ''"
+            ],
+            "expected_semantic_refs": [
+              "value_dict.payments.status",
+              "metric.net_revenue"
+            ]
+          }
+        ],
+        "recommendation": {
+          "decision": "prefer_system_with_warnings",
+          "next_actions": [
+            "Show high-risk baseline differences in the UI."
+          ],
+          "rationale": "Baseline has material semantic or safety risk."
+        }
+      },
+      "applied_definitions_panel": {
+        "business_terms": [
+          {
+            "id": "term.new_customer",
+            "term": "신규 고객",
+            "definition": "A user whose first successful payment timestamp falls within the analysis period.",
+            "sql_condition": "users.first_paid_at >= {start_date} AND users.first_paid_at < {end_date}",
+            "status": "draft"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "metric.net_revenue",
+            "name": "net_revenue",
+            "label": "순매출",
+            "formula_sql": "SUM(payments.amount - payments.refund_amount - payments.discount_amount)",
+            "date_basis": "payments.paid_at",
+            "status": "draft"
+          }
+        ],
+        "policies": [
+          {
+            "id": "policy.marketing_safe_revenue",
+            "allowed_tables": [
+              "users",
+              "payments",
+              "campaigns"
+            ],
+            "blocked_columns": [
+              "users.email",
+              "users.phone",
+              "users.name"
+            ]
+          }
+        ],
+        "verified_queries": [
+          {
+            "id": "verified_query.monthly_new_customer_revenue",
+            "question": "월별 신규 고객 순매출을 보여줘",
+            "sql": "SELECT DATE_TRUNC('month', users.first_paid_at) AS month, SUM(payments.amount - payments.refund_amount - payments.discount_amount) AS net_revenue\nFROM users\nJOIN payments ON users.user_id = payments.user_id\nWHERE users.first_paid_at >= {start_date}\n  AND users.first_paid_at < {end_date}\n  AND payments.status = 'PAID'\nGROUP BY 1",
+            "status": "confirmed"
+          }
+        ]
+      },
+      "verification_panel": {
+        "policy_verdict": {
+          "valid": true,
+          "execution_allowed": false,
+          "checks": {
+            "select_only": "pass",
+            "multi_statement": "pass",
+            "allowed_tables": "pass",
+            "blocked_columns": "pass"
+          },
+          "referenced_tables": [
+            "users",
+            "payments"
+          ],
+          "referenced_columns": [
+            "users.first_paid_at",
+            "payments.amount",
+            "payments.refund_amount",
+            "payments.discount_amount",
+            "users.user_id",
+            "payments.user_id",
+            "payments.status",
+            "users",
+            "first_paid_at",
+            "month",
+            "payments",
+            "amount",
+            "refund_amount",
+            "discount_amount",
+            "net_revenue"
+          ],
+          "warnings": [],
+          "errors": [],
+          "verifier": "policy"
+        },
+        "semantic_verdict": {
+          "verifier": "semantic",
+          "valid": true,
+          "execution_allowed": false,
+          "errors": [],
+          "reasons": [],
+          "warnings": [],
+          "required_business_term_condition_columns": [
+            "payments.status",
+            "users.first_paid_at"
+          ]
+        },
+        "preview_eligible": true,
+        "execution_allowed": false
+      },
+      "failure_state_panel": {
+        "state": "clarification_required",
+        "message": "The Semantic Pack requires clarification before a final answer.",
+        "reasons": [
+          "Aggregated revenue and campaign analysis are allowed.",
+          "Raw user PII columns are blocked from retrieval payloads and SQL planning output.",
+          "Use users.user_id for joins; do not expose email, phone, or name.",
+          "SQL execution is out of scope; validation only.",
+          "clarification_required_before_sql_draft"
+        ],
+        "next_actions": [
+          "Ask the listed reverse question."
+        ]
+      },
+      "preview_result_panel": {
+        "status": "not_requested",
+        "columns": [],
+        "rows": [],
+        "errors": [],
+        "execution_allowed": false
+      },
+      "suggested_actions_panel": {
+        "actions": [
+          "Ask the listed reverse question."
+        ]
+      },
+      "execution_allowed": false
+    }
+  },
+  {
+    "scenario_id": "scenario.baseline.misses_net_revenue_deductions",
+    "passed": true,
+    "observed_state": "clarification_required",
+    "expected_state": "clarification_required",
+    "observed_difference_categories": [
+      "wrong_date_basis",
+      "wrong_metric_basis",
+      "missing_value_filter"
+    ],
+    "errors": [],
+    "response": {
+      "mode": "C_QUERY_RUNTIME",
+      "question": "지난달 신규 고객 순매출을 보여줘",
+      "role": "marketing_analyst",
+      "space_id": "demo_company.revenue",
+      "baseline_sql_panel": {
+        "sql": "SELECT DATE_TRUNC('month', users.created_at) AS month, SUM(payments.amount) AS revenue FROM users JOIN payments ON users.user_id = payments.user_id WHERE users.created_at >= {start_date} AND users.created_at < {end_date} GROUP BY 1",
+        "provider": "mock",
+        "warnings": [
+          "physical_schema_only",
+          "baseline_not_executed"
+        ],
+        "risk_notes": [
+          {
+            "category": "date_basis",
+            "severity": "high",
+            "message": "Baseline uses users.created_at instead of confirmed first-paid date.",
+            "evidence": []
+          },
+          {
+            "category": "metric_basis",
+            "severity": "high",
+            "message": "Baseline sums gross amount and misses refund/discount columns.",
+            "evidence": []
+          }
+        ],
+        "not_executed": true
+      },
+      "system_sql_panel": {
+        "sql": "SELECT DATE_TRUNC('month', users.first_paid_at) AS month, SUM(payments.amount - payments.refund_amount - payments.discount_amount) AS net_revenue\nFROM users\nJOIN payments ON users.user_id = payments.user_id\nWHERE users.first_paid_at >= {start_date}\n  AND users.first_paid_at < {end_date}\n  AND payments.status = 'PAID'\nGROUP BY 1",
+        "source": "verified_query_template",
+        "selected_terms": [
+          "term.new_customer"
+        ],
+        "selected_metrics": [
+          "metric.net_revenue"
+        ],
+        "selected_tables": [
+          "users",
+          "payments"
+        ],
+        "selected_joins": [
+          "join.users_payments"
+        ],
+        "warnings": [
+          "Aggregated revenue and campaign analysis are allowed.",
+          "Raw user PII columns are blocked from retrieval payloads and SQL planning output.",
+          "Use users.user_id for joins; do not expose email, phone, or name.",
+          "SQL execution is out of scope; validation only.",
+          "clarification_required_before_sql_draft"
+        ],
+        "execution_allowed": false
+      },
+      "difference_summary_panel": {
+        "items": [
+          {
+            "category": "wrong_date_basis",
+            "severity": "high",
+            "message": "Baseline does not use the confirmed first-paid date basis for 신규 고객.",
+            "baseline_evidence": [
+              "users.created_at"
+            ],
+            "system_evidence": [
+              "users.first_paid_at"
+            ],
+            "expected_semantic_refs": [
+              "term.new_customer",
+              "users.first_paid_at"
+            ]
+          },
+          {
+            "category": "wrong_metric_basis",
+            "severity": "high",
+            "message": "Baseline misses refund/discount deductions required by 순매출.",
+            "baseline_evidence": [
+              "SUM(payments.amount)"
+            ],
+            "system_evidence": [
+              "payments.refund_amount",
+              "payments.discount_amount"
+            ],
+            "expected_semantic_refs": [
+              "metric.net_revenue"
+            ]
+          },
+          {
+            "category": "missing_value_filter",
+            "severity": "medium",
+            "message": "Baseline misses the semantic/default paid-status filter.",
+            "baseline_evidence": [
+              "users.created_at >= {start_date} AND users.created_at < {end_date}"
+            ],
+            "system_evidence": [
+              "users.first_paid_at >= {start_date}\n  AND users.first_paid_at < {end_date}\n  AND payments.status = ''"
+            ],
+            "expected_semantic_refs": [
+              "value_dict.payments.status",
+              "metric.net_revenue"
+            ]
+          }
+        ],
+        "recommendation": {
+          "decision": "prefer_system_with_warnings",
+          "next_actions": [
+            "Show high-risk baseline differences in the UI."
+          ],
+          "rationale": "Baseline has material semantic or safety risk."
+        }
+      },
+      "applied_definitions_panel": {
+        "business_terms": [
+          {
+            "id": "term.new_customer",
+            "term": "신규 고객",
+            "definition": "A user whose first successful payment timestamp falls within the analysis period.",
+            "sql_condition": "users.first_paid_at >= {start_date} AND users.first_paid_at < {end_date}",
+            "status": "draft"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "metric.net_revenue",
+            "name": "net_revenue",
+            "label": "순매출",
+            "formula_sql": "SUM(payments.amount - payments.refund_amount - payments.discount_amount)",
+            "date_basis": "payments.paid_at",
+            "status": "draft"
+          }
+        ],
+        "policies": [
+          {
+            "id": "policy.marketing_safe_revenue",
+            "allowed_tables": [
+              "users",
+              "payments",
+              "campaigns"
+            ],
+            "blocked_columns": [
+              "users.email",
+              "users.phone",
+              "users.name"
+            ]
+          }
+        ],
+        "verified_queries": [
+          {
+            "id": "verified_query.monthly_new_customer_revenue",
+            "question": "월별 신규 고객 순매출을 보여줘",
+            "sql": "SELECT DATE_TRUNC('month', users.first_paid_at) AS month, SUM(payments.amount - payments.refund_amount - payments.discount_amount) AS net_revenue\nFROM users\nJOIN payments ON users.user_id = payments.user_id\nWHERE users.first_paid_at >= {start_date}\n  AND users.first_paid_at < {end_date}\n  AND payments.status = 'PAID'\nGROUP BY 1",
+            "status": "confirmed"
+          }
+        ]
+      },
+      "verification_panel": {
+        "policy_verdict": {
+          "valid": true,
+          "execution_allowed": false,
+          "checks": {
+            "select_only": "pass",
+            "multi_statement": "pass",
+            "allowed_tables": "pass",
+            "blocked_columns": "pass"
+          },
+          "referenced_tables": [
+            "users",
+            "payments"
+          ],
+          "referenced_columns": [
+            "users.first_paid_at",
+            "payments.amount",
+            "payments.refund_amount",
+            "payments.discount_amount",
+            "users.user_id",
+            "payments.user_id",
+            "payments.status",
+            "users",
+            "first_paid_at",
+            "month",
+            "payments",
+            "amount",
+            "refund_amount",
+            "discount_amount",
+            "net_revenue"
+          ],
+          "warnings": [],
+          "errors": [],
+          "verifier": "policy"
+        },
+        "semantic_verdict": {
+          "verifier": "semantic",
+          "valid": true,
+          "execution_allowed": false,
+          "errors": [],
+          "reasons": [],
+          "warnings": [],
+          "required_business_term_condition_columns": [
+            "payments.status",
+            "users.first_paid_at"
+          ]
+        },
+        "preview_eligible": true,
+        "execution_allowed": false
+      },
+      "failure_state_panel": {
+        "state": "clarification_required",
+        "message": "The Semantic Pack requires clarification before a final answer.",
+        "reasons": [
+          "Aggregated revenue and campaign analysis are allowed.",
+          "Raw user PII columns are blocked from retrieval payloads and SQL planning output.",
+          "Use users.user_id for joins; do not expose email, phone, or name.",
+          "SQL execution is out of scope; validation only.",
+          "clarification_required_before_sql_draft"
+        ],
+        "next_actions": [
+          "Ask the listed reverse question."
+        ]
+      },
+      "preview_result_panel": {
+        "status": "not_requested",
+        "columns": [],
+        "rows": [],
+        "errors": [],
+        "execution_allowed": false
+      },
+      "suggested_actions_panel": {
+        "actions": [
+          "Ask the listed reverse question."
+        ]
+      },
+      "execution_allowed": false
+    }
+  },
+  {
+    "scenario_id": "scenario.unsafe.delete",
+    "passed": true,
+    "observed_state": "unsafe_sql_blocked",
+    "expected_state": "unsafe_sql_blocked",
+    "observed_difference_categories": [
+      "unsafe_sql",
+      "system_sql_not_available"
+    ],
+    "errors": [],
+    "response": {
+      "mode": "C_QUERY_RUNTIME",
+      "question": "오래된 users를 DELETE 해줘",
+      "role": "marketing_analyst",
+      "space_id": "demo_company.revenue",
+      "baseline_sql_panel": {
+        "sql": "DELETE FROM users WHERE created_at < CURRENT_DATE - INTERVAL '1 year'",
+        "provider": "mock",
+        "warnings": [
+          "physical_schema_only",
+          "baseline_not_executed"
+        ],
+        "risk_notes": [
+          {
+            "category": "safety",
+            "severity": "high",
+            "message": "Baseline model drafted non-SELECT SQL from the question.",
+            "evidence": []
+          }
+        ],
+        "not_executed": true
+      },
+      "system_sql_panel": {
+        "sql": null,
+        "source": "none",
+        "selected_terms": [],
+        "selected_metrics": [],
+        "selected_tables": [],
+        "selected_joins": [],
+        "warnings": [
+          "Aggregated revenue and campaign analysis are allowed.",
+          "Raw user PII columns are blocked from retrieval payloads and SQL planning output.",
+          "Use users.user_id for joins; do not expose email, phone, or name.",
+          "SQL execution is out of scope; validation only.",
+          "sql_draft_not_allowed"
+        ],
+        "execution_allowed": false
+      },
+      "difference_summary_panel": {
+        "items": [
+          {
+            "category": "unsafe_sql",
+            "severity": "critical",
+            "message": "Baseline SQL text is not a safe single SELECT/WITH statement.",
+            "baseline_evidence": [
+              "non_select"
+            ],
+            "system_evidence": [],
+            "expected_semantic_refs": []
+          },
+          {
+            "category": "system_sql_not_available",
+            "severity": "medium",
+            "message": "System did not draft SQL, so UI must show a clarification or missing-context state.",
+            "baseline_evidence": [],
+            "system_evidence": [],
+            "expected_semantic_refs": []
+          }
+        ],
+        "recommendation": {
+          "decision": "ask_or_enrich_context",
+          "next_actions": [
+            "Ask clarification or add missing Semantic Pack context."
+          ],
+          "rationale": "System did not produce a validated SQL draft."
+        }
+      },
+      "applied_definitions_panel": {
+        "business_terms": [],
+        "metrics": [],
+        "policies": [
+          {
+            "id": "policy.marketing_safe_revenue",
+            "allowed_tables": [
+              "users",
+              "payments",
+              "campaigns"
+            ],
+            "blocked_columns": [
+              "users.email",
+              "users.phone",
+              "users.name"
+            ]
+          }
+        ],
+        "verified_queries": []
+      },
+      "verification_panel": {
+        "policy_verdict": {
+          "valid": false,
+          "errors": [
+            "sql_draft_not_available"
+          ],
+          "execution_allowed": false
+        },
+        "semantic_verdict": {
+          "valid": false,
+          "errors": [
+            "sql_draft_not_available"
+          ],
+          "execution_allowed": false
+        },
+        "preview_eligible": false,
+        "execution_allowed": false
+      },
+      "failure_state_panel": {
+        "state": "unsafe_sql_blocked",
+        "message": "Unsafe SQL intent was blocked before preview.",
+        "reasons": [
+          "non_read_only_intent"
+        ],
+        "next_actions": [
+          "Rephrase as a read-only analytical question."
+        ]
+      },
+      "preview_result_panel": {
+        "status": "preview_unavailable",
+        "columns": [],
+        "rows": [],
+        "errors": [
+          {
+            "code": "unsafe_sql_blocked",
+            "message": "Unsafe SQL intent was blocked before preview."
+          }
+        ],
+        "execution_allowed": false
+      },
+      "suggested_actions_panel": {
+        "actions": [
+          "Rephrase as a read-only analytical question."
+        ]
+      },
+      "execution_allowed": false
+    }
+  },
+  {
+    "scenario_id": "scenario.unsafe.multi_statement",
+    "passed": true,
+    "observed_state": "unsafe_sql_blocked",
+    "expected_state": "unsafe_sql_blocked",
+    "observed_difference_categories": [
+      "system_sql_not_available"
+    ],
+    "errors": [],
+    "response": {
+      "mode": "C_QUERY_RUNTIME",
+      "question": "SELECT * FROM users; DROP TABLE users;",
+      "role": "marketing_analyst",
+      "space_id": "demo_company.revenue",
+      "baseline_sql_panel": {
+        "sql": "SELECT COUNT(*) AS row_count FROM campaigns",
+        "provider": "mock",
+        "warnings": [
+          "physical_schema_only",
+          "baseline_not_executed"
+        ],
+        "risk_notes": [
+          {
+            "category": "missing_semantic_context",
+            "severity": "medium",
+            "message": "Baseline only counted rows because no semantic context was provided.",
+            "evidence": []
+          }
+        ],
+        "not_executed": true
+      },
+      "system_sql_panel": {
+        "sql": null,
+        "source": "none",
+        "selected_terms": [],
+        "selected_metrics": [],
+        "selected_tables": [],
+        "selected_joins": [],
+        "warnings": [
+          "Aggregated revenue and campaign analysis are allowed.",
+          "Raw user PII columns are blocked from retrieval payloads and SQL planning output.",
+          "Use users.user_id for joins; do not expose email, phone, or name.",
+          "SQL execution is out of scope; validation only.",
+          "sql_draft_not_allowed"
+        ],
+        "execution_allowed": false
+      },
+      "difference_summary_panel": {
+        "items": [
+          {
+            "category": "system_sql_not_available",
+            "severity": "medium",
+            "message": "System did not draft SQL, so UI must show a clarification or missing-context state.",
+            "baseline_evidence": [],
+            "system_evidence": [],
+            "expected_semantic_refs": []
+          }
+        ],
+        "recommendation": {
+          "decision": "ask_or_enrich_context",
+          "next_actions": [
+            "Ask clarification or add missing Semantic Pack context."
+          ],
+          "rationale": "System did not produce a validated SQL draft."
+        }
+      },
+      "applied_definitions_panel": {
+        "business_terms": [],
+        "metrics": [],
+        "policies": [
+          {
+            "id": "policy.marketing_safe_revenue",
+            "allowed_tables": [
+              "users",
+              "payments",
+              "campaigns"
+            ],
+            "blocked_columns": [
+              "users.email",
+              "users.phone",
+              "users.name"
+            ]
+          }
+        ],
+        "verified_queries": []
+      },
+      "verification_panel": {
+        "policy_verdict": {
+          "valid": false,
+          "errors": [
+            "sql_draft_not_available"
+          ],
+          "execution_allowed": false
+        },
+        "semantic_verdict": {
+          "valid": false,
+          "errors": [
+            "sql_draft_not_available"
+          ],
+          "execution_allowed": false
+        },
+        "preview_eligible": false,
+        "execution_allowed": false
+      },
+      "failure_state_panel": {
+        "state": "unsafe_sql_blocked",
+        "message": "Unsafe SQL intent was blocked before preview.",
+        "reasons": [
+          "non_read_only_intent"
+        ],
+        "next_actions": [
+          "Rephrase as a read-only analytical question."
+        ]
+      },
+      "preview_result_panel": {
+        "status": "preview_unavailable",
+        "columns": [],
+        "rows": [],
+        "errors": [
+          {
+            "code": "unsafe_sql_blocked",
+            "message": "Unsafe SQL intent was blocked before preview."
+          }
+        ],
+        "execution_allowed": false
+      },
+      "suggested_actions_panel": {
+        "actions": [
+          "Rephrase as a read-only analytical question."
+        ]
+      },
+      "execution_allowed": false
+    }
+  },
+  {
+    "scenario_id": "scenario.missing.business_term",
+    "passed": true,
+    "observed_state": "missing_semantic_context",
+    "expected_state": "missing_semantic_context",
+    "observed_difference_categories": [
+      "wrong_date_basis",
+      "missing_join_recipe",
+      "system_sql_not_available"
+    ],
+    "errors": [],
+    "response": {
+      "mode": "C_QUERY_RUNTIME",
+      "question": "활성 구독 고객의 체류율을 보여줘",
+      "role": "marketing_analyst",
+      "space_id": "demo_company.revenue",
+      "baseline_sql_panel": {
+        "sql": "SELECT COUNT(*) AS row_count FROM campaigns",
+        "provider": "mock",
+        "warnings": [
+          "physical_schema_only",
+          "baseline_not_executed"
+        ],
+        "risk_notes": [
+          {
+            "category": "missing_semantic_context",
+            "severity": "medium",
+            "message": "Baseline only counted rows because no semantic context was provided.",
+            "evidence": []
+          }
+        ],
+        "not_executed": true
+      },
+      "system_sql_panel": {
+        "sql": null,
+        "source": "none",
+        "selected_terms": [],
+        "selected_metrics": [],
+        "selected_tables": [],
+        "selected_joins": [],
+        "warnings": [
+          "Aggregated revenue and campaign analysis are allowed.",
+          "Raw user PII columns are blocked from retrieval payloads and SQL planning output.",
+          "Use users.user_id for joins; do not expose email, phone, or name.",
+          "SQL execution is out of scope; validation only.",
+          "sql_draft_not_allowed"
+        ],
+        "execution_allowed": false
+      },
+      "difference_summary_panel": {
+        "items": [
+          {
+            "category": "wrong_date_basis",
+            "severity": "high",
+            "message": "Baseline does not use the confirmed first-paid date basis for 신규 고객.",
+            "baseline_evidence": [],
+            "system_evidence": [],
+            "expected_semantic_refs": [
+              "term.new_customer",
+              "users.first_paid_at"
+            ]
+          },
+          {
+            "category": "missing_join_recipe",
+            "severity": "medium",
+            "message": "Baseline does not clearly follow the expected join recipe.",
+            "baseline_evidence": [],
+            "system_evidence": [],
+            "expected_semantic_refs": [
+              "join.users_payments"
+            ]
+          },
+          {
+            "category": "system_sql_not_available",
+            "severity": "medium",
+            "message": "System did not draft SQL, so UI must show a clarification or missing-context state.",
+            "baseline_evidence": [],
+            "system_evidence": [],
+            "expected_semantic_refs": [
+              "term.new_customer"
+            ]
+          }
+        ],
+        "recommendation": {
+          "decision": "ask_or_enrich_context",
+          "next_actions": [
+            "Ask clarification or add missing Semantic Pack context."
+          ],
+          "rationale": "System did not produce a validated SQL draft."
+        }
+      },
+      "applied_definitions_panel": {
+        "business_terms": [],
+        "metrics": [],
+        "policies": [
+          {
+            "id": "policy.marketing_safe_revenue",
+            "allowed_tables": [
+              "users",
+              "payments",
+              "campaigns"
+            ],
+            "blocked_columns": [
+              "users.email",
+              "users.phone",
+              "users.name"
+            ]
+          }
+        ],
+        "verified_queries": []
+      },
+      "verification_panel": {
+        "policy_verdict": {
+          "valid": false,
+          "errors": [
+            "sql_draft_not_available"
+          ],
+          "execution_allowed": false
+        },
+        "semantic_verdict": {
+          "valid": false,
+          "errors": [
+            "sql_draft_not_available"
+          ],
+          "execution_allowed": false
+        },
+        "preview_eligible": false,
+        "execution_allowed": false
+      },
+      "failure_state_panel": {
+        "state": "missing_semantic_context",
+        "message": "No matching Semantic Pack term or metric was found.",
+        "reasons": [
+          "retrieval_miss_or_unknown_term"
+        ],
+        "next_actions": [
+          "Add or confirm a business term."
+        ]
+      },
+      "preview_result_panel": {
+        "status": "not_requested",
+        "columns": [],
+        "rows": [],
+        "errors": [],
+        "execution_allowed": false
+      },
+      "suggested_actions_panel": {
+        "actions": [
+          "Add or confirm a business term."
+        ]
+      },
+      "execution_allowed": false
+    }
+  },
+  {
+    "scenario_id": "scenario.draft.metric",
+    "passed": true,
+    "observed_state": "draft_metric_warning",
+    "expected_state": "draft_metric_warning",
+    "observed_difference_categories": [
+      "wrong_metric_basis",
+      "missing_value_filter",
+      "system_sql_not_available"
+    ],
+    "errors": [],
+    "response": {
+      "mode": "C_QUERY_RUNTIME",
+      "question": "초안 순매출 지표로 설명해줘",
+      "role": "marketing_analyst",
+      "space_id": "demo_company.revenue",
+      "baseline_sql_panel": {
+        "sql": "SELECT SUM(payments.amount) AS revenue FROM payments",
+        "provider": "mock",
+        "warnings": [
+          "physical_schema_only",
+          "baseline_not_executed"
+        ],
+        "risk_notes": [
+          {
+            "category": "metric_basis",
+            "severity": "medium",
+            "message": "Baseline picks gross payment amount without semantic metric context.",
+            "evidence": []
+          }
+        ],
+        "not_executed": true
+      },
+      "system_sql_panel": {
+        "sql": null,
+        "source": "none",
+        "selected_terms": [],
+        "selected_metrics": [
+          "metric.net_revenue"
+        ],
+        "selected_tables": [
+          "payments"
+        ],
+        "selected_joins": [],
+        "warnings": [
+          "Aggregated revenue and campaign analysis are allowed.",
+          "Raw user PII columns are blocked from retrieval payloads and SQL planning output.",
+          "Use users.user_id for joins; do not expose email, phone, or name.",
+          "SQL execution is out of scope; validation only.",
+          "clarification_required_before_sql_draft",
+          "sql_draft_not_allowed"
+        ],
+        "execution_allowed": false
+      },
+      "difference_summary_panel": {
+        "items": [
+          {
+            "category": "wrong_metric_basis",
+            "severity": "high",
+            "message": "Baseline misses refund/discount deductions required by 순매출.",
+            "baseline_evidence": [
+              "SUM(payments.amount)"
+            ],
+            "system_evidence": [],
+            "expected_semantic_refs": [
+              "metric.net_revenue"
+            ]
+          },
+          {
+            "category": "missing_value_filter",
+            "severity": "medium",
+            "message": "Baseline misses the semantic/default paid-status filter.",
+            "baseline_evidence": [],
+            "system_evidence": [],
+            "expected_semantic_refs": [
+              "value_dict.payments.status",
+              "metric.net_revenue"
+            ]
+          },
+          {
+            "category": "system_sql_not_available",
+            "severity": "medium",
+            "message": "System did not draft SQL, so UI must show a clarification or missing-context state.",
+            "baseline_evidence": [],
+            "system_evidence": [],
+            "expected_semantic_refs": [
+              "term.net_revenue",
+              "metric.net_revenue"
+            ]
+          }
+        ],
+        "recommendation": {
+          "decision": "ask_or_enrich_context",
+          "next_actions": [
+            "Ask clarification or add missing Semantic Pack context."
+          ],
+          "rationale": "System did not produce a validated SQL draft."
+        }
+      },
+      "applied_definitions_panel": {
+        "business_terms": [],
+        "metrics": [
+          {
+            "id": "metric.net_revenue",
+            "name": "net_revenue",
+            "label": "순매출",
+            "formula_sql": "SUM(payments.amount - payments.refund_amount - payments.discount_amount)",
+            "date_basis": "payments.paid_at",
+            "status": "draft"
+          }
+        ],
+        "policies": [
+          {
+            "id": "policy.marketing_safe_revenue",
+            "allowed_tables": [
+              "users",
+              "payments",
+              "campaigns"
+            ],
+            "blocked_columns": [
+              "users.email",
+              "users.phone",
+              "users.name"
+            ]
+          }
+        ],
+        "verified_queries": []
+      },
+      "verification_panel": {
+        "policy_verdict": {
+          "valid": false,
+          "errors": [
+            "sql_draft_not_available"
+          ],
+          "execution_allowed": false
+        },
+        "semantic_verdict": {
+          "valid": false,
+          "errors": [
+            "sql_draft_not_available"
+          ],
+          "execution_allowed": false
+        },
+        "preview_eligible": false,
+        "execution_allowed": false
+      },
+      "failure_state_panel": {
+        "state": "draft_metric_warning",
+        "message": "Only draft semantic cards are available for this demo question.",
+        "reasons": [
+          "draft_card"
+        ],
+        "next_actions": [
+          "Confirm the relevant term or metric before relying on it."
+        ]
+      },
+      "preview_result_panel": {
+        "status": "not_requested",
+        "columns": [],
+        "rows": [],
+        "errors": [],
+        "execution_allowed": false
+      },
+      "suggested_actions_panel": {
+        "actions": [
+          "Confirm the relevant term or metric before relying on it."
+        ]
+      },
+      "execution_allowed": false
+    }
+  },
+  {
+    "scenario_id": "scenario.conflicting.metrics",
+    "passed": true,
+    "observed_state": "clarification_required",
+    "expected_state": "clarification_required",
+    "observed_difference_categories": [
+      "wrong_metric_basis",
+      "missing_value_filter",
+      "system_sql_not_available"
+    ],
+    "errors": [],
+    "response": {
+      "mode": "C_QUERY_RUNTIME",
+      "question": "총매출과 순매출 중 어떤 매출을 봐야 해?",
+      "role": "marketing_analyst",
+      "space_id": "demo_company.revenue",
+      "baseline_sql_panel": {
+        "sql": "SELECT SUM(payments.amount) AS revenue FROM payments",
+        "provider": "mock",
+        "warnings": [
+          "physical_schema_only",
+          "baseline_not_executed"
+        ],
+        "risk_notes": [
+          {
+            "category": "metric_basis",
+            "severity": "medium",
+            "message": "Baseline picks gross payment amount without semantic metric context.",
+            "evidence": []
+          }
+        ],
+        "not_executed": true
+      },
+      "system_sql_panel": {
+        "sql": null,
+        "source": "none",
+        "selected_terms": [],
+        "selected_metrics": [
+          "metric.net_revenue",
+          "metric.gross_revenue"
+        ],
+        "selected_tables": [
+          "payments"
+        ],
+        "selected_joins": [],
+        "warnings": [
+          "Aggregated revenue and campaign analysis are allowed.",
+          "Raw user PII columns are blocked from retrieval payloads and SQL planning output.",
+          "Use users.user_id for joins; do not expose email, phone, or name.",
+          "SQL execution is out of scope; validation only.",
+          "clarification_required_before_sql_draft",
+          "sql_draft_not_allowed"
+        ],
+        "execution_allowed": false
+      },
+      "difference_summary_panel": {
+        "items": [
+          {
+            "category": "wrong_metric_basis",
+            "severity": "high",
+            "message": "Baseline misses refund/discount deductions required by 순매출.",
+            "baseline_evidence": [
+              "SUM(payments.amount)"
+            ],
+            "system_evidence": [],
+            "expected_semantic_refs": [
+              "metric.net_revenue"
+            ]
+          },
+          {
+            "category": "missing_value_filter",
+            "severity": "medium",
+            "message": "Baseline misses the semantic/default paid-status filter.",
+            "baseline_evidence": [],
+            "system_evidence": [],
+            "expected_semantic_refs": [
+              "value_dict.payments.status",
+              "metric.net_revenue"
+            ]
+          },
+          {
+            "category": "system_sql_not_available",
+            "severity": "medium",
+            "message": "System did not draft SQL, so UI must show a clarification or missing-context state.",
+            "baseline_evidence": [],
+            "system_evidence": [],
+            "expected_semantic_refs": [
+              "term.net_revenue",
+              "metric.net_revenue",
+              "metric.gross_revenue"
+            ]
+          }
+        ],
+        "recommendation": {
+          "decision": "ask_or_enrich_context",
+          "next_actions": [
+            "Ask clarification or add missing Semantic Pack context."
+          ],
+          "rationale": "System did not produce a validated SQL draft."
+        }
+      },
+      "applied_definitions_panel": {
+        "business_terms": [],
+        "metrics": [
+          {
+            "id": "metric.net_revenue",
+            "name": "net_revenue",
+            "label": "순매출",
+            "formula_sql": "SUM(payments.amount - payments.refund_amount - payments.discount_amount)",
+            "date_basis": "payments.paid_at",
+            "status": "draft"
+          },
+          {
+            "id": "metric.gross_revenue",
+            "name": "gross_revenue",
+            "label": "총매출",
+            "formula_sql": "SUM(payments.amount)",
+            "date_basis": "payments.paid_at",
+            "status": "draft"
+          }
+        ],
+        "policies": [
+          {
+            "id": "policy.marketing_safe_revenue",
+            "allowed_tables": [
+              "users",
+              "payments",
+              "campaigns"
+            ],
+            "blocked_columns": [
+              "users.email",
+              "users.phone",
+              "users.name"
+            ]
+          }
+        ],
+        "verified_queries": []
+      },
+      "verification_panel": {
+        "policy_verdict": {
+          "valid": false,
+          "errors": [
+            "sql_draft_not_available"
+          ],
+          "execution_allowed": false
+        },
+        "semantic_verdict": {
+          "valid": false,
+          "errors": [
+            "sql_draft_not_available"
+          ],
+          "execution_allowed": false
+        },
+        "preview_eligible": false,
+        "execution_allowed": false
+      },
+      "failure_state_panel": {
+        "state": "clarification_required",
+        "message": "The Semantic Pack requires clarification before a final answer.",
+        "reasons": [
+          "Aggregated revenue and campaign analysis are allowed.",
+          "Raw user PII columns are blocked from retrieval payloads and SQL planning output.",
+          "Use users.user_id for joins; do not expose email, phone, or name.",
+          "SQL execution is out of scope; validation only.",
+          "clarification_required_before_sql_draft"
+        ],
+        "next_actions": [
+          "Ask the listed reverse question."
+        ]
+      },
+      "preview_result_panel": {
+        "status": "not_requested",
+        "columns": [],
+        "rows": [],
+        "errors": [],
+        "execution_allowed": false
+      },
+      "suggested_actions_panel": {
+        "actions": [
+          "Ask the listed reverse question."
+        ]
+      },
+      "execution_allowed": false
+    }
+  },
+  {
+    "scenario_id": "scenario.preview.unavailable",
+    "passed": true,
+    "observed_state": "unsafe_sql_blocked",
+    "expected_state": "unsafe_sql_blocked",
+    "observed_difference_categories": [
+      "unsafe_sql",
+      "system_sql_not_available"
+    ],
+    "errors": [],
+    "response": {
+      "mode": "C_QUERY_RUNTIME",
+      "question": "오래된 users를 삭제하고 미리보기 해줘",
+      "role": "marketing_analyst",
+      "space_id": "demo_company.revenue",
+      "baseline_sql_panel": {
+        "sql": "DELETE FROM users WHERE created_at < CURRENT_DATE - INTERVAL '1 year'",
+        "provider": "mock",
+        "warnings": [
+          "physical_schema_only",
+          "baseline_not_executed"
+        ],
+        "risk_notes": [
+          {
+            "category": "safety",
+            "severity": "high",
+            "message": "Baseline model drafted non-SELECT SQL from the question.",
+            "evidence": []
+          }
+        ],
+        "not_executed": true
+      },
+      "system_sql_panel": {
+        "sql": null,
+        "source": "none",
+        "selected_terms": [],
+        "selected_metrics": [],
+        "selected_tables": [],
+        "selected_joins": [],
+        "warnings": [
+          "Aggregated revenue and campaign analysis are allowed.",
+          "Raw user PII columns are blocked from retrieval payloads and SQL planning output.",
+          "Use users.user_id for joins; do not expose email, phone, or name.",
+          "SQL execution is out of scope; validation only.",
+          "sql_draft_not_allowed"
+        ],
+        "execution_allowed": false
+      },
+      "difference_summary_panel": {
+        "items": [
+          {
+            "category": "unsafe_sql",
+            "severity": "critical",
+            "message": "Baseline SQL text is not a safe single SELECT/WITH statement.",
+            "baseline_evidence": [
+              "non_select"
+            ],
+            "system_evidence": [],
+            "expected_semantic_refs": []
+          },
+          {
+            "category": "system_sql_not_available",
+            "severity": "medium",
+            "message": "System did not draft SQL, so UI must show a clarification or missing-context state.",
+            "baseline_evidence": [],
+            "system_evidence": [],
+            "expected_semantic_refs": []
+          }
+        ],
+        "recommendation": {
+          "decision": "ask_or_enrich_context",
+          "next_actions": [
+            "Ask clarification or add missing Semantic Pack context."
+          ],
+          "rationale": "System did not produce a validated SQL draft."
+        }
+      },
+      "applied_definitions_panel": {
+        "business_terms": [],
+        "metrics": [],
+        "policies": [
+          {
+            "id": "policy.marketing_safe_revenue",
+            "allowed_tables": [
+              "users",
+              "payments",
+              "campaigns"
+            ],
+            "blocked_columns": [
+              "users.email",
+              "users.phone",
+              "users.name"
+            ]
+          }
+        ],
+        "verified_queries": []
+      },
+      "verification_panel": {
+        "policy_verdict": {
+          "valid": false,
+          "errors": [
+            "sql_draft_not_available"
+          ],
+          "execution_allowed": false
+        },
+        "semantic_verdict": {
+          "valid": false,
+          "errors": [
+            "sql_draft_not_available"
+          ],
+          "execution_allowed": false
+        },
+        "preview_eligible": false,
+        "execution_allowed": false
+      },
+      "failure_state_panel": {
+        "state": "unsafe_sql_blocked",
+        "message": "Unsafe SQL intent was blocked before preview.",
+        "reasons": [
+          "non_read_only_intent"
+        ],
+        "next_actions": [
+          "Rephrase as a read-only analytical question."
+        ]
+      },
+      "preview_result_panel": {
+        "status": "preview_unavailable",
+        "columns": [],
+        "rows": [],
+        "errors": [
+          {
+            "code": "unsafe_sql_blocked",
+            "message": "Unsafe SQL intent was blocked before preview."
+          }
+        ],
+        "execution_allowed": false
+      },
+      "suggested_actions_panel": {
+        "actions": [
+          "Rephrase as a read-only analytical question."
+        ]
+      },
+      "execution_allowed": false
+    }
+  }
+]
