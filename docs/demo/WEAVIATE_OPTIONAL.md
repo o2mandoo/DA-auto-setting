@@ -11,6 +11,8 @@ PYTHONPATH=packages/semantic_contracts:packages/semantic_registry:packages/seman
 python3 -m unittest tests.integration.test_weaviate_live_optional -v
 ```
 
+Run this from the repository root. If you are using a virtualenv or temp dependency cache, keep the repository package paths ahead of `/tmp/semantic-data-context-deps` so the checkout code wins.
+
 Behavior:
 
 - If `SEMANTIC_WEAVIATE_ENABLED`, `SEMANTIC_WEAVIATE_URL`, or
