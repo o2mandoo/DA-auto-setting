@@ -40,27 +40,30 @@ class SemanticInferenceProvider(Protocol):
 
 @dataclass(frozen=True)
 class LocalProviderConfig:
-    """Explicit opt-in configuration for a future local LLM provider seam.
-
-    The config accepts common provider field names now so env/config mappings
-    can be passed through directly. The seam remains opt-in and unimplemented
-    until a real provider is wired in.
-    """
+    """Explicit opt-in configuration for an OpenAI-compatible local/HTTP LLM."""
 
     enabled: bool = False
     provider: str | None = None
     model: str | None = None
     endpoint: str | None = None
+    base_url: str | None = None
     api_key: str | None = None
-    timeout_s: float = 30.0
+    timeout: float = 30.0
+    max_tokens: int | None = 512
+    temperature: float = 0.0
+
+    @property
+    def timeout_s(self) -> float:
+        """Backward-compatible alias for older call sites."""
+
+        return self.timeout
 
 
 class LocalSemanticInferenceProvider:
-    """Config-gated local provider seam.
+    """Config-gated OpenAI-compatible local provider.
 
-    The seam is present so callers can wire a local-only adapter later without
-    changing the pipeline. It fails loudly until enabled and implemented rather
-    than silently falling back to mock or making network calls.
+    Once callers explicitly select this provider, failures are surfaced
+    directly; the pipeline never falls back to the deterministic mock.
     """
 
     name = "local"
@@ -75,19 +78,6 @@ class LocalSemanticInferenceProvider:
         self._client = client
         if not self.config.enabled:
             raise ValueError("local semantic inference provider requires explicit enabled=True config")
-        resolved_model = str(self.config.model or self.config.provider or "").strip()
-        if not resolved_model:
-            raise ValueError("local semantic inference provider requires a model")
-        if not str(self.config.endpoint or "").strip():
-            raise ValueError("local semantic inference provider requires an endpoint")
-        self.config = LocalProviderConfig(
-            enabled=self.config.enabled,
-            provider=self.config.provider,
-            model=resolved_model,
-            endpoint=self.config.endpoint,
-            api_key=self.config.api_key,
-            timeout_s=self.config.timeout_s,
-        )
 
     def infer(self, profile_records: Sequence[ProfileRecord]) -> dict[str, list[JsonObject]]:
         payload = self._build_request_payload(profile_records)
@@ -95,9 +85,12 @@ class LocalSemanticInferenceProvider:
         return self._parse_response(response)
 
     def _build_request_payload(self, profile_records: Sequence[ProfileRecord]) -> JsonObject:
+        model = _required_text(self.config.model, "local semantic inference provider requires a model")
         return {
-            "model": self.config.model,
-            "temperature": 0,
+            "model": model,
+            "temperature": self.config.temperature,
+            "max_tokens": self.config.max_tokens,
+            "response_format": {"type": "json_object"},
             "messages": [
                 {
                     "role": "system",
@@ -111,7 +104,7 @@ class LocalSemanticInferenceProvider:
                     "content": json.dumps(
                         {
                             "task": "Generate draft semantic hypotheses and onboarding questions from profile records.",
-                            "profiles": list(profile_records),
+                            "profiles": [_sanitize_profile_record(record) for record in profile_records],
                             "output_schema": {
                                 "hypotheses": "array of objects",
                                 "onboarding_questions": "array of objects",
@@ -125,7 +118,10 @@ class LocalSemanticInferenceProvider:
         }
 
     def _post_json(self, payload: JsonObject) -> JsonObject:
-        endpoint = str(self.config.endpoint or "").strip()
+        endpoint = _required_text(
+            self.config.endpoint or self.config.base_url,
+            "local semantic inference provider requires an endpoint",
+        )
         request = urllib.request.Request(
             _openai_compat_url(endpoint),
             data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
@@ -133,7 +129,7 @@ class LocalSemanticInferenceProvider:
             method="POST",
         )
         try:
-            with urllib.request.urlopen(request, timeout=float(self.config.timeout_s)) as response:
+            with urllib.request.urlopen(request, timeout=float(self.config.timeout)) as response:
                 body = response.read().decode("utf-8")
         except urllib.error.HTTPError as exc:
             message = exc.read().decode("utf-8", errors="replace") if exc.fp else str(exc)
@@ -404,6 +400,23 @@ def generate_semantic_inference(
     }
 
 
+def load_inference_provider_config(env: Mapping[str, str] | None = None) -> LocalProviderConfig:
+    """Load user-selectable LLM config from environment-style mappings."""
+
+    source = os.environ if env is None else env
+    return LocalProviderConfig(
+        enabled=_to_bool(source.get("SDC_LLM_ENABLED")),
+        provider=_clean_text(source.get("SDC_LLM_PROVIDER")),
+        endpoint=_clean_text(source.get("SDC_LLM_ENDPOINT")),
+        base_url=_clean_text(source.get("SDC_LLM_BASE_URL")),
+        model=_clean_text(source.get("SDC_LLM_MODEL")),
+        api_key=_clean_text(source.get("SDC_LLM_API_KEY")),
+        timeout=_coerce_float_or_none(source.get("SDC_LLM_TIMEOUT")) or 30.0,
+        max_tokens=_coerce_int_or_none(source.get("SDC_LLM_MAX_TOKENS")),
+        temperature=_coerce_float_or_none(source.get("SDC_LLM_TEMPERATURE")) or 0.0,
+    )
+
+
 def _clean_text(value: Any) -> str | None:
     if value is None:
         return None
@@ -429,6 +442,13 @@ def _coerce_int_or_none(value: Any) -> int | None:
     if value is None or value == "":
         return None
     return int(value)
+
+
+def _required_text(value: Any, message: str) -> str:
+    text = _clean_text(value)
+    if text is None:
+        raise ValueError(message)
+    return text
 
 
 def load_profile_jsonl(path: str | Path) -> list[JsonObject]:
