@@ -11,7 +11,7 @@ import re
 from pathlib import Path
 from typing import Any, Iterable
 
-from semantic_contracts import SemanticPack
+from semantic_contracts import SemanticPack  # type: ignore[import-untyped]
 from semantic_registry.query_planner import load_space_packs
 from semantic_registry.sql_guard import SQLGuard
 from semantic_registry.store import DEFAULT_PACK_ROOT
@@ -192,7 +192,7 @@ def profile_sql(sql: str | None, *, packs: Iterable[SemanticPack], role: str | N
 
 def _expected_semantics(question: str, packs: Iterable[SemanticPack]) -> dict[str, list[str]]:
     q = question.casefold()
-    expected = {
+    expected: dict[str, list[str]] = {
         "terms": [],
         "metrics": [],
         "tables": [],
