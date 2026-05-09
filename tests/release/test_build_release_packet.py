@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import re
+import sys
 from pathlib import Path
 
 
@@ -70,10 +71,13 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert "Known limitations" in known_limitations or "known limitations" in known_limitations
     assert "Support matrix" in support_matrix or "support matrix" in support_matrix
     assert "dry-run release packet" in summary
+    assert "Missing gate evidence" in summary
 
     manifest_path = out_dir / "release_manifest.json"
     loaded = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert loaded["release_id"] == "unit-test-release"
+    assert loaded["missing_gate_evidence"]
+    assert any(item["gate"].startswith("PR-1") for item in loaded["missing_gate_evidence"])
     assert loaded["artifacts"]["risk_register"] == "risk_register.md"
     assert loaded["artifacts"]["known_limitations"] == "known_limitations.md"
     assert loaded["artifacts"]["support_matrix"] == "support_matrix.md"

@@ -1,20 +1,31 @@
-# Release packet release-test
+# Release Packet: release-test
 
-- Generated at: 2026-05-09T13:53:02.329888Z
-- Git commit: e05e788f0c4cbfbcc97958702c368ef0fd489c6f (e05e788f0c4c)
-- Release status: draft
-- Missing evidence items: 7
+- generated_at: 2026-05-09T13:59:47.562073+00:00
+- git_commit: 8e1ad29f04a2ce03f7abd16589916bf707a97f81
+- status: dry-run release packet
 
-## Evidence sources
-- reports/productization/PRODUCTION_READINESS_MATRIX.md
-- reports/productization/PRODUCTION_RISK_REGISTER.md
-- .omx/context/release-packer-20260509T134905Z.md
+## Evidence snapshot
 
-## Safety posture
-- No production execute_query is allowed.
-- Silent fallback is forbidden.
-- Raw PII must not be stored, shown, or embedded.
-- Unsupported DB claims remain explicit.
-- Synthetic metadata stays fixture-only.
+- Production readiness matrix included.
+- Risk register included.
+- Known limitations included.
+- Support matrix included.
+- Secret-like and PII-like values are redacted before writing packet files.
 
-## Support surfaces (11)
+## Missing evidence
+
+- none
+
+## Missing gate evidence
+
+- PR-1 clean clone package baseline: Clean-venv install log, make env-check output, make test output, dependency snapshot.
+- PR-2 optional local HTTP adapter: Adapter smoke output, /healthz and /readyz proof, OpenAPI, typed error payloads.
+- PR-3 MCP + safe query runtime hardening: Registration-surface proof and SQL red-team blocking outputs.
+- PR-4 DB fixture/read-only evidence: Read-only fixture evidence and explicit live-service unavailable artifacts where relevant.
+- PR-5 retrieval/Weaviate optional evidence: Explicit live/skip/failure evidence for selected Weaviate backend.
+- PR-6 n8n workflow smoke: Workflow smoke against local APIs and visible backend/comment warnings.
+- PR-7 CI, observability, release packet: CI logs, release candidate identifier, dependency snapshot, and signed release packet.
+
+## Redaction summary
+
+- worker_id: 1

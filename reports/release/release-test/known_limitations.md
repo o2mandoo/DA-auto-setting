@@ -1,14 +1,17 @@
-# Known limitations
+## Known limitations
 
-- PR-1 clean clone package baseline: Clean-venv install log, make env-check output, make test output, dependency snapshot.
-- PR-2 optional local HTTP adapter: Adapter smoke output, /healthz and /readyz proof, OpenAPI, typed error payloads.
-- PR-3 MCP + safe query runtime hardening: Registration-surface proof and SQL red-team blocking outputs.
-- PR-4 DB fixture/read-only evidence: Read-only fixture evidence and explicit live-service unavailable artifacts where relevant.
-- PR-5 retrieval/Weaviate optional evidence: Explicit live/skip/failure evidence for selected Weaviate backend.
-- PR-6 n8n workflow smoke: Workflow smoke against local APIs and visible backend/comment warnings.
-- PR-7 CI, observability, release packet: CI logs, release candidate identifier, dependency snapshot, and signed release packet.
+- Live Weaviate service benchmarking is not included; current tests verify explicit backend behavior and no silent keyword fallback.
+- PostgreSQL support remains safe scan/profile scope with credential-free tests; no production DB execution is included.
+- The demo pack was promoted to `approved` for final local package demo purposes, while generated Builder output remains draft/proposal-based.
+- MCP stdio server creation is smoke-tested; complete client/server transport integration is still a later integration hardening item.
+- Root `unittest discover -s tests` does not discover all tests; run per-suite commands listed above.
+- Released evidence uses redacted fixture passwords in docs and reports; this packet intentionally avoids publishing credential-like DSN literals.
 
-## Explicit constraints
-- Release packet is evidence-first; missing evidence is reported, not inferred.
-- Oracle remains unsupported unless a real connector and tests exist.
-- MySQL stays fixture/demo until live read-only evidence is attached.
+## Current known limitations
+
+- `.xlsx` is supported and verified with `openpyxl`.
+- legacy `.xls` is supported and verified with `xlrd` against Tableau Sample
+  Superstore.
+- Large workbook validation should be bounded and reported; do not turn every
+  local development test into a full corpus scan unless the phase explicitly
+  requires it.

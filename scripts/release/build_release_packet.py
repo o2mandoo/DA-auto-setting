@@ -62,6 +62,45 @@ SOURCE_FILES: tuple[Path, ...] = (
 )
 
 
+MISSING_GATE_EVIDENCE: tuple[dict[str, str], ...] = (
+    {
+        "gate": "PR-1 clean clone package baseline",
+        "status": "missing",
+        "evidence_needed": "Clean-venv install log, make env-check output, make test output, dependency snapshot.",
+    },
+    {
+        "gate": "PR-2 optional local HTTP adapter",
+        "status": "missing",
+        "evidence_needed": "Adapter smoke output, /healthz and /readyz proof, OpenAPI, typed error payloads.",
+    },
+    {
+        "gate": "PR-3 MCP + safe query runtime hardening",
+        "status": "missing",
+        "evidence_needed": "Registration-surface proof and SQL red-team blocking outputs.",
+    },
+    {
+        "gate": "PR-4 DB fixture/read-only evidence",
+        "status": "missing",
+        "evidence_needed": "Read-only fixture evidence and explicit live-service unavailable artifacts where relevant.",
+    },
+    {
+        "gate": "PR-5 retrieval/Weaviate optional evidence",
+        "status": "missing",
+        "evidence_needed": "Explicit live/skip/failure evidence for selected Weaviate backend.",
+    },
+    {
+        "gate": "PR-6 n8n workflow smoke",
+        "status": "missing",
+        "evidence_needed": "Workflow smoke against local APIs and visible backend/comment warnings.",
+    },
+    {
+        "gate": "PR-7 CI, observability, release packet",
+        "status": "missing",
+        "evidence_needed": "CI logs, release candidate identifier, dependency snapshot, and signed release packet.",
+    },
+)
+
+
 class RedactionSummary(NamedTuple):
     counts: dict[str, int]
     had_findings: bool
@@ -159,9 +198,11 @@ def build_release_summary(
     generated_at: str,
     commit: str,
     missing_evidence: Iterable[str],
+    missing_gates: Iterable[dict[str, str]],
     redaction_summary: RedactionSummary,
 ) -> str:
     missing_lines = list(missing_evidence)
+    gate_lines = list(missing_gates)
     lines = [
         f"# Release Packet: {release_id}",
         "",
@@ -187,6 +228,17 @@ def build_release_summary(
     lines.extend(
         [
             "",
+            "## Missing gate evidence",
+            "",
+        ]
+    )
+    if gate_lines:
+        lines.extend(f"- {item['gate']}: {item['evidence_needed']}" for item in gate_lines)
+    else:
+        lines.append("- none")
+    lines.extend(
+        [
+            "",
             "## Redaction summary",
             "",
         ]
@@ -205,6 +257,7 @@ def build_manifest(
     commit: str,
     out_dir: Path,
     missing_evidence: list[str],
+    missing_gates: list[dict[str, str]],
     redaction_summary: RedactionSummary,
 ) -> dict[str, object]:
     return {
@@ -221,6 +274,7 @@ def build_manifest(
             "support_matrix": "support_matrix.md",
         },
         "missing_evidence": missing_evidence,
+        "missing_gate_evidence": missing_gates,
         "redactions": redaction_summary.counts,
         "safety_checks": {
             "sensitive_content_redacted": redaction_summary.had_findings,
@@ -247,6 +301,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         generated_at=generated_at,
         commit=commit,
         missing_evidence=missing_evidence,
+        missing_gates=MISSING_GATE_EVIDENCE,
         redaction_summary=RedactionSummary(counts={}, had_findings=False),
     )
     risk_register_text, risk_redactions = redact_text(risk_text)
@@ -274,6 +329,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         generated_at=generated_at,
         commit=commit,
         missing_evidence=missing_evidence,
+        missing_gates=MISSING_GATE_EVIDENCE,
         redaction_summary=redaction_summary,
     )
 
@@ -289,6 +345,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         commit=commit,
         out_dir=out_dir,
         missing_evidence=missing_evidence,
+        missing_gates=list(MISSING_GATE_EVIDENCE),
         redaction_summary=redaction_summary,
     )
     (out_dir / "release_manifest.json").write_text(
