@@ -17,13 +17,8 @@ class MySQLScanner(PostgresScanner):
     labeling evidence as MySQL so source details stay backend-faithful.
     """
 
-    def __init__(self, connector: DBConnector, config: SafeScanConfig | None = None) -> None:
-        super().__init__(
-            connector=connector,
-            config=config,
-            connector_name="mysql",
-            source_detail_prefix="mysql",
-        )
+    connector_name = "mysql"
+    source_detail_prefix = "mysql"
 
 
 def scan_mysql_database(connector: DBConnector, *, config: SafeScanConfig | None = None) -> dict[str, Any]:
