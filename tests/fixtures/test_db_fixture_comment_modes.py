@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from experiments.db_fixtures.scripts.fixture_modes import FixtureCommentMode, TEST_ONLY_MARKER, build_fixture_table_plan, fixture_mode_summary
 from experiments.db_fixtures.scripts.mysql_fixture_loader import assert_mysql_fixture_environment, build_mysql_sql_plan
 from experiments.db_fixtures.scripts.postgres_fixture_loader import assert_fixture_environment, build_postgres_sql_plan
@@ -19,6 +21,31 @@ def test_fixture_modes_distinguish_no_real_and_synthetic_comments() -> None:
     assert summary["fixture_only"] is True
     assert summary["not_product_runtime"] is True
     assert summary["synthetic_truth_blocked"] is True
+
+
+def test_real_comment_mode_without_manifest_does_not_use_synthetic_fallback() -> None:
+    real_comments = build_fixture_table_plan(
+        dataset_id="d",
+        schema_name="semantic_fixture_demo",
+        table_name="orders",
+        columns=["status"],
+        mode=FixtureCommentMode.REAL_COMMENTS,
+    )
+    assert real_comments.table_comment is None
+    assert real_comments.column_comments == {}
+    assert real_comments.is_test_only is False
+    assert TEST_ONLY_MARKER not in str(real_comments.to_dict())
+
+
+def test_fixture_modes_require_fixture_schema_prefix() -> None:
+    with pytest.raises(ValueError, match="semantic_fixture_"):
+        build_fixture_table_plan(
+            dataset_id="d",
+            schema_name="public",
+            table_name="orders",
+            columns=["status"],
+            mode=FixtureCommentMode.NO_COMMENTS,
+        )
 
 
 def test_postgres_fixture_safety_rejects_production_and_requires_env() -> None:
@@ -43,6 +70,25 @@ def test_postgres_sql_plan_applies_synthetic_comments_only_when_selected() -> No
     assert TEST_ONLY_MARKER in text
     assert plan.mode == "synthetic_comments"
     assert plan.row_count == 1
+
+
+def test_postgres_sql_plan_uses_real_comments_without_test_only_marker() -> None:
+    real_comments = build_fixture_table_plan(
+        dataset_id="d",
+        schema_name="semantic_fixture_demo",
+        table_name="orders",
+        columns=["status"],
+        mode="real_comments",
+        real_comments={"table": "Bob's orders", "columns": {"status": "Customer's lifecycle state"}},
+    )
+    plan = build_postgres_sql_plan(real_comments)
+    text = "\n".join(plan.statements)
+    assert "COMMENT ON TABLE" in text
+    assert "COMMENT ON COLUMN" in text
+    assert "Bob''s orders" in text
+    assert "Customer''s lifecycle state" in text
+    assert TEST_ONLY_MARKER not in text
+    assert plan.mode == "real_comments"
 
 
 def test_postgres_sql_plan_has_no_comment_statements_for_no_comments_mode() -> None:
