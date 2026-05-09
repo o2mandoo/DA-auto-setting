@@ -89,8 +89,18 @@ def fixture_mode_summary(plans: list[FixtureTablePlan]) -> dict[str, Any]:
         "not_product_runtime": True,
         "modes": sorted({plan.mode.value for plan in plans}),
         "tables": [plan.to_dict() for plan in plans],
-        "synthetic_truth_blocked": all(not plan.is_test_only or TEST_ONLY_MARKER in (plan.table_comment or "") for plan in plans),
+        "synthetic_truth_blocked": all(_synthetic_plan_is_test_only(plan) for plan in plans),
     }
+
+
+def _synthetic_plan_is_test_only(plan: FixtureTablePlan) -> bool:
+    if not plan.is_test_only:
+        return True
+    if TEST_ONLY_MARKER not in (plan.table_comment or ""):
+        return False
+    if not plan.column_comments:
+        return False
+    return all(TEST_ONLY_MARKER in comment for comment in plan.column_comments.values())
 
 
 __all__ = ["FixtureCommentMode", "FixtureTablePlan", "TEST_ONLY_MARKER", "build_fixture_table_plan", "fixture_mode_summary", "load_fixture_manifest"]
