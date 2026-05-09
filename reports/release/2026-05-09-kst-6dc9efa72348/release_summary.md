@@ -13,6 +13,7 @@ Clone-ready for local validation and demo operation, not production ready.
 - Readiness matrix: `readiness_matrix.md`
 - Risk register: `risk_register.md`
 - Dependency snapshot: `dependency_snapshot.txt`
+- Test evidence: `test_evidence.md`
 - API/MCP/n8n surface summary: `api_mcp_n8n_surface_summary.md`
 - Known limitations: `known_limitations.md`
 

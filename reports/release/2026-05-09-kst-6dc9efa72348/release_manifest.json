@@ -10,6 +10,7 @@
   },
   "derived_artifacts": [
     "release_summary.md",
+    "test_evidence.md",
     "api_mcp_n8n_surface_summary.md",
     "known_limitations.md",
     "readiness_matrix.md",

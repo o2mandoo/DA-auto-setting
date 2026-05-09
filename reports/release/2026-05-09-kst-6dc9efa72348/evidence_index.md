@@ -7,3 +7,4 @@
 - n8n readiness and templates: `reports/productization/phase20_n8n_readiness_report.md`, `reports/productization/n8n_workflow_templates.md`, `n8n/README.md`
 - Release posture: `reports/productization/PRODUCTION_READINESS_MATRIX.md`, `reports/productization/PRODUCTION_RISK_REGISTER.md`
 - Dependency snapshot: `reports/productization/PR1_PIP_FREEZE.txt`
+- Test evidence references: `reports/productization/PR1_FINAL_VERIFIER_EVIDENCE.md`, `reports/productization/mysql_db_target_test_report.md`, `reports/productization/mysql_db_target_readiness_report.md`, `reports/final/final_integration_report.md`
