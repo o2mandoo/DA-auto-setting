@@ -9,6 +9,7 @@ description = "Local file scanner and draft Semantic Pack builder."
 requires-python = ">=3.11"
 dependencies = [
   "semantic-contracts==0.1.0",
+  "semantic-registry==0.1.0",
   "PyYAML>=6.0,<7",
   # Declared explicitly so workbook support is not a silent optional dependency.
   "openpyxl>=3.1,<4",

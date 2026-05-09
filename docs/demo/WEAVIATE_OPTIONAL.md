@@ -7,11 +7,11 @@ configured for it.
 SEMANTIC_WEAVIATE_ENABLED=1 \
 SEMANTIC_WEAVIATE_URL=http://localhost:8080 \
 SEMANTIC_WEAVIATE_COLLECTION=SemanticCardsTest \
-PYTHONPATH=packages/semantic_contracts:packages/semantic_registry:packages/semantic_mcp/src:/tmp/semantic-data-context-deps \
+PYTHONPATH=packages/semantic_contracts:packages/semantic_registry:packages/semantic_mcp/src \
 python3 -m unittest tests.integration.test_weaviate_live_optional -v
 ```
 
-Run this from the repository root. If you are using a virtualenv or temp dependency cache, keep the repository package paths ahead of `/tmp/semantic-data-context-deps` so the checkout code wins.
+Run this from the repository root. If you are using a virtualenv or temp dependency cache, keep the repository package paths ahead of any temporary dependency cache so the checkout code wins.
 
 Behavior:
 

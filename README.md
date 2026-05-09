@@ -30,13 +30,13 @@ Use `--help` on each command for the reproducible local CLI flow. The exact loca
 For source checkout usage, set:
 
 ```bash
-export PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src:/tmp/semantic-data-context-deps
+export PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src
 ```
 
 ## Local demo
 
 ```bash
-PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src:/tmp/semantic-data-context-deps \
+PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src \
 python3 scripts/demo/run_local_demo.py
 ```
 
