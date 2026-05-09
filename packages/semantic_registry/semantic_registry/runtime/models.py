@@ -1,43 +1,11 @@
-"""Runtime contract aliases used by the registry compatibility layer."""
+"""Runtime model compatibility aliases.
+
+The concrete models live in :mod:`semantic_contracts.runtime_contracts`; this
+module simply re-exports them under the Registry runtime namespace expected by
+the tests and MCP/demo entry points.
+"""
 
 from __future__ import annotations
 
-from semantic_contracts.runtime_contracts import (
-    AmbiguityDecision,
-    AmbiguityStatus,
-    AnswerStatus,
-    ContextCardRef,
-    IntentResult,
-    PolicyVerdict,
-    QueryPlan,
-    ResolvedContextBundle,
-    RuntimeAnswerDraft,
-    RuntimeContext,
-    RuntimeIntent,
-    SemanticVerdict,
-    SqlDraft,
-    SqlDraftSource,
-    StrictRuntimeModel,
-    UserQuestion,
-    VerdictStatus,
-)
+from semantic_contracts.runtime_contracts import *  # noqa: F401,F403
 
-__all__ = [
-    "AmbiguityDecision",
-    "AmbiguityStatus",
-    "AnswerStatus",
-    "ContextCardRef",
-    "IntentResult",
-    "PolicyVerdict",
-    "QueryPlan",
-    "ResolvedContextBundle",
-    "RuntimeAnswerDraft",
-    "RuntimeContext",
-    "RuntimeIntent",
-    "SemanticVerdict",
-    "SqlDraft",
-    "SqlDraftSource",
-    "StrictRuntimeModel",
-    "UserQuestion",
-    "VerdictStatus",
-]

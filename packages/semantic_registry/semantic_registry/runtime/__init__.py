@@ -1,23 +1,22 @@
-"""Compatibility runtime layer over the local Semantic Registry.
+"""Compatibility runtime facade over the local Semantic Registry.
 
-The registry package owns the validation-only runtime contract used by MCP,
-builder evaluation, and registry-facing tests.  This package provides the
-missing Phase 8/9 compatibility surface expected by downstream callers while
-staying local-only and execution-free.
+This package keeps the Phase 8/11 runtime imports working without introducing a
+new execution engine. It re-exports the structured runtime contract models and
+wraps the existing Registry planner/guard logic in a small, validation-only
+facade.
 """
 
-from .ambiguity import AmbiguityChoice, AmbiguityGate, AmbiguityWarning, evaluate_ambiguity_gate_dict
+from __future__ import annotations
+
+from .ambiguity import AmbiguityGate, evaluate_ambiguity_gate_dict
 from .models import *  # noqa: F401,F403
-from .query_planner import DomainQueryPlanner, RuntimeQueryPlan, SqlDraftGenerator, generate_sql_draft, plan_domain_query
+from .query_planner import DomainQueryPlanner, SqlDraftGenerator, generate_sql_draft, plan_domain_query
 from .verifiers import PolicyVerifier, SemanticVerifier, verify_policy, verify_semantics
 
 __all__ = [
-    "AmbiguityChoice",
     "AmbiguityGate",
-    "AmbiguityWarning",
     "DomainQueryPlanner",
     "PolicyVerifier",
-    "RuntimeQueryPlan",
     "SemanticVerifier",
     "SqlDraftGenerator",
     "evaluate_ambiguity_gate_dict",
