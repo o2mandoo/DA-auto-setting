@@ -9,7 +9,7 @@ Required checks before treating the local package as demo-ready:
 - Generated benchmark and final-report artifacts under `reports/**` must stay free of raw PII literals.
 - Weaviate is the intended VDB backend. If Weaviate is requested but unavailable or unconfigured, the system must return an explicit backend/config error and must not silently fall back to keyword search.
 - Feedback and confirmation records must not mutate an approved pack directly.
-- PostgreSQL scanning is read-only and credential-free in tests/docs; no production credentials are stored in this repo.
+- PostgreSQL and explicit MySQL fixture/demo scanning are read-only and credential-free in tests/docs; no production credentials are stored in this repo.
 - Dashboard UI and SaaS multi-tenancy are non-goals for this local package.
 
 Verification commands:

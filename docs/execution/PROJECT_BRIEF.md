@@ -39,7 +39,7 @@ It is not an end-user BI product. The product provides semantic context and vali
 The system has three major capabilities:
 
 1. **Semantic Builder**
-   - scans CSV/XLSX/JSON/PostgreSQL sources
+   - scans CSV/XLSX/JSON/PostgreSQL sources and explicit MySQL local fixture/demo sources
    - profiles schemas, columns, values, PII candidates, and join candidates
    - uses LLMs to create meaning hypotheses and reverse questions
    - emits `semantic_pack.draft.yaml`

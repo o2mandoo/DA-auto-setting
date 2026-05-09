@@ -39,7 +39,7 @@ DB-backed fixture/demo flows must expose the selected comment mode and map it to
 ## DB backend support rules
 
 - PostgreSQL is the current primary DB-backed scanner/fixture target.
-- MySQL targets must preserve the same metadata provenance contract when implemented: MySQL table/column comments are `real_db_comment`; missing comments are `no_comment`; lab-generated MySQL comments are `test_only_synthetic_comment`.
+- MySQL is supported for explicit read-only fixture/demo scanning. MySQL table/column comments are `real_db_comment`; missing comments are `no_comment`; lab-generated MySQL comments are `test_only_synthetic_comment`.
 - MySQL readiness evidence must distinguish mocked/fake connector tests from explicit live fixture execution. Default tests must not require a live MySQL database.
 - Optional live loaders may run only when explicitly called with safe fixture environment settings and local fixture schema/database names.
 - Oracle is unsupported for fake fixture/scanner behavior. Unsupported backends must fail visibly instead of returning fake success or another backend's results.

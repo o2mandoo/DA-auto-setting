@@ -92,6 +92,10 @@ Read-only PostgreSQL scanning is available through the safe scanner/config path
 only. Use it for local fixtures or verified test databases, not production
 credentials.
 
+### MySQL fixture/demo validation
+
+Read-only MySQL fixture/demo scanning is available only when explicitly configured with `SEMANTIC_MYSQL_ENABLED=1`, `SEMANTIC_MYSQL_DSN`, `SEMANTIC_MYSQL_DATABASE`, and `SEMANTIC_MYSQL_TABLES`. Missing driver, DSN, fixture schema/database, or live server state must be reported as unavailable/pending; do not silently reroute MySQL requests to PostgreSQL, DuckDB, SQLite, cached JSON, or synthetic comments.
+
 See:
 
 - `docs/execution/SECURITY_CHECKLIST.md`

@@ -62,6 +62,7 @@ The rest of this document describes the full 1st MVP target. Registry, MCP, and 
   - minimal file-source scanner/draft builder
   - CSV/XLSX/JSON metadata and profiling direction
   - PostgreSQL connector interface can be specified before full implementation
+  - MySQL read-only fixture/demo scanner support is now allowed as an explicit, opt-in DB-backed validation target; production MySQL operations remain out of scope.
   - emits `semantic_pack.draft.yaml`
 
 ### 2.2 Demo Semantic Pack
@@ -185,7 +186,7 @@ The following are intentionally excluded:
 - embedding pipeline as a hard dependency
 - Human confirmation UI
 - Oracle connector
-- MySQL connector
+- Production MySQL connector usage beyond the explicit local fixture/demo read-only path
 - complex ontology graph
 - production audit logging
 - cloud deployment
@@ -210,7 +211,7 @@ validate_sql + record_feedback
 Builder enters after contracts are stable:
 
 ```text
-CSV/XLSX/JSON/PostgreSQL metadata
+CSV/XLSX/JSON/PostgreSQL/MySQL fixture metadata
       ↓
 profile schema/columns/values safely
       ↓

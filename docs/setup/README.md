@@ -42,6 +42,7 @@ User-provided configuration must stay explicit and safe:
 - No silent fallback. If a requested backend or adapter is missing or misconfigured, the command must fail loudly with an explicit configuration error.
 - No raw PII in configuration values, prompts, or demo inputs. Use safe placeholders in examples and keep secrets out of the repo.
 - Backend selection must be explicit. For example, a Weaviate request should only run when that backend is intentionally configured; it must not fall back to keyword search without telling the user.
+- MySQL fixture/demo validation is opt-in only via `SEMANTIC_MYSQL_ENABLED=1`, `SEMANTIC_MYSQL_DSN`, `SEMANTIC_MYSQL_DATABASE`, and `SEMANTIC_MYSQL_TABLES`. If MySQL config, driver, fixture schema/database, or live server is unavailable, report the MySQL evidence as pending/unavailable; do not reroute to PostgreSQL, DuckDB, SQLite, cached JSON, or synthetic comments.
 
 See also:
 
