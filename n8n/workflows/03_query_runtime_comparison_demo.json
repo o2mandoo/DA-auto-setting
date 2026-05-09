@@ -15,7 +15,7 @@
     },
     {
       "parameters": {
-        "content": "Most important demo. Show baseline not_executed, system validation, differences, and failure state. Do not run SQL directly or add database connector nodes."
+        "content": "Most important demo. Show baseline not_executed, semantic comparison, and failure state. Do not run SQL directly."
       },
       "id": "03 Query Runtime Comparison Demo-safety-note",
       "name": "Safety Gate Note",
@@ -50,12 +50,45 @@
           }
         }
       },
-      "id": "03 Query Runtime Comparison Demo-api",
+      "id": "03 Query Runtime Comparison Demo-answer",
       "name": "POST /api/product/answer",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
         260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SDC_PRODUCT_API_BASE_URL}}/api/product/compare-sql",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-sdc-demo-key",
+              "value": "={{$env.SDC_DEMO_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"question\": \"월별 신규 고객 순매출을 보여줘\", \"baseline_sql\": \"SELECT DATE_TRUNC('month', users.created_at), SUM(payments.amount) FROM users JOIN payments ON users.user_id = payments.user_id GROUP BY 1\", \"system_sql\": \"SELECT DATE_TRUNC('month', users.first_paid_at), SUM(payments.amount - payments.refund_amount - payments.discount_amount) FROM users JOIN payments ON users.user_id = payments.user_id WHERE payments.status = 'PAID' GROUP BY 1\", \"space_id\": \"demo_company.revenue\", \"role\": \"marketing_analyst\"}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": false
+            }
+          }
+        }
+      },
+      "id": "03 Query Runtime Comparison Demo-compare",
+      "name": "POST /api/product/compare-sql",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        520,
         0
       ]
     },
@@ -84,7 +117,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        520,
+        780,
         0
       ]
     }
@@ -102,6 +135,17 @@
       ]
     },
     "POST /api/product/answer": {
+      "main": [
+        [
+          {
+            "node": "POST /api/product/compare-sql",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST /api/product/compare-sql": {
       "main": [
         [
           {

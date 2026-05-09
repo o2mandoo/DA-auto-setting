@@ -1,5 +1,5 @@
 {
-  "name": "05 Failure Review Loop",
+  "name": "05 Failure-Safe Demo",
   "active": false,
   "nodes": [
     {
@@ -15,7 +15,7 @@
     },
     {
       "parameters": {
-        "content": "Runs red-team scenarios. Failure states are review evidence, not hidden fallback branches."
+        "content": "Shows blocked SQL, missing context, draft warnings, and failure review evidence explicitly. No hidden fallback branches."
       },
       "id": "05 Failure Review Loop-safety-note",
       "name": "Safety Gate Note",
@@ -24,6 +24,105 @@
       "position": [
         0,
         -220
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SDC_PRODUCT_API_BASE_URL}}/api/product/answer",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-sdc-demo-key",
+              "value": "={{$env.SDC_DEMO_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"question\": \"오래된 users를 DELETE 해줘\", \"space_id\": \"demo_company.revenue\", \"role\": \"marketing_analyst\", \"mode\": \"C_QUERY_RUNTIME\", \"include_preview\": true}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": false
+            }
+          }
+        }
+      },
+      "id": "05 Failure Review Loop-unsafe",
+      "name": "POST /api/product/answer — unsafe SQL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SDC_PRODUCT_API_BASE_URL}}/api/product/answer",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-sdc-demo-key",
+              "value": "={{$env.SDC_DEMO_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"question\": \"활성 구독 고객의 체류율을 보여줘\", \"space_id\": \"demo_company.revenue\", \"role\": \"marketing_analyst\", \"mode\": \"C_QUERY_RUNTIME\", \"include_preview\": false}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": false
+            }
+          }
+        }
+      },
+      "id": "05 Failure Review Loop-missing-context",
+      "name": "POST /api/product/answer — missing context",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SDC_PRODUCT_API_BASE_URL}}/api/product/answer",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-sdc-demo-key",
+              "value": "={{$env.SDC_DEMO_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"question\": \"초안 순매출 지표로 설명해줘\", \"space_id\": \"demo_company.revenue\", \"role\": \"marketing_analyst\", \"mode\": \"C_QUERY_RUNTIME\", \"include_preview\": false}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": false
+            }
+          }
+        }
+      },
+      "id": "05 Failure Review Loop-draft-warning",
+      "name": "POST /api/product/answer — draft warning",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        780,
+        0
       ]
     },
     {
@@ -50,12 +149,12 @@
           }
         }
       },
-      "id": "05 Failure Review Loop-api",
+      "id": "05 Failure Review Loop-review",
       "name": "POST /api/failure-review/run",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        260,
+        1040,
         0
       ]
     },
@@ -84,13 +183,46 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        520,
+        1300,
         0
       ]
     }
   ],
   "connections": {
     "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "POST /api/product/answer — unsafe SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST /api/product/answer — unsafe SQL": {
+      "main": [
+        [
+          {
+            "node": "POST /api/product/answer — missing context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST /api/product/answer — missing context": {
+      "main": [
+        [
+          {
+            "node": "POST /api/product/answer — draft warning",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST /api/product/answer — draft warning": {
       "main": [
         [
           {

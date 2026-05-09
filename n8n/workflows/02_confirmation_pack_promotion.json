@@ -1,5 +1,5 @@
 {
-  "name": "02 Comment-aware Reverse Question Demo",
+  "name": "02 Comment-Aware Reverse Question Demo",
   "active": false,
   "nodes": [
     {
@@ -15,7 +15,7 @@
     },
     {
       "parameters": {
-        "content": "Open a confirmation session to surface comment-aware reverse questions. No-comment gaps, real-comment draft context, and synthetic fixture-only comments must remain visible; do not mutate approved packs in place."
+        "content": "Shows comment-aware reverse questions, explicit human answers, and versioned promotion. No silent fallback; do not mutate approved packs in place."
       },
       "id": "02 Confirmation Pack Promotion-safety-note",
       "name": "Safety Gate Note",
@@ -50,12 +50,78 @@
           }
         }
       },
-      "id": "02 Confirmation Pack Promotion-api",
+      "id": "02 Confirmation Pack Promotion-session",
       "name": "POST /api/confirmation/session",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
         260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SDC_PRODUCT_API_BASE_URL}}/api/confirmation/answer",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-sdc-demo-key",
+              "value": "={{$env.SDC_DEMO_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"session_id\": \"confirm-demo-company-revenue\", \"question_id\": \"rq.net_revenue.refund_timing\", \"answer\": \"결제월 기준으로 차감\", \"reviewer\": \"data_steward\"}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": false
+            }
+          }
+        }
+      },
+      "id": "02 Confirmation Pack Promotion-answer",
+      "name": "POST /api/confirmation/answer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SDC_PRODUCT_API_BASE_URL}}/api/pack/promote",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-sdc-demo-key",
+              "value": "={{$env.SDC_DEMO_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"approved\": true, \"space_id\": \"demo_company.revenue\", \"reviewer\": \"data_steward\", \"promotion_request_id\": \"confirm-demo-company-revenue\"}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": false
+            }
+          }
+        }
+      },
+      "id": "02 Confirmation Pack Promotion-promote",
+      "name": "POST /api/pack/promote",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        780,
         0
       ]
     },
@@ -84,7 +150,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        520,
+        1040,
         0
       ]
     }
@@ -102,6 +168,28 @@
       ]
     },
     "POST /api/confirmation/session": {
+      "main": [
+        [
+          {
+            "node": "POST /api/confirmation/answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST /api/confirmation/answer": {
+      "main": [
+        [
+          {
+            "node": "POST /api/pack/promote",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST /api/pack/promote": {
       "main": [
         [
           {

@@ -24,16 +24,27 @@ def test_n8n_confirmation_workflow_is_comment_aware_reverse_question_demo() -> N
 
 
 def test_n8n_templates_call_only_product_api_routes_and_no_credentials() -> None:
-    allowed_routes = {
-        "/api/onboarding/run",
-        "/api/confirmation/session",
-        "/api/product/answer",
-        "/api/eval/run",
-        "/api/failure-review/run",
+    required_routes = {
+        "01_onboarding_demo.json": {"/api/onboarding/run"},
+        "02_confirmation_pack_promotion.json": {
+            "/api/confirmation/session",
+            "/api/confirmation/answer",
+            "/api/pack/promote",
+        },
+        "03_query_runtime_comparison_demo.json": {"/api/product/answer", "/api/product/compare-sql"},
+        "04_20_domain_benchmark_runner.json": {"/api/eval/run"},
+        "05_failure_review_loop.json": {"/api/product/answer", "/api/failure-review/run"},
     }
     for path in Path("n8n/workflows").glob("*.json"):
         data = json.loads(path.read_text(encoding="utf-8"))
         text = path.read_text(encoding="utf-8")
+        route_nodes = {
+            node["name"]
+            for node in data["nodes"]
+            if isinstance(node, dict) and isinstance(node.get("name"), str) and node["name"].startswith("POST /api/")
+        }
+        expected = required_routes[path.name]
+        assert expected.issubset(route_nodes)
         assert "{{$env.SDC_PRODUCT_API_BASE_URL}}" in text
         assert "{{$env.SDC_DEMO_KEY}}" in text
         assert "password" not in text.casefold()
@@ -41,7 +52,29 @@ def test_n8n_templates_call_only_product_api_routes_and_no_credentials() -> None
         assert ("owner" + "@" + "example.com") not in text
         assert data["meta"]["semanticDataContext"]["noSilentFallback"] is True
         assert data["meta"]["semanticDataContext"]["noSqlRun"] is True
-        assert data["meta"]["semanticDataContext"]["route"] in allowed_routes
+        assert data["meta"]["semanticDataContext"]["route"] in {"/api/onboarding/run", "/api/confirmation/session", "/api/product/answer", "/api/eval/run", "/api/failure-review/run"}
+
+
+def test_comment_aware_and_failure_safe_demos_are_explicit() -> None:
+    confirmation = json.loads(Path("n8n/workflows/02_confirmation_pack_promotion.json").read_text(encoding="utf-8"))
+    failure_safe = json.loads(Path("n8n/workflows/05_failure_review_loop.json").read_text(encoding="utf-8"))
+
+    confirmation_note = next(node for node in confirmation["nodes"] if node["name"] == "Safety Gate Note")
+    assert "reverse questions" in confirmation_note["parameters"]["content"]
+    assert "promotion" in confirmation_note["parameters"]["content"]
+
+    confirmation_routes = {node["name"] for node in confirmation["nodes"] if node["name"].startswith("POST /api/")}
+    assert "POST /api/confirmation/answer" in confirmation_routes
+    assert "POST /api/pack/promote" in confirmation_routes
+
+    failure_note = next(node for node in failure_safe["nodes"] if node["name"] == "Safety Gate Note")
+    assert "blocked SQL" in failure_note["parameters"]["content"]
+    assert "draft warnings" in failure_note["parameters"]["content"]
+    failure_routes = {node["name"] for node in failure_safe["nodes"] if node["name"].startswith("POST /api/")}
+    assert "POST /api/product/answer — unsafe SQL" in failure_routes
+    assert "POST /api/product/answer — missing context" in failure_routes
+    assert "POST /api/product/answer — draft warning" in failure_routes
+    assert "POST /api/failure-review/run" in failure_routes
 
 
 def test_n8n_templates_do_not_include_direct_sql_connector_nodes() -> None:
