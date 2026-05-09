@@ -1,14 +1,9 @@
 PYTHON ?= python3
-PYTHONPATH := packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src
-export PYTHONPATH
 
 .PHONY: setup test demo env-check clean-runtime
 
 setup:
-	$(PYTHON) -m pip install -e packages/semantic_contracts
-	$(PYTHON) -m pip install -e packages/semantic_registry
-	$(PYTHON) -m pip install -e packages/semantic_mcp
-	$(PYTHON) -m pip install -e 'packages/semantic_builder[test]'
+	$(PYTHON) -m pip install -r requirements-dev.txt
 
 test:
 	$(PYTHON) -m pytest -q tests

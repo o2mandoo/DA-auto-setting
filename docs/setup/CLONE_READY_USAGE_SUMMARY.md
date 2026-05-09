@@ -19,10 +19,7 @@ Use this repository clone-ready path when you want the fastest safe local start.
 python3 -m venv .venv
 . .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -e packages/semantic_contracts \
-  -e packages/semantic_registry \
-  -e packages/semantic_mcp \
-  -e packages/semantic_builder
+python -m pip install -r requirements-dev.txt
 cp .env.example .env
 bash scripts/setup/env_check.sh
 python3 scripts/demo/run_local_demo.py
@@ -48,4 +45,4 @@ python3 -m unittest discover -s tests/mcp -v
 - No production `execute_query`
 - No silent fallback after explicit backend selection
 - No raw PII in prompts, logs, or generated artifacts
-- The editable install path is repo-native; no temporary dependency cache is required
+- The editable install path is repo-native through `requirements-dev.txt`; no temporary dependency cache is required

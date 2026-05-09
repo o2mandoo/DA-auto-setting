@@ -13,10 +13,7 @@ Example:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e packages/semantic_contracts
-pip install -e packages/semantic_builder
-pip install -e packages/semantic_registry
-pip install -e packages/semantic_mcp
+python3 -m pip install -r requirements-dev.txt
 ```
 
 ## 2) Copy the example environment file
