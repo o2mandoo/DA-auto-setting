@@ -42,6 +42,7 @@ python3 scripts/demo/run_local_demo.py
 Outputs are written to `runtime/phase12_demo/` and include a scan report, profiles, semantic hypotheses, onboarding questions, a draft pack, preview audit, eval report, and demo summary.
 
 See `docs/demo/LOCAL_DEMO.md` for the exact path.
+For clone-ready install/provider/test instructions, see `docs/setup/DEVELOPMENT.md`.
 
 ## Safety rules
 
