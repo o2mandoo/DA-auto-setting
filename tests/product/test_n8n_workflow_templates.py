@@ -25,15 +25,15 @@ def test_n8n_confirmation_workflow_is_comment_aware_reverse_question_demo() -> N
 
 def test_n8n_templates_call_only_product_api_routes_and_no_credentials() -> None:
     required_routes = {
-        "01_onboarding_demo.json": {"/api/onboarding/run"},
+        "01_onboarding_demo.json": {"POST /api/onboarding/run"},
         "02_confirmation_pack_promotion.json": {
-            "/api/confirmation/session",
-            "/api/confirmation/answer",
-            "/api/pack/promote",
+            "POST /api/confirmation/session",
+            "POST /api/confirmation/answer",
+            "POST /api/pack/promote",
         },
-        "03_query_runtime_comparison_demo.json": {"/api/product/answer", "/api/product/compare-sql"},
-        "04_20_domain_benchmark_runner.json": {"/api/eval/run"},
-        "05_failure_review_loop.json": {"/api/product/answer", "/api/failure-review/run"},
+        "03_query_runtime_comparison_demo.json": {"POST /api/product/answer", "POST /api/product/compare-sql"},
+        "04_20_domain_benchmark_runner.json": {"POST /api/eval/run"},
+        "05_failure_review_loop.json": {"POST /api/product/answer — unsafe SQL", "POST /api/product/answer — missing context", "POST /api/product/answer — draft warning", "POST /api/failure-review/run"},
     }
     for path in Path("n8n/workflows").glob("*.json"):
         data = json.loads(path.read_text(encoding="utf-8"))
