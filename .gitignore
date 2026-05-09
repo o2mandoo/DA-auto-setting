@@ -38,7 +38,7 @@ ENV/
 *.crt
 
 # Runtime/generated artifacts
-runtime/
+/runtime/
 .runtime/
 .runtime_tmp/
 logs/
