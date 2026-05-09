@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from experiments.db_fixtures.scripts.fixture_modes import FixtureCommentMode, TEST_ONLY_MARKER, build_fixture_table_plan, fixture_mode_summary
+from experiments.db_fixtures.scripts.mysql_fixture_loader import assert_mysql_fixture_environment, build_mysql_sql_plan
 from experiments.db_fixtures.scripts.postgres_fixture_loader import assert_fixture_environment, build_postgres_sql_plan
 
 
@@ -47,3 +48,52 @@ def test_postgres_sql_plan_has_no_comment_statements_for_no_comments_mode() -> N
     assert "COMMENT ON TABLE" not in text
     assert "COMMENT ON COLUMN" not in text
     assert plan.mode == "no_comments"
+
+
+def test_mysql_fixture_safety_requires_local_semantic_fixture_database_and_env() -> None:
+    unsafe = assert_mysql_fixture_environment(
+        dsn="mysql://prod.example.com/warehouse",
+        database_name="warehouse",
+        env={},
+    )
+    assert unsafe.safe is False
+    assert any("SEMANTIC_CONTEXT_FIXTURE_DB" in reason for reason in unsafe.reasons)
+    assert any("database/schema name" in reason for reason in unsafe.reasons)
+    assert any("host must be local" in reason for reason in unsafe.reasons)
+    assert any("production" in reason for reason in unsafe.reasons)
+
+    safe = assert_mysql_fixture_environment(
+        dsn="mysql://localhost/semantic_fixture_lab",
+        database_name="semantic_fixture_lab",
+        env={"SEMANTIC_CONTEXT_FIXTURE_DB": "1"},
+    )
+    assert safe.safe is True
+
+    wrong_backend = assert_mysql_fixture_environment(
+        dsn="postgresql://localhost/semantic_fixture_lab",
+        database_name="semantic_fixture_lab",
+        env={"SEMANTIC_CONTEXT_FIXTURE_DB": "1"},
+    )
+    assert wrong_backend.safe is False
+    assert any("only MySQL" in reason for reason in wrong_backend.reasons)
+
+
+def test_mysql_sql_plan_uses_mysql_comment_syntax_without_postgres_fallback() -> None:
+    synthetic = build_fixture_table_plan(
+        dataset_id="d",
+        schema_name="semantic_fixture_demo",
+        table_name="orders",
+        columns=["status", "amount"],
+        mode="synthetic_comments",
+    )
+    plan = build_mysql_sql_plan(synthetic, rows=[{"status": "PAID", "amount": "10"}])
+    text = "\n".join(plan.statements)
+    assert "CREATE DATABASE IF NOT EXISTS `semantic_fixture_demo`;" in text
+    assert "CREATE TABLE `semantic_fixture_demo`.`orders`" in text
+    assert "COMMENT ON TABLE" not in text
+    assert "COMMENT ON COLUMN" not in text
+    assert " COMMENT 'TEST_ONLY_SYNTHETIC_METADATA" in text
+    assert " COMMENT='TEST_ONLY_SYNTHETIC_METADATA" in text
+    assert plan.backend == "mysql"
+    assert plan.mode == "synthetic_comments"
+    assert plan.row_count == 1

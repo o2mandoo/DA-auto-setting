@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import pytest
+
 from experiments.db_fixtures.scripts.mode_comparison import compare_comment_modes
 
 
-def test_comment_mode_comparison_shows_no_real_and_synthetic_differences() -> None:
+@pytest.mark.parametrize("backend", ["postgres", "mysql"])
+def test_comment_mode_comparison_shows_no_real_and_synthetic_differences(backend: str) -> None:
     comparisons = {
         item.mode: item
         for item in compare_comment_modes(
@@ -15,8 +18,11 @@ def test_comment_mode_comparison_shows_no_real_and_synthetic_differences() -> No
                 "table": "Actual order payments table",
                 "columns": {"status": "Lifecycle status", "amount": "Paid amount"},
             },
+            backend=backend,
         )
     }
+
+    assert {item.backend for item in comparisons.values()} == {backend}
 
     no_comments = comparisons["no_comments"]
     real_comments = comparisons["real_comments"]
@@ -38,7 +44,8 @@ def test_comment_mode_comparison_shows_no_real_and_synthetic_differences() -> No
     assert "test_only_synthetic_metadata_excluded" in synthetic_comments.runtime_warnings
 
 
-def test_real_comment_mode_missing_manifest_is_explicit_not_synthetic_fallback() -> None:
+@pytest.mark.parametrize("backend", ["postgres", "mysql"])
+def test_real_comment_mode_missing_manifest_is_explicit_not_synthetic_fallback(backend: str) -> None:
     comparisons = {
         item.mode: item
         for item in compare_comment_modes(
@@ -47,6 +54,7 @@ def test_real_comment_mode_missing_manifest_is_explicit_not_synthetic_fallback()
             table_name="population",
             columns=["region", "year", "count"],
             real_comments=None,
+            backend=backend,
         )
     }
 
