@@ -171,8 +171,8 @@ leader/product approval.
 
 ## Follow-ups
 
-- PR-1: prove clean-venv clone readiness without relying on
-  `/tmp/semantic-data-context-deps`.
+- PR-1: prove clean-venv clone readiness with repo-native editable installs
+  and no dependency on a temporary `/tmp` cache.
 - PR-2: add the optional local HTTP adapter with `/healthz`, `/readyz`, OpenAPI,
   typed errors, correlation IDs, and no `execute_query`.
 - PR-3: keep product/evidence docs synchronized with the ADR support levels.
@@ -191,9 +191,14 @@ leader/product approval.
 Production-mode changes should be verified with the smallest relevant checks:
 
 ```bash
-PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src:/tmp/semantic-data-context-deps python3 -m unittest discover -s tests/security -v
-PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src:/tmp/semantic-data-context-deps python3 -m unittest discover -s tests/registry -v
-PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src:/tmp/semantic-data-context-deps python3 -m unittest discover -s tests/mcp -v
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -e packages/semantic_contracts -e packages/semantic_registry -e packages/semantic_mcp -e 'packages/semantic_builder[test]'
+make env-check
+make test
+python3 -m unittest discover -s tests/security -v
+python3 -m unittest discover -s tests/registry -v
+python3 -m unittest discover -s tests/mcp -v
 ```
 
 Docs-only changes may additionally run `make env-check` to prove local package

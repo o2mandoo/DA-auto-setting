@@ -15,7 +15,12 @@ Required checks before treating the local package as demo-ready:
 Verification commands:
 
 ```bash
-PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src:/tmp/semantic-data-context-deps python3 -m unittest discover -s tests/security -v
-PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src:/tmp/semantic-data-context-deps python3 -m unittest discover -s tests/registry -v
-PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src:/tmp/semantic-data-context-deps python3 -m unittest discover -s tests/mcp -v
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -e packages/semantic_contracts -e packages/semantic_registry -e packages/semantic_mcp -e 'packages/semantic_builder[test]'
+make env-check
+make test
+python3 -m unittest discover -s tests/security -v
+python3 -m unittest discover -s tests/registry -v
+python3 -m unittest discover -s tests/mcp -v
 ```
