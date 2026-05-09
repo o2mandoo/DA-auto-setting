@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -20,6 +21,7 @@ from semantic_builder.connectors import PostgresConnector, SafeScanConfig, load_
 from semantic_builder.profiler import profile_dataset
 from semantic_builder.scanner.postgres import scan_postgres_database
 from semantic_builder.inference import generate_semantic_inference, load_profile_jsonl as load_inference_profile_jsonl, write_jsonl
+from semantic_builder.inference import LocalProviderConfig, LocalSemanticInferenceProvider
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -64,7 +66,28 @@ def main(argv: Sequence[str] | None = None) -> int:
     infer_parser.add_argument("--profiles", required=True)
     infer_parser.add_argument("--hypotheses-out", required=True)
     infer_parser.add_argument("--questions-out", required=True)
-    infer_parser.add_argument("--provider", choices=("mock", "local"), default="mock")
+    infer_parser.add_argument(
+        "--provider",
+        choices=("mock", "local"),
+        default=_env_default("SEMANTIC_BUILDER_PROVIDER", "mock"),
+        help="Select the semantic inference provider explicitly.",
+    )
+    infer_parser.add_argument(
+        "--local-enabled",
+        action=argparse.BooleanOptionalAction,
+        default=_env_bool("SEMANTIC_BUILDER_LOCAL_ENABLED", False),
+        help="Enable the explicit local provider seam when --provider local is selected.",
+    )
+    infer_parser.add_argument(
+        "--local-model",
+        default=_env_default("SEMANTIC_BUILDER_LOCAL_MODEL", None),
+        help="Model name for the explicit local provider seam.",
+    )
+    infer_parser.add_argument(
+        "--local-endpoint",
+        default=_env_default("SEMANTIC_BUILDER_LOCAL_ENDPOINT", None),
+        help="Optional HTTP endpoint for the explicit local provider seam.",
+    )
 
     args = parser.parse_args(argv)
     if args.command == "scan":
@@ -91,6 +114,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             Path(args.hypotheses_out),
             Path(args.questions_out),
             provider_name=args.provider,
+            local_enabled=bool(args.local_enabled),
+            local_model=args.local_model,
+            local_endpoint=args.local_endpoint,
         )
     parser.error(f"Unknown command: {args.command}")
     return 2
@@ -189,15 +215,62 @@ def _build_pack(
     return 0
 
 
-def _infer_semantics(profiles: Path, hypotheses_out: Path, questions_out: Path, *, provider_name: str) -> int:
-    if provider_name != "mock":
-        # Local provider support is an explicit seam only in Phase 5. Failing
-        # loudly avoids hidden network calls or a silent mock fallback.
-        raise ValueError("only the deterministic mock semantic inference provider is implemented by default")
-    result = generate_semantic_inference(load_inference_profile_jsonl(profiles))
+def _infer_semantics(
+    profiles: Path,
+    hypotheses_out: Path,
+    questions_out: Path,
+    *,
+    provider_name: str,
+    local_enabled: bool,
+    local_model: str | None,
+    local_endpoint: str | None,
+) -> int:
+    provider = _select_inference_provider(
+        provider_name,
+        local_enabled=local_enabled,
+        local_model=local_model,
+        local_endpoint=local_endpoint,
+    )
+    result = generate_semantic_inference(load_inference_profile_jsonl(profiles), provider=provider)
     write_jsonl(result["hypotheses"], hypotheses_out)
     write_jsonl(result["onboarding_questions"], questions_out)
     return 0
+
+
+def _select_inference_provider(
+    provider_name: str,
+    *,
+    local_enabled: bool,
+    local_model: str | None,
+    local_endpoint: str | None,
+):
+    provider_key = str(provider_name).strip().casefold()
+    if provider_key == "mock":
+        return None
+    if provider_key == "local":
+        config = LocalProviderConfig(enabled=local_enabled, model=local_model, endpoint=local_endpoint)
+        return LocalSemanticInferenceProvider(config)
+    raise ValueError(f"Unsupported inference provider: {provider_name}")
+
+
+def _env_default(name: str, fallback: str | None) -> str | None:
+    value = os.environ.get(name)
+    if value is None:
+        return fallback
+    value = value.strip()
+    return value or fallback
+
+
+def _env_bool(name: str, fallback: bool) -> bool:
+    value = os.environ.get(name)
+    if value is None:
+        return fallback
+    normalized = value.strip().casefold()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    raise ValueError(f"{name} must be one of 1/0, true/false, yes/no, or on/off")
 
 
 def _write_json(payload: dict[str, Any], out: Path) -> None:
