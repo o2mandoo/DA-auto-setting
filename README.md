@@ -52,6 +52,7 @@ See `docs/demo/LOCAL_DEMO.md` for the exact path.
 
 ## Source-of-truth docs
 
+- `docs/setup/DEVELOPMENT.md`
 - `docs/execution/PROJECT_BRIEF.md`
 - `docs/execution/MVP_SCOPE.md`
 - `docs/execution/MODULES.md`
