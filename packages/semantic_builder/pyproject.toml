@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "semantic-builder"
+version = "0.1.0"
+description = "Local file scanner and draft Semantic Pack builder."
+requires-python = ">=3.11"
+dependencies = [
+  "semantic-contracts==0.1.0",
+  "PyYAML>=6.0,<7",
+  # Declared explicitly so workbook support is not a silent optional dependency.
+  "openpyxl>=3.1,<4",
+  "xlrd>=2.0,<3",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<9"]
+
+[project.scripts]
+semantic-builder = "semantic_builder.cli:main"
+semantic-eval = "semantic_builder.eval.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/semantic_builder"]

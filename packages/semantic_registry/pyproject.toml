@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "semantic-registry"
+version = "0.1.0"
+description = "Local Semantic Registry for Semantic Packs."
+requires-python = ">=3.11"
+dependencies = [
+  "semantic-contracts==0.1.0",
+  "PyYAML>=6.0,<7",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<9"]
+
+[project.scripts]
+semantic-registry = "semantic_registry.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["semantic_registry"]

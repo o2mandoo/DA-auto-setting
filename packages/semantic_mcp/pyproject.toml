@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "semantic-mcp"
+version = "0.1.0"
+description = "Local stdio MCP interface for the Semantic Registry."
+requires-python = ">=3.11"
+dependencies = [
+  "semantic-contracts==0.1.0",
+  "semantic-registry==0.1.0",
+  # The stdio runtime uses the official modelcontextprotocol/python-sdk package
+  # via `from mcp.server.fastmcp import FastMCP`; local tests may still run
+  # function-level surfaces when this optional runtime SDK is absent.
+  "mcp>=1,<2",
+  "pydantic>=2.7,<3",
+  "PyYAML>=6.0,<7",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<9"]
+
+[project.scripts]
+semantic-mcp = "semantic_mcp.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/semantic_mcp"]

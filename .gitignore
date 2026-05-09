@@ -1,0 +1,57 @@
+# OS / editor
+.DS_Store
+.AppleDouble
+.LSOverride
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyre/
+.coverage
+coverage.xml
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Local environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+
+# Runtime/generated artifacts
+runtime/
+.runtime/
+.runtime_tmp/
+logs/
+*.log
+
+# OMX / agent runtime state
+.omx/
+
+# Local dependency/cache bundles
+/tmp/
+semantic-data-context-deps/
+
+# Notebook and data-science caches
+.ipynb_checkpoints/
+
+# Keep source fixtures under docs/reference/test_datasets tracked intentionally.

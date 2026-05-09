@@ -1,0 +1,705 @@
+semantic_pack:
+  id: demo_company.revenue_draft
+  version: 0.1.0
+  status: draft
+  title: Builder Draft Semantic Pack
+  description: Draft Semantic Pack generated from local file profiles.
+  locale: ko-KR
+  owners:
+  - role: builder
+    name: Semantic Builder
+  source_refs:
+  - type: file
+    name: local_file_profiles
+    safe_reference: true
+  spaces:
+  - id: local_files
+    title: Local File Inputs
+  tables:
+  - id: table.payments
+    space_id: local_files
+    physical_name: payments
+    title: Payments
+    description: Draft table inferred from local file input.
+    role: fact
+    grain: one row per source record
+    primary_key: payment_id
+    columns:
+    - payment_id
+    - user_id
+    - paid_at
+    - amount
+    - status
+    pii_level: none
+    status: draft
+    confidence: 0.5
+  - id: table.subscriptions
+    space_id: local_files
+    physical_name: subscriptions
+    title: Subscriptions
+    description: Draft table inferred from local file input.
+    role: dimension
+    grain: one row per source record
+    primary_key: subscription_id
+    columns:
+    - subscription_id
+    - user_id
+    - plan
+    - started_at
+    - monthly_amount
+    - status
+    pii_level: none
+    status: draft
+    confidence: 0.5
+  - id: table.users
+    space_id: local_files
+    physical_name: users
+    title: Users
+    description: Draft table inferred from local file input.
+    role: dimension
+    grain: one row per source record
+    primary_key: user_id
+    columns:
+    - user_id
+    - email
+    - signup_date
+    - country
+    - marketing_channel
+    pii_level: high
+    status: draft
+    confidence: 0.5
+  columns:
+  - id: column.payments.payment_id
+    table: payments
+    name: payment_id
+    data_type: string
+    nullable: false
+    semantic_type: identifier
+    description: Draft column inferred from local file profile for payment_id.
+    profile:
+      null_ratio: 0.0
+      cardinality: 4
+      top_values_safe: true
+    pii:
+      is_candidate: false
+      raw_value_storage: allowed
+      masking_notes: null
+    status: draft
+    confidence: 0.5
+  - id: column.payments.user_id
+    table: payments
+    name: user_id
+    data_type: string
+    nullable: false
+    semantic_type: identifier
+    description: Draft column inferred from local file profile for user_id.
+    profile:
+      null_ratio: 0.0
+      cardinality: 4
+      top_values_safe: true
+    pii:
+      is_candidate: false
+      raw_value_storage: allowed
+      masking_notes: null
+    status: draft
+    confidence: 0.5
+  - id: column.payments.paid_at
+    table: payments
+    name: paid_at
+    data_type: date
+    nullable: false
+    semantic_type: date
+    description: Draft column inferred from local file profile for paid_at.
+    profile:
+      null_ratio: 0.0
+      cardinality: 4
+      top_values_safe: true
+      min_value: '2026-01-15'
+      max_value: '2026-02-28'
+    pii:
+      is_candidate: false
+      raw_value_storage: allowed
+      masking_notes: null
+    status: draft
+    confidence: 0.5
+  - id: column.payments.amount
+    table: payments
+    name: amount
+    data_type: numeric
+    nullable: false
+    semantic_type: null
+    description: Draft column inferred from local file profile for amount.
+    profile:
+      null_ratio: 0.0
+      cardinality: 4
+      top_values_safe: true
+      min_value: 42.75
+      max_value: 300.0
+    pii:
+      is_candidate: false
+      raw_value_storage: allowed
+      masking_notes: null
+    status: draft
+    confidence: 0.5
+  - id: column.payments.status
+    table: payments
+    name: status
+    data_type: string
+    nullable: false
+    semantic_type: null
+    description: Draft column inferred from local file profile for status.
+    profile:
+      null_ratio: 0.0
+      cardinality: 2
+      top_values_safe: true
+    pii:
+      is_candidate: false
+      raw_value_storage: allowed
+      masking_notes: null
+    status: draft
+    confidence: 0.5
+  - id: column.subscriptions.subscription_id
+    table: subscriptions
+    name: subscription_id
+    data_type: string
+    nullable: false
+    semantic_type: identifier
+    description: Draft column inferred from local file profile for subscription_id.
+    profile:
+      null_ratio: 0.0
+      cardinality: 4
+      top_values_safe: true
+    pii:
+      is_candidate: false
+      raw_value_storage: allowed
+      masking_notes: null
+    status: draft
+    confidence: 0.5
+  - id: column.subscriptions.user_id
+    table: subscriptions
+    name: user_id
+    data_type: string
+    nullable: false
+    semantic_type: identifier
+    description: Draft column inferred from local file profile for user_id.
+    profile:
+      null_ratio: 0.0
+      cardinality: 4
+      top_values_safe: true
+    pii:
+      is_candidate: false
+      raw_value_storage: allowed
+      masking_notes: null
+    status: draft
+    confidence: 0.5
+  - id: column.subscriptions.plan
+    table: subscriptions
+    name: plan
+    data_type: string
+    nullable: false
+    semantic_type: null
+    description: Draft column inferred from local file profile for plan.
+    profile:
+      null_ratio: 0.0
+      cardinality: 3
+      top_values_safe: true
+    pii:
+      is_candidate: false
+      raw_value_storage: allowed
+      masking_notes: null
+    status: draft
+    confidence: 0.5
+  - id: column.subscriptions.started_at
+    table: subscriptions
+    name: started_at
+    data_type: date
+    nullable: false
+    semantic_type: date
+    description: Draft column inferred from local file profile for started_at.
+    profile:
+      null_ratio: 0.0
+      cardinality: 4
+      top_values_safe: true
+      min_value: '2026-01-05'
+      max_value: '2026-02-14'
+    pii:
+      is_candidate: false
+      raw_value_storage: allowed
+      masking_notes: null
+    status: draft
+    confidence: 0.5
+  - id: column.subscriptions.monthly_amount
+    table: subscriptions
+    name: monthly_amount
+    data_type: numeric
+    nullable: false
+    semantic_type: null
+    description: Draft column inferred from local file profile for monthly_amount.
+    profile:
+      null_ratio: 0.0
+      cardinality: 3
+      top_values_safe: true
+      min_value: 19.0
+      max_value: 199.0
+    pii:
+      is_candidate: false
+      raw_value_storage: allowed
+      masking_notes: null
+    status: draft
+    confidence: 0.5
+  - id: column.subscriptions.status
+    table: subscriptions
+    name: status
+    data_type: string
+    nullable: false
+    semantic_type: null
+    description: Draft column inferred from local file profile for status.
+    profile:
+      null_ratio: 0.0
+      cardinality: 2
+      top_values_safe: true
+    pii:
+      is_candidate: false
+      raw_value_storage: allowed
+      masking_notes: null
+    status: draft
+    confidence: 0.5
+  - id: column.users.user_id
+    table: users
+    name: user_id
+    data_type: string
+    nullable: false
+    semantic_type: identifier
+    description: Draft column inferred from local file profile for user_id.
+    profile:
+      null_ratio: 0.0
+      cardinality: 4
+      top_values_safe: true
+    pii:
+      is_candidate: false
+      raw_value_storage: allowed
+      masking_notes: null
+    status: draft
+    confidence: 0.5
+  - id: column.users.email
+    table: users
+    name: email
+    data_type: string
+    nullable: false
+    semantic_type: email
+    description: PII-like column detected by the local profiler; raw values are blocked.
+    profile:
+      null_ratio: 0.0
+      cardinality: 4
+      top_values_safe: false
+    pii:
+      is_candidate: true
+      raw_value_storage: blocked
+      masking_notes: Raw values blocked by Builder PII policy.
+    status: draft
+    confidence: 0.5
+  - id: column.users.signup_date
+    table: users
+    name: signup_date
+    data_type: date
+    nullable: false
+    semantic_type: date
+    description: Draft column inferred from local file profile for signup_date.
+    profile:
+      null_ratio: 0.0
+      cardinality: 4
+      top_values_safe: true
+      min_value: '2026-01-03'
+      max_value: '2026-02-14'
+    pii:
+      is_candidate: false
+      raw_value_storage: allowed
+      masking_notes: null
+    status: draft
+    confidence: 0.5
+  - id: column.users.country
+    table: users
+    name: country
+    data_type: string
+    nullable: false
+    semantic_type: null
+    description: Draft column inferred from local file profile for country.
+    profile:
+      null_ratio: 0.0
+      cardinality: 3
+      top_values_safe: true
+    pii:
+      is_candidate: false
+      raw_value_storage: allowed
+      masking_notes: null
+    status: draft
+    confidence: 0.5
+  - id: column.users.marketing_channel
+    table: users
+    name: marketing_channel
+    data_type: string
+    nullable: false
+    semantic_type: null
+    description: Draft column inferred from local file profile for marketing_channel.
+    profile:
+      null_ratio: 0.0
+      cardinality: 3
+      top_values_safe: true
+    pii:
+      is_candidate: false
+      raw_value_storage: allowed
+      masking_notes: null
+    status: draft
+    confidence: 0.5
+  value_dictionaries:
+  - id: value_dict.payments.payment_id
+    table: payments
+    column: payment_id
+    values:
+    - value: p001
+      label: p001
+      count: 1
+      source: profiler
+      status: draft
+    - value: p002
+      label: p002
+      count: 1
+      source: profiler
+      status: draft
+    - value: p003
+      label: p003
+      count: 1
+      source: profiler
+      status: draft
+    - value: p004
+      label: p004
+      count: 1
+      source: profiler
+      status: draft
+  - id: value_dict.payments.user_id
+    table: payments
+    column: user_id
+    values:
+    - value: u001
+      label: u001
+      count: 1
+      source: profiler
+      status: draft
+    - value: u002
+      label: u002
+      count: 1
+      source: profiler
+      status: draft
+    - value: u003
+      label: u003
+      count: 1
+      source: profiler
+      status: draft
+    - value: u004
+      label: u004
+      count: 1
+      source: profiler
+      status: draft
+  - id: value_dict.payments.paid_at
+    table: payments
+    column: paid_at
+    values:
+    - value: '2026-01-15'
+      label: '2026-01-15'
+      count: 1
+      source: profiler
+      status: draft
+    - value: '2026-01-20'
+      label: '2026-01-20'
+      count: 1
+      source: profiler
+      status: draft
+    - value: '2026-02-05'
+      label: '2026-02-05'
+      count: 1
+      source: profiler
+      status: draft
+    - value: '2026-02-28'
+      label: '2026-02-28'
+      count: 1
+      source: profiler
+      status: draft
+  - id: value_dict.payments.amount
+    table: payments
+    column: amount
+    values:
+    - value: '120.5'
+      label: '120.5'
+      count: 1
+      source: profiler
+      status: draft
+    - value: '80.0'
+      label: '80.0'
+      count: 1
+      source: profiler
+      status: draft
+    - value: '42.75'
+      label: '42.75'
+      count: 1
+      source: profiler
+      status: draft
+    - value: '300.0'
+      label: '300.0'
+      count: 1
+      source: profiler
+      status: draft
+  - id: value_dict.payments.status
+    table: payments
+    column: status
+    values:
+    - value: succeeded
+      label: succeeded
+      count: 3
+      source: profiler
+      status: draft
+    - value: refunded
+      label: refunded
+      count: 1
+      source: profiler
+      status: draft
+  - id: value_dict.subscriptions.subscription_id
+    table: subscriptions
+    column: subscription_id
+    values:
+    - value: s_001
+      label: s_001
+      count: 1
+      source: profiler
+      status: draft
+    - value: s_002
+      label: s_002
+      count: 1
+      source: profiler
+      status: draft
+    - value: s_003
+      label: s_003
+      count: 1
+      source: profiler
+      status: draft
+    - value: s_004
+      label: s_004
+      count: 1
+      source: profiler
+      status: draft
+  - id: value_dict.subscriptions.user_id
+    table: subscriptions
+    column: user_id
+    values:
+    - value: u_001
+      label: u_001
+      count: 1
+      source: profiler
+      status: draft
+    - value: u_002
+      label: u_002
+      count: 1
+      source: profiler
+      status: draft
+    - value: u_003
+      label: u_003
+      count: 1
+      source: profiler
+      status: draft
+    - value: u_004
+      label: u_004
+      count: 1
+      source: profiler
+      status: draft
+  - id: value_dict.subscriptions.plan
+    table: subscriptions
+    column: plan
+    values:
+    - value: pro
+      label: pro
+      count: 2
+      source: profiler
+      status: draft
+    - value: starter
+      label: starter
+      count: 1
+      source: profiler
+      status: draft
+    - value: enterprise
+      label: enterprise
+      count: 1
+      source: profiler
+      status: draft
+  - id: value_dict.subscriptions.started_at
+    table: subscriptions
+    column: started_at
+    values:
+    - value: '2026-01-05'
+      label: '2026-01-05'
+      count: 1
+      source: profiler
+      status: draft
+    - value: '2026-01-20'
+      label: '2026-01-20'
+      count: 1
+      source: profiler
+      status: draft
+    - value: '2026-02-03'
+      label: '2026-02-03'
+      count: 1
+      source: profiler
+      status: draft
+    - value: '2026-02-14'
+      label: '2026-02-14'
+      count: 1
+      source: profiler
+      status: draft
+  - id: value_dict.subscriptions.monthly_amount
+    table: subscriptions
+    column: monthly_amount
+    values:
+    - value: '49'
+      label: '49'
+      count: 2
+      source: profiler
+      status: draft
+    - value: '19'
+      label: '19'
+      count: 1
+      source: profiler
+      status: draft
+    - value: '199'
+      label: '199'
+      count: 1
+      source: profiler
+      status: draft
+  - id: value_dict.subscriptions.status
+    table: subscriptions
+    column: status
+    values:
+    - value: active
+      label: active
+      count: 3
+      source: profiler
+      status: draft
+    - value: paused
+      label: paused
+      count: 1
+      source: profiler
+      status: draft
+  - id: value_dict.users.user_id
+    table: users
+    column: user_id
+    values:
+    - value: u001
+      label: u001
+      count: 1
+      source: profiler
+      status: draft
+    - value: u002
+      label: u002
+      count: 1
+      source: profiler
+      status: draft
+    - value: u003
+      label: u003
+      count: 1
+      source: profiler
+      status: draft
+    - value: u004
+      label: u004
+      count: 1
+      source: profiler
+      status: draft
+  - id: value_dict.users.signup_date
+    table: users
+    column: signup_date
+    values:
+    - value: '2026-01-03'
+      label: '2026-01-03'
+      count: 1
+      source: profiler
+      status: draft
+    - value: '2026-01-10'
+      label: '2026-01-10'
+      count: 1
+      source: profiler
+      status: draft
+    - value: '2026-02-02'
+      label: '2026-02-02'
+      count: 1
+      source: profiler
+      status: draft
+    - value: '2026-02-14'
+      label: '2026-02-14'
+      count: 1
+      source: profiler
+      status: draft
+  - id: value_dict.users.country
+    table: users
+    column: country
+    values:
+    - value: US
+      label: US
+      count: 2
+      source: profiler
+      status: draft
+    - value: KR
+      label: KR
+      count: 1
+      source: profiler
+      status: draft
+    - value: CA
+      label: CA
+      count: 1
+      source: profiler
+      status: draft
+  - id: value_dict.users.marketing_channel
+    table: users
+    column: marketing_channel
+    values:
+    - value: organic
+      label: organic
+      count: 2
+      source: profiler
+      status: draft
+    - value: paid_search
+      label: paid_search
+      count: 1
+      source: profiler
+      status: draft
+    - value: partner
+      label: partner
+      count: 1
+      source: profiler
+      status: draft
+  metrics: []
+  business_terms: []
+  join_recipes:
+  - id: join.payments_subscriptions_user_id
+    left_table: payments
+    right_table: subscriptions
+    join_type: many_to_many
+    condition: payments.user_id = subscriptions.user_id
+    recommended: false
+    warnings:
+    - Draft join candidate inferred from matching *_id column names; human review
+      required.
+  policies:
+  - id: policy.builder_pii_blocklist
+    applies_to:
+      roles:
+      - builder_user
+    allowed_tables:
+    - payments
+    - subscriptions
+    - users
+    blocked_columns:
+    - users.email
+    notes:
+    - Builder blocks raw PII-like values and excludes them from value dictionaries.
+  verified_queries: []
+  reverse_questions: []
+  metadata:
+    generator: semantic_builder
+    phase: '4'
+    source: local_file_profiles

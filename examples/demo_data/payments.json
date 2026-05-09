@@ -1,0 +1,6 @@
+[
+  {"payment_id":"p001","user_id":"u001","paid_at":"2026-01-15","amount":120.50,"status":"succeeded"},
+  {"payment_id":"p002","user_id":"u002","paid_at":"2026-01-20","amount":80.00,"status":"refunded"},
+  {"payment_id":"p003","user_id":"u003","paid_at":"2026-02-05","amount":42.75,"status":"succeeded"},
+  {"payment_id":"p004","user_id":"u004","paid_at":"2026-02-28","amount":300.00,"status":"succeeded"}
+]

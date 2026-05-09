@@ -1,0 +1,248 @@
+seed:
+  id: semantic-data-context
+  version: 0.1.0
+  status: draft
+  created_at: "2026-05-08"
+  owner: semantic-data-context repo
+
+intent:
+  goal: >-
+    Create the executable seed/spec and execution 기준 for this repository based on the
+    original service plan, while reframing the product as a shareable Semantic Data
+    Context System rather than a customer-dedicated BI platform.
+  reference_documents:
+    - path: docs/reference/original-service-plan.pdf
+      role: original_reference
+      usage: >-
+        Use for original problem framing, domain-context examples, value dictionary,
+        reverse-question, semantic-layer, guardrail, and feedback-loop concepts.
+        Do not copy the original positioning as an independent/customer-dedicated BI UI.
+  execution_documents:
+    - docs/execution/PROJECT_BRIEF.md
+    - docs/execution/MVP_SCOPE.md
+    - docs/execution/MODULES.md
+    - docs/execution/SEMANTIC_PACK_SPEC.md
+
+  example_datasets:
+    - id: sample_superstore_xls
+      role: primary_demo_dataset
+      local_path: "/Users/jtm427/Documents/내 Tableau 리포지토리/데이터 원본/2025.2/ko_KR-APAC/Sample - Superstore.xls"
+      format: xls
+      workbook_sheets:
+        - name: Orders
+          rows: 10194
+          columns:
+            - Row ID
+            - Order ID
+            - Order Date
+            - Ship Date
+            - Ship Mode
+            - Customer ID
+            - Customer Name
+            - Segment
+            - Country/Region
+            - City
+            - State/Province
+            - Postal Code
+            - Region
+            - Product ID
+            - Category
+            - Sub-Category
+            - Product Name
+            - Sales
+            - Quantity
+            - Discount
+            - Profit
+        - name: People
+          rows: 4
+          columns:
+            - Regional Manager
+            - Region
+        - name: Returns
+          rows: 296
+          columns:
+            - Order ID
+            - Returned
+      intended_usage: >-
+        Use as the first concrete example dataset for the demo Semantic Pack and
+        Builder profiling tests. Treat it as local sample data, not as production
+        customer data.
+
+    - id: sinagong_tableau_2026_xlsx_collection
+      role: secondary_builder_test_dataset_collection
+      local_path: docs/reference/test_datasets/sinagong_tableau_2026
+      manifest: docs/reference/test_datasets/DATASET_MANIFEST.md
+      format: xlsx_collection
+      file_count: 20
+      intended_usage: >-
+        Use as a broader workbook fixture set for Semantic Builder scanning tests,
+        including multi-domain workbook profiling, sheet detection, categorical
+        value dictionary candidates, metric candidates, and join/key inference.
+
+product_definition:
+  name: Semantic Data Context System
+  one_liner: >-
+    A system that scans data sources, builds domain context as Semantic Packs, stores
+    those packs as source of truth in a Registry, and exposes them through a local MCP
+    server so external LLMs, agents, and apps can safely use the context.
+  not_this:
+    - Independent BI dashboard platform
+    - Customer-dedicated end-user analytics portal
+    - SaaS multi-tenant analytics product
+    - Operational SQL execution engine
+  core_principles:
+    - Semantic Pack is the source of truth.
+    - Builder, Registry, and MCP must share the same Semantic Pack schema.
+    - MCP is the safe external interface for using Semantic Packs.
+    - SQL validation comes before SQL execution.
+    - PII raw values must not be stored or embedded.
+    - Every tool must have explicit input and output schemas.
+    - Stabilize schema/contracts first, then implement Registry, MCP, and Builder in that order.
+
+system_capabilities:
+  semantic_builder:
+    purpose: Build draft Semantic Packs from scanned data-source metadata and profiles.
+    data_sources:
+      - CSV
+      - XLSX
+      - JSON
+      - PostgreSQL
+    collects:
+      - schema and table metadata
+      - column profile
+      - distinct/top-N values for safe low-cardinality columns
+      - null ratio and cardinality
+      - PII candidates
+      - join candidates
+      - metric candidates
+    llm_outputs:
+      - table meaning hypotheses
+      - column meaning hypotheses
+      - metric hypotheses
+      - business term hypotheses
+      - reverse questions for domain owners
+      - semantic_pack.draft.yaml
+  semantic_registry_control_plane:
+    purpose: Store and manage Semantic Packs as source of truth.
+    manages:
+      - Table Card
+      - Column Card
+      - Value Dictionary
+      - Metric
+      - Business Term
+      - Join Recipe
+      - Policy
+      - Verified Query
+    provides:
+      - pack validation
+      - versioning
+      - search
+      - feedback store
+  local_mcp_server:
+    purpose: Expose Registry context as MCP resources, tools, and prompts.
+    transport:
+      - stdio
+    tools:
+      - list_semantic_spaces
+      - search_semantic_context
+      - resolve_business_terms
+      - plan_data_query
+      - validate_sql
+      - record_feedback
+
+mvp_scope:
+  include:
+    packages:
+      - semantic_contracts
+      - semantic_registry
+      - semantic_mcp
+      - semantic_builder
+    artifacts:
+      - demo semantic pack YAML
+      - local semantic registry
+      - local stdio MCP server
+      - feedback JSONL store
+      - basic tests
+    sql_guard:
+      - SELECT-only validation
+      - blocked column detection
+      - allowed table check
+      - multi-statement block
+  exclude:
+    - Dashboard UI
+    - Independent BI platform UI
+    - SaaS multi-tenancy
+    - execute_query
+    - Real operational DB execution
+    - Complete vector database
+    - Human confirmation UI
+    - Oracle/MySQL connector
+    - Complex ontology graph
+
+phase_0_first_implementation_slice:
+  objective: >-
+    Implement only the minimum executable baseline: shared contracts, one demo
+    Semantic Pack, and tests that validate the pack and contract behavior.
+  include:
+    - semantic_contracts schema/types/validators
+    - demo Semantic Pack YAML using the canonical example dataset
+    - contract and pack validation tests
+    - SQL guard contract tests without Registry/MCP runtime
+  exclude:
+    - Registry runtime implementation
+    - MCP server runtime implementation
+    - Builder scanner implementation
+    - any query execution
+    - any dashboard or human confirmation UI
+
+implementation_order:
+  - phase: 0_contract_demo_pack_tests
+    objective: Contracts + demo Semantic Pack + tests only.
+    package: semantic_contracts
+  - phase: 1_registry
+    objective: Load, validate, search, version, and persist feedback for local packs.
+    package: semantic_registry
+  - phase: 2_mcp
+    objective: Expose registry capabilities through a local stdio MCP server.
+    package: semantic_mcp
+  - phase: 3_builder
+    objective: Produce semantic_pack.draft.yaml from scanned source metadata/profiles.
+    package: semantic_builder
+
+acceptance_criteria:
+  docs_and_seed:
+    - specs/seeds/semantic-data-context.seed.yaml exists and is parseable YAML.
+    - docs/execution/PROJECT_BRIEF.md states the repo goal and reference boundary.
+    - docs/execution/MVP_SCOPE.md clearly separates MVP includes from non-goals.
+    - docs/execution/MODULES.md defines package responsibilities and build order.
+    - docs/execution/SEMANTIC_PACK_SPEC.md defines the pack schema and MCP tool contracts.
+  scope_control:
+    - No product code is implemented during this seed/spec task.
+    - The original PDF is referenced as original_reference, not as binding product scope.
+    - The phrase customer-dedicated BI platform is not adopted as the current product definition.
+  safety:
+    - PII raw-value handling is explicitly constrained.
+    - SQL guard MVP is validation-only and excludes execution.
+    - Tool schemas include deterministic inputs and outputs.
+
+assumptions:
+  - Initial Registry can be local-file based.
+  - Initial MCP transport is stdio only.
+  - Demo semantic pack can use synthetic/demo company revenue examples.
+  - PostgreSQL is the only DB connector named for first implementation beyond file sources.
+  - Sample workbook name-like fields must be treated as PII candidates during tests; do not create value dictionaries from raw names.
+  - MVP context retrieval is local/card-based lexical search; a production VDB or embedding pipeline is explicitly deferred.
+
+risks:
+  - Original plan contains broader BI platform/UI ambitions that can cause scope creep.
+  - Builder quality depends on safe profiling and good reverse-question generation.
+  - Semantic Pack schema may overfit the demo revenue domain if not kept generic.
+  - SQL validation can become underspecified if table/column policy semantics are vague.
+  - MCP tool contracts must remain stable enough for external agents to depend on them.
+
+non_goals:
+  - Do not build dashboard or BI UI.
+  - Do not execute SQL against operational databases.
+  - Do not store PII raw values or embed sensitive values.
+  - Do not implement SaaS tenancy, auth, billing, or VPC deployment.
+  - Do not build a full ontology graph or production vector database in MVP.

@@ -1,0 +1,5 @@
+user_id,email,signup_date,country,marketing_channel
+u001,ada@example.com,2026-01-03,US,organic
+u002,grace@example.com,2026-01-10,KR,paid_search
+u003,linus@example.com,2026-02-02,US,partner
+u004,margaret@example.com,2026-02-14,CA,organic

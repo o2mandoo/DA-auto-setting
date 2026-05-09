@@ -1,0 +1,67 @@
+from __future__ import annotations
+
+import sys
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "packages" / "semantic_contracts"))
+sys.path.insert(0, str(ROOT / "packages" / "semantic_registry"))
+sys.path.insert(0, str(ROOT / "packages" / "semantic_mcp" / "src"))
+
+from semantic_mcp import inspect_registration_surface  # noqa: E402
+from semantic_mcp.eval_helpers import (  # noqa: E402
+    build_mcp_eval_bundle,
+    build_preview_query_eval,
+)
+
+
+class McpEvalIntegrationTests(unittest.TestCase):
+    def test_eval_bundle_uses_local_tool_functions_without_transport(self) -> None:
+        bundle = build_mcp_eval_bundle(
+            space_id="demo_company.revenue",
+            question="월별 신규 고객 순매출",
+            sql="SELECT users.user_id, SUM(payments.amount) FROM users JOIN payments ON users.user_id = payments.user_id GROUP BY users.user_id",
+            role="marketing_analyst",
+            terms=["신규 고객", "net revenue"],
+            pack_root=ROOT / "semantic_packs",
+            fixture_root=ROOT / "examples" / "demo_data",
+            max_rows=2,
+        )
+
+        self.assertFalse(bundle["execution_allowed"])
+        self.assertFalse(bundle["transport_required"])
+        self.assertIn("search_semantic_context", bundle)
+        self.assertIn("resolve_business_terms", bundle)
+        self.assertIn("plan_data_query", bundle)
+        self.assertIn("validate_sql", bundle)
+        self.assertIn("preview_query", bundle)
+        self.assertTrue(bundle["plan_data_query"]["required_terms"])
+        self.assertTrue(bundle["validate_sql"]["valid"])
+        self.assertIn("preview_query", inspect_registration_surface()["tools"])
+        self.assertNotIn("execute_query", inspect_registration_surface()["tools"])
+
+    def test_preview_eval_reports_explicit_fallback_when_preview_runtime_is_missing(self) -> None:
+        with patch(
+            "semantic_mcp.eval_helpers.preview_query",
+            side_effect=RuntimeError("No preview runtime is installed; no preview fallback was run"),
+        ):
+            response = build_preview_query_eval(
+                "demo_company.revenue",
+                "SELECT payment_id FROM payments ORDER BY payment_id",
+                role="marketing_analyst",
+                pack_root=ROOT / "semantic_packs",
+                fixture_root=ROOT / "examples" / "demo_data",
+                max_rows=2,
+            )
+
+        self.assertFalse(response["available"])
+        self.assertFalse(response["preview_allowed"])
+        self.assertEqual(response["rows"], [])
+        self.assertEqual(response["fallback"], "explicit_preview_runtime_unavailable")
+        self.assertTrue(any("No preview fallback" in warning for warning in response["warnings"]))
+
+
+if __name__ == "__main__":
+    unittest.main()

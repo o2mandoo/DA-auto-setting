@@ -1,0 +1,111 @@
+{
+  "semantic_pack": {
+    "id": "demo_company.revenue",
+    "version": "0.1.0",
+    "status": "approved",
+    "title": "Demo Company Revenue Context",
+    "description": "PII-safe semantic context for demo company users, payments, campaigns, and net revenue analysis.",
+    "locale": "ko-KR",
+    "owners": [
+      {"role": "data_owner", "name": "Demo Data Team"}
+    ],
+    "source_refs": [
+      {"type": "file", "name": "demo_revenue_source", "safe_reference": true}
+    ],
+    "spaces": [
+      {"id": "revenue", "title": "Revenue Analysis"}
+    ],
+    "tables": [
+      {
+        "id": "table.users",
+        "space_id": "revenue",
+        "physical_name": "users",
+        "title": "Users",
+        "description": "Customer dimension table for revenue analysis. PII columns are represented but raw values are blocked.",
+        "role": "dimension",
+        "grain": "one row per user",
+        "primary_key": "user_id",
+        "columns": ["user_id", "email", "phone", "name", "first_paid_at", "created_at", "segment"],
+        "pii_level": "high",
+        "status": "draft",
+        "confidence": 0.9
+      },
+      {
+        "id": "table.payments",
+        "space_id": "revenue",
+        "physical_name": "payments",
+        "title": "Payments",
+        "description": "Payment fact table used for net revenue metrics.",
+        "role": "fact",
+        "grain": "one row per payment transaction",
+        "primary_key": "payment_id",
+        "columns": ["payment_id", "user_id", "campaign_id", "amount", "refund_amount", "discount_amount", "paid_at", "status"],
+        "pii_level": "none",
+        "status": "draft",
+        "confidence": 0.92
+      },
+      {
+        "id": "table.campaigns",
+        "space_id": "revenue",
+        "physical_name": "campaigns",
+        "title": "Campaigns",
+        "description": "Marketing campaign dimension table.",
+        "role": "dimension",
+        "grain": "one row per campaign",
+        "primary_key": "campaign_id",
+        "columns": ["campaign_id", "campaign_name", "channel"],
+        "pii_level": "none",
+        "status": "draft",
+        "confidence": 0.84
+      }
+    ],
+    "columns": [
+      {"id": "column.users.user_id", "table": "users", "name": "user_id", "data_type": "integer", "nullable": false, "semantic_type": "identifier", "description": "Stable user identifier.", "profile": {"null_ratio": 0.0, "cardinality": 1000, "top_values_safe": false}, "pii": {"is_candidate": false, "raw_value_storage": "blocked"}, "status": "draft", "confidence": 0.95},
+      {"id": "column.users.email", "table": "users", "name": "email", "data_type": "string", "nullable": false, "semantic_type": "email", "description": "User email address; policy-blocked PII.", "profile": {"null_ratio": 0.0, "cardinality": 1000, "top_values_safe": false}, "pii": {"is_candidate": true, "raw_value_storage": "blocked"}, "status": "draft", "confidence": 0.99},
+      {"id": "column.users.phone", "table": "users", "name": "phone", "data_type": "string", "nullable": true, "semantic_type": "phone", "description": "User phone number; policy-blocked PII.", "profile": {"null_ratio": 0.2, "cardinality": 800, "top_values_safe": false}, "pii": {"is_candidate": true, "raw_value_storage": "blocked"}, "status": "draft", "confidence": 0.99},
+      {"id": "column.users.name", "table": "users", "name": "name", "data_type": "string", "nullable": false, "semantic_type": "person_name", "description": "User display name; policy-blocked PII.", "profile": {"null_ratio": 0.0, "cardinality": 980, "top_values_safe": false}, "pii": {"is_candidate": true, "raw_value_storage": "blocked"}, "status": "draft", "confidence": 0.98},
+      {"id": "column.users.first_paid_at", "table": "users", "name": "first_paid_at", "data_type": "timestamp", "nullable": true, "semantic_type": "first_payment_timestamp", "description": "Timestamp of the user's first successful payment.", "profile": {"null_ratio": 0.2, "cardinality": 800, "top_values_safe": false}, "pii": {"is_candidate": false, "raw_value_storage": "blocked"}, "status": "draft", "confidence": 0.9},
+      {"id": "column.users.created_at", "table": "users", "name": "created_at", "data_type": "timestamp", "nullable": false, "semantic_type": "created_timestamp", "description": "Timestamp when the user account was created.", "profile": {"null_ratio": 0.0, "cardinality": 1000, "top_values_safe": false}, "pii": {"is_candidate": false, "raw_value_storage": "blocked"}, "status": "draft", "confidence": 0.8},
+      {"id": "column.users.segment", "table": "users", "name": "segment", "data_type": "string", "nullable": true, "semantic_type": "category", "description": "Safe customer segment label.", "profile": {"null_ratio": 0.05, "cardinality": 3, "top_values_safe": true}, "pii": {"is_candidate": false, "raw_value_storage": "allowed"}, "status": "draft", "confidence": 0.82},
+      {"id": "column.payments.payment_id", "table": "payments", "name": "payment_id", "data_type": "integer", "nullable": false, "semantic_type": "identifier", "description": "Stable payment identifier.", "profile": {"null_ratio": 0.0, "cardinality": 5000, "top_values_safe": false}, "pii": {"is_candidate": false, "raw_value_storage": "blocked"}, "status": "draft", "confidence": 0.95},
+      {"id": "column.payments.user_id", "table": "payments", "name": "user_id", "data_type": "integer", "nullable": false, "semantic_type": "foreign_key", "description": "Foreign key to users.user_id.", "profile": {"null_ratio": 0.0, "cardinality": 1000, "top_values_safe": false}, "pii": {"is_candidate": false, "raw_value_storage": "blocked"}, "status": "draft", "confidence": 0.95},
+      {"id": "column.payments.campaign_id", "table": "payments", "name": "campaign_id", "data_type": "integer", "nullable": true, "semantic_type": "foreign_key", "description": "Optional campaign foreign key.", "profile": {"null_ratio": 0.35, "cardinality": 50, "top_values_safe": false}, "pii": {"is_candidate": false, "raw_value_storage": "blocked"}, "status": "draft", "confidence": 0.78},
+      {"id": "column.payments.amount", "table": "payments", "name": "amount", "data_type": "decimal", "nullable": false, "semantic_type": "money", "description": "Gross paid amount.", "profile": {"null_ratio": 0.0, "cardinality": 4200, "top_values_safe": false}, "pii": {"is_candidate": false, "raw_value_storage": "blocked"}, "status": "draft", "confidence": 0.92},
+      {"id": "column.payments.refund_amount", "table": "payments", "name": "refund_amount", "data_type": "decimal", "nullable": false, "semantic_type": "money", "description": "Refunded amount for the payment.", "profile": {"null_ratio": 0.0, "cardinality": 100, "top_values_safe": false}, "pii": {"is_candidate": false, "raw_value_storage": "blocked"}, "status": "draft", "confidence": 0.86},
+      {"id": "column.payments.discount_amount", "table": "payments", "name": "discount_amount", "data_type": "decimal", "nullable": false, "semantic_type": "money", "description": "Discount amount applied to the payment.", "profile": {"null_ratio": 0.0, "cardinality": 120, "top_values_safe": false}, "pii": {"is_candidate": false, "raw_value_storage": "blocked"}, "status": "draft", "confidence": 0.84},
+      {"id": "column.payments.paid_at", "table": "payments", "name": "paid_at", "data_type": "timestamp", "nullable": false, "semantic_type": "payment_timestamp", "description": "Successful payment timestamp.", "profile": {"null_ratio": 0.0, "cardinality": 4600, "top_values_safe": false}, "pii": {"is_candidate": false, "raw_value_storage": "blocked"}, "status": "draft", "confidence": 0.9},
+      {"id": "column.payments.status", "table": "payments", "name": "status", "data_type": "string", "nullable": false, "semantic_type": "status_code", "description": "Payment lifecycle status.", "profile": {"null_ratio": 0.0, "cardinality": 3, "top_values_safe": true}, "pii": {"is_candidate": false, "raw_value_storage": "allowed"}, "status": "draft", "confidence": 0.9},
+      {"id": "column.campaigns.campaign_id", "table": "campaigns", "name": "campaign_id", "data_type": "integer", "nullable": false, "semantic_type": "identifier", "description": "Stable campaign identifier.", "profile": {"null_ratio": 0.0, "cardinality": 50, "top_values_safe": false}, "pii": {"is_candidate": false, "raw_value_storage": "blocked"}, "status": "draft", "confidence": 0.85},
+      {"id": "column.campaigns.campaign_name", "table": "campaigns", "name": "campaign_name", "data_type": "string", "nullable": false, "semantic_type": "category_label", "description": "Human-readable campaign label; safe demo dictionary is not required in Phase 0.", "profile": {"null_ratio": 0.0, "cardinality": 50, "top_values_safe": false}, "pii": {"is_candidate": false, "raw_value_storage": "blocked"}, "status": "draft", "confidence": 0.72},
+      {"id": "column.campaigns.channel", "table": "campaigns", "name": "channel", "data_type": "string", "nullable": false, "semantic_type": "category", "description": "Marketing channel.", "profile": {"null_ratio": 0.0, "cardinality": 4, "top_values_safe": true}, "pii": {"is_candidate": false, "raw_value_storage": "allowed"}, "status": "draft", "confidence": 0.8}
+    ],
+    "value_dictionaries": [
+      {"id": "value_dict.payments.status", "table": "payments", "column": "status", "values": [{"value": "PAID", "label": "결제 완료", "description": "Payment completed and eligible for revenue.", "source": "human", "status": "draft"}, {"value": "REFUNDED", "label": "환불", "description": "Payment refunded and excluded or netted by refund amount.", "source": "human", "status": "draft"}, {"value": "FAILED", "label": "실패", "description": "Failed payment, not revenue eligible.", "source": "human", "status": "draft"}]},
+      {"id": "value_dict.users.segment", "table": "users", "column": "segment", "values": [{"value": "Consumer", "label": "Consumer", "source": "human", "status": "draft"}, {"value": "Corporate", "label": "Corporate", "source": "human", "status": "draft"}, {"value": "Home Office", "label": "Home Office", "source": "human", "status": "draft"}]},
+      {"id": "value_dict.campaigns.channel", "table": "campaigns", "column": "channel", "values": [{"value": "search", "label": "Search", "source": "human", "status": "draft"}, {"value": "email", "label": "Email", "source": "human", "status": "draft"}, {"value": "social", "label": "Social", "source": "human", "status": "draft"}]}
+    ],
+    "metrics": [
+      {"id": "metric.net_revenue", "name": "net_revenue", "label": "순매출", "description": "Gross payment amount minus refunds and discounts for paid payments.", "formula_sql": "SUM(payments.amount - payments.refund_amount - payments.discount_amount)", "date_basis": "payments.paid_at", "required_tables": ["payments"], "default_filters": ["payments.status = 'PAID'"], "status": "draft", "owner": "finance"},
+      {"id": "metric.gross_revenue", "name": "gross_revenue", "label": "총매출", "description": "Gross paid amount before refunds and discounts.", "formula_sql": "SUM(payments.amount)", "date_basis": "payments.paid_at", "required_tables": ["payments"], "default_filters": ["payments.status = 'PAID'"], "status": "draft", "owner": "finance"}
+    ],
+    "business_terms": [
+      {"id": "term.new_customer", "term": "신규 고객", "aliases": ["new customer", "first paid customer"], "definition": "A user whose first successful payment timestamp falls within the analysis period.", "sql_condition": "users.first_paid_at >= {start_date} AND users.first_paid_at < {end_date}", "related_tables": ["users", "payments"], "related_metrics": ["metric.net_revenue"], "ambiguity_policy": "ask_if_date_basis_missing", "status": "draft"},
+      {"id": "term.net_revenue", "term": "순매출", "aliases": ["net revenue"], "definition": "Paid amount minus refund and discount amounts.", "sql_condition": "payments.status = 'PAID'", "related_tables": ["payments"], "related_metrics": ["metric.net_revenue"], "ambiguity_policy": "ask_if_refund_timing_missing", "status": "draft"}
+    ],
+    "join_recipes": [
+      {"id": "join.users_payments", "left_table": "users", "right_table": "payments", "join_type": "one_to_many", "condition": "users.user_id = payments.user_id", "recommended": true, "warnings": ["Use users.user_id, not users.email/phone/name, for joins."]},
+      {"id": "join.payments_campaigns", "left_table": "payments", "right_table": "campaigns", "join_type": "many_to_one", "condition": "payments.campaign_id = campaigns.campaign_id", "recommended": true, "warnings": ["Campaign attribution may be null for unattributed payments."]}
+    ],
+    "policies": [
+      {"id": "policy.marketing_safe_revenue", "applies_to": {"roles": ["marketing_analyst"]}, "allowed_tables": ["users", "payments", "campaigns"], "blocked_columns": ["users.email", "users.phone", "users.name"], "notes": ["Aggregated revenue and campaign analysis are allowed.", "Raw user PII columns are blocked from retrieval payloads and SQL planning output.", "Use users.user_id for joins; do not expose email, phone, or name.", "SQL execution is out of scope; validation only."]}
+    ],
+    "verified_queries": [
+      {"id": "verified_query.monthly_new_customer_revenue", "question": "월별 신규 고객 순매출을 보여줘", "sql": "SELECT DATE_TRUNC('month', users.first_paid_at) AS month, SUM(payments.amount - payments.refund_amount - payments.discount_amount) AS net_revenue\nFROM users\nJOIN payments ON users.user_id = payments.user_id\nWHERE users.first_paid_at >= {start_date}\n  AND users.first_paid_at < {end_date}\n  AND payments.status = 'PAID'\nGROUP BY 1", "related_terms": ["term.new_customer"], "related_metrics": ["metric.net_revenue"], "status": "confirmed"}
+    ],
+    "reverse_questions": [
+      {"id": "rq.net_revenue.refund_timing", "target": "metric.net_revenue", "question": "순매출 계산에서 환불은 결제월 기준으로 차감하나요, 환불 발생월 기준으로 차감하나요?", "reason": "Net revenue can vary depending on refund timing policy.", "status": "open", "answer": null},
+      {"id": "rq.new_customer.date_basis", "target": "term.new_customer", "question": "신규 고객 판정 기준은 첫 결제 시각(first_paid_at)으로 확정인가요?", "reason": "Signup date and first paid date can imply different new-customer cohorts.", "status": "open", "answer": null}
+    ],
+    "metadata": {"created_at": "2026-05-08", "updated_at": "2026-05-09"}
+  }
+}
