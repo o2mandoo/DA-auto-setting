@@ -146,6 +146,13 @@ python -m pytest -q tests/registry/test_vdb_backend.py tests/mcp/test_search_con
 **Exit criteria:** live Weaviate is optional, but selected Weaviate cannot degrade silently to keyword.
 
 **Current evidence:** PASS as of `reports/productization/PR5_SEMANTIC_RETRIEVAL_EVIDENCE.md`.
+Reconfirmed on 2026-05-09 with the focused regression set
+`tests/registry/test_semantic_query.py`, `tests/registry/test_search_index.py`,
+`tests/registry/test_vdb_backend.py`, and `tests/mcp/test_search_context.py`
+(`35 passed, 1 skipped`), plus a direct `search_semantic_context("휴면 고객")`
+runtime smoke that returned `fallback_used=false`, `unknown_terms=['휴면 고객']`,
+`recommended_card_types=['reverse_question', 'business_term']`, and
+`results=[]`.
 The run also verified the PostgreSQL/MySQL 20-dataset fixture precondition in
 `reports/reality/sinagong_20_live_db_fixture_evidence.json` and added
 deterministic Semantic Pack query-understanding evidence for aliases,

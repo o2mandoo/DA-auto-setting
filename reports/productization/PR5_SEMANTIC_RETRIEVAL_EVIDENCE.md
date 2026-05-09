@@ -90,6 +90,40 @@ PYTHONPATH=packages/semantic_contracts:packages/semantic_registry:packages/seman
 
 The two skips are optional live/config-dependent paths. They were explicit skips, not fallback.
 
+## 2026-05-09 recheck
+
+Focused regression and runtime smoke were rerun after tightening explicit no-fallback coverage:
+
+```bash
+PYTHONPATH=packages/semantic_contracts:packages/semantic_registry:packages/semantic_mcp/src \
+  .venv/bin/python -m pytest -q \
+  tests/registry/test_semantic_query.py \
+  tests/registry/test_search_index.py \
+  tests/registry/test_vdb_backend.py \
+  tests/mcp/test_search_context.py
+# 35 passed, 1 skipped
+
+PYTHONPATH=packages/semantic_contracts:packages/semantic_registry:packages/semantic_mcp/src \
+  .venv/bin/python - <<'PY'
+from semantic_mcp import search_semantic_context
+resp = search_semantic_context('demo_company.revenue', '휴면 고객', filters={'backend': 'keyword', 'limit': 5})
+print(resp['fallback_used'])
+print(resp['query_understanding']['unknown_terms'])
+print(resp['query_understanding']['recommended_card_types'])
+print(resp['query_understanding']['expanded_query'])
+print(resp['results'])
+print(resp['error'])
+PY
+# False
+# ['휴면 고객']
+# ['reverse_question', 'business_term']
+# 휴면 고객
+# []
+# None
+```
+
+This recheck makes the explicit no-silent-fallback boundary visible in both tests and a live payload: unknown terms stay explicit, `fallback_used` remains `false`, and no keyword fallback is hidden behind a backend error.
+
 ## No-silent-fallback log
 
 - Live DB corpus precheck was rerun successfully. The earlier PostgreSQL/MySQL fixture issues were fixed before PR-5 and did not recur.
