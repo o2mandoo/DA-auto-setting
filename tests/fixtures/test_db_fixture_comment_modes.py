@@ -12,8 +12,12 @@ def test_fixture_modes_distinguish_no_real_and_synthetic_comments() -> None:
     assert no_comments.table_comment is None
     assert real_comments.table_comment == "Real orders"
     assert TEST_ONLY_MARKER in synthetic.table_comment
+    assert synthetic.column_comments
+    assert all(TEST_ONLY_MARKER in comment for comment in synthetic.column_comments.values())
     assert synthetic.is_test_only is True
     summary = fixture_mode_summary([no_comments, real_comments, synthetic])
+    assert summary["fixture_only"] is True
+    assert summary["not_product_runtime"] is True
     assert summary["synthetic_truth_blocked"] is True
 
 
