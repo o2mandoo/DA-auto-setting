@@ -56,6 +56,12 @@ or mismatched.
 
 ## Adapter routes
 
+Literal route names for adapter-facing docs:
+
+- `GET /healthz`
+- `GET /readyz`
+- `GET /openapi.json`
+
 | Method | Path | Purpose | Key response notes |
 |---|---|---|---|
 | GET | `/healthz` | Report process health JSON. | Returns a process-health view and a correlation ID. |

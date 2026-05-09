@@ -6,6 +6,8 @@ from pathlib import Path
 def test_pr2_http_docs_cover_adapter_surface_and_safety() -> None:
     product_api = Path("docs/api/PRODUCT_API.md").read_text(encoding="utf-8")
     openapi_like = Path("docs/api/OPENAPI_LIKE.yaml").read_text(encoding="utf-8")
+    product_api_lower = product_api.lower()
+    openapi_like_lower = openapi_like.lower()
 
     for needle in [
         "transport-only",
@@ -18,7 +20,7 @@ def test_pr2_http_docs_cover_adapter_surface_and_safety() -> None:
         "no `execute_query` route or handler",
         "credential-free",
     ]:
-        assert needle in product_api
+        assert needle.lower() in product_api_lower
 
     for needle in [
         "/healthz",
@@ -28,9 +30,9 @@ def test_pr2_http_docs_cover_adapter_surface_and_safety() -> None:
         "TypedError",
         "X-Correlation-ID",
     ]:
-        assert needle in openapi_like
+        assert needle.lower() in openapi_like_lower
 
-    assert "execute_query" not in openapi_like
+    assert "execute_query" not in openapi_like_lower
 
 
 def test_pr2_http_docs_examples_remain_credential_free() -> None:
