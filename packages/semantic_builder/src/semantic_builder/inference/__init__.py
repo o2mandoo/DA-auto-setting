@@ -22,6 +22,7 @@ from .pipeline import (
     LocalSemanticInferenceProvider,
     SemanticInferenceProvider,
     generate_semantic_inference,
+    load_inference_provider_config,
     load_profile_jsonl,
     write_jsonl,
 )
@@ -40,6 +41,7 @@ __all__ = [
     "TableHypothesis",
     "Uncertainty",
     "generate_semantic_inference",
+    "load_inference_provider_config",
     "load_profile_jsonl",
     "write_jsonl",
 ]

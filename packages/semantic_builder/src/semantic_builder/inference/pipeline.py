@@ -9,6 +9,7 @@ represented as safe source references, not live database connections.
 from __future__ import annotations
 
 import json
+import os
 import re
 import urllib.error
 import urllib.request
@@ -158,6 +159,45 @@ class LocalSemanticInferenceProvider:
         if not isinstance(hypotheses, list) or not isinstance(questions, list):
             raise ValueError("local semantic inference provider response must contain list values")
         return {"hypotheses": hypotheses, "onboarding_questions": questions}
+
+    def build_request(self, profile_records: Sequence[ProfileRecord]) -> JsonObject:
+        """Build a strict-JSON provider request from sanitized records."""
+
+        return {
+            "provider": self.config.provider or self.name,
+            "model": self.config.model,
+            "endpoint": self.config.endpoint,
+            "base_url": self.config.base_url,
+            "api_key": self.config.api_key,
+            "timeout": self.config.timeout,
+            "max_tokens": self.config.max_tokens,
+            "temperature": self.config.temperature,
+            "response_format": {"type": "json_object"},
+            "instructions": (
+                "Return strict JSON with only 'hypotheses' and 'onboarding_questions' keys. "
+                "Do not emit markdown, prose, or extra keys."
+            ),
+            "profile_records": [_sanitize_profile_record(record) for record in profile_records],
+        }
+
+    def parse_response(self, payload: Any) -> dict[str, list[JsonObject]]:
+        """Parse strict JSON provider output into the inference artifact shape."""
+
+        if isinstance(payload, str):
+            try:
+                payload = json.loads(payload)
+            except json.JSONDecodeError as exc:
+                raise ValueError("provider response must be valid JSON") from exc
+        if not isinstance(payload, Mapping):
+            raise ValueError("provider response must be a JSON object")
+        hypotheses = payload.get("hypotheses", [])
+        questions = payload.get("onboarding_questions", [])
+        if not isinstance(hypotheses, list) or not isinstance(questions, list):
+            raise ValueError("provider response must contain hypotheses and onboarding_questions arrays")
+        return {
+            "hypotheses": _dedupe_by_id([item for item in hypotheses if isinstance(item, Mapping)]),
+            "onboarding_questions": _dedupe_by_id([item for item in questions if isinstance(item, Mapping)]),
+        }
 
 
 class DeterministicMockInferenceProvider:
@@ -642,3 +682,59 @@ def _safe_id(value: str) -> str:
 
 def _title(value: str) -> str:
     return re.sub(r"[_-]+", " ", value).strip().title() or value
+
+
+def _pick_first_non_blank(env: Mapping[str, str], *names: str) -> str | None:
+    for name in names:
+        value = env.get(name)
+        if value is not None and value.strip():
+            return value.strip()
+    return None
+
+
+def _parse_bool(value: str | None, *, default: bool = False) -> bool:
+    if value is None or not value.strip():
+        return default
+    normalized = value.strip().casefold()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    raise ValueError("expected boolean-like value")
+
+
+def _parse_optional_int(value: str | None) -> int | None:
+    if value is None or not value.strip():
+        return None
+    return int(value.strip())
+
+
+def _parse_optional_float(value: str | None) -> float | None:
+    if value is None or not value.strip():
+        return None
+    return float(value.strip())
+
+
+def _normalized_optional_text(value: str | None, field_name: str) -> str | None:
+    if value is None:
+        return None
+    normalized = value.strip()
+    if not normalized:
+        raise ValueError(f"{field_name} must not be blank when provided")
+    return normalized
+
+
+def _normalized_optional_int(value: int | None, field_name: str) -> int | None:
+    if value is None:
+        return None
+    if value <= 0:
+        raise ValueError(f"{field_name} must be greater than zero when provided")
+    return value
+
+
+def _normalized_optional_float(value: float | None, field_name: str) -> float | None:
+    if value is None:
+        return None
+    if not (0.0 <= value <= 2.0):
+        raise ValueError(f"{field_name} must be between 0.0 and 2.0 when provided")
+    return value
