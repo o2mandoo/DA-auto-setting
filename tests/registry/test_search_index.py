@@ -83,6 +83,12 @@ class SearchIndexTest(unittest.TestCase):
 
         self.assertEqual([term.term_id for term in response.resolved_terms], ["term.new_customer"])
 
+    def test_resolve_terms_with_unknown_space_id_returns_explicit_unresolved_terms(self) -> None:
+        response = resolve_terms(["new_customer"], space_id="missing.space", root=ROOT / "semantic_packs")
+
+        self.assertEqual(response.resolved_terms, [])
+        self.assertEqual(response.unresolved_terms, ["new_customer"])
+
     def test_module_level_search_loads_local_packs(self) -> None:
         results = search_cards("net revenue", card_types=["metrics"], root=ROOT / "semantic_packs")
         ids = [result.card_id for result in results]

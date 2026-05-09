@@ -650,7 +650,7 @@ def run_file_corpus_benchmark(
             )
             results.append(
                 EvalResult(
-                    category="file_source",
+                    category="support_artifact",
                     case_id=_artifact_case_id("support_file", source_path),
                     passed=True,
                     severity="low",
@@ -670,7 +670,7 @@ def run_file_corpus_benchmark(
             )
             results.append(
                 EvalResult(
-                    category="file_source",
+                    category="support_artifact",
                     case_id=_artifact_case_id("support_file", source_path),
                     passed=True,
                     severity="low",
