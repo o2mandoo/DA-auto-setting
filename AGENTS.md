@@ -32,12 +32,15 @@ PII-like user fields such as `users.email`, `users.phone`, and `users.name` must
 Before claiming completion, run the contract tests with dependencies available, for example:
 
 ```bash
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -e packages/semantic_contracts
 PYTHONDONTWRITEBYTECODE=1 \
-PYTHONPATH=/tmp/semantic-data-context-deps:packages/semantic_contracts \
+PYTHONPATH=packages/semantic_contracts \
 python3 -m unittest discover -s tests/contracts -v
 ```
 
-If local dependencies are missing, install them outside the repository working tree (for example under `/tmp`) rather than vendoring generated dependency files into this repo.
+If local dependencies are missing, install them in a clean virtual environment or another location outside the repository working tree rather than vendoring generated dependency files into this repo.
 
 ## Global execution rules
 
