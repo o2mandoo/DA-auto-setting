@@ -18,6 +18,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, NamedTuple
@@ -59,6 +60,22 @@ SOURCE_FILES: tuple[Path, ...] = (
     Path("reports/productization/PRODUCTION_RISK_REGISTER.md"),
     Path("reports/final/final_integration_report.md"),
     Path("docs/execution/VALIDATION_DATASETS.md"),
+)
+
+READINESS_MATRIX_SOURCE = Path("reports/productization/PRODUCTION_READINESS_MATRIX.md")
+EVIDENCE_INDEX_SOURCE = Path("reports/productization/PR0_PR7_EVIDENCE_INDEX.md")
+API_MCP_N8N_SOURCE_FILES: tuple[Path, ...] = (
+    Path("docs/product/PRODUCT_MODES.md"),
+    Path("docs/product/BASELINE_COMPARISON_SPEC.md"),
+    Path("docs/product/METADATA_PROVENANCE_RULES.md"),
+    Path("docs/api/PRODUCT_API.md"),
+    Path("reports/productization/PR2_HTTP_ADAPTER_EVIDENCE.md"),
+    Path("reports/productization/PR3_MCP_SAFE_RUNTIME_EVIDENCE.md"),
+    Path("reports/productization/phase20_n8n_readiness_report.md"),
+)
+TEST_EVIDENCE_REFERENCES: tuple[Path, ...] = (
+    Path("tests/release/test_build_release_packet.py"),
+    Path("Makefile"),
 )
 
 
@@ -193,6 +210,84 @@ def source_index(root: Path) -> tuple[dict[str, str], list[str]]:
     return indexed, missing
 
 
+def build_dependency_snapshot(root: Path) -> tuple[str, bool]:
+    try:
+        completed = subprocess.run(
+            [sys.executable, "-m", "pip", "freeze"],
+            cwd=root,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError) as exc:
+        return f"# dependency snapshot unavailable\n\nReason: {exc.__class__.__name__}\n", False
+    return completed.stdout.rstrip() + "\n", True
+
+
+def build_source_reference_block(title: str, source_paths: Iterable[Path], root: Path, missing: list[str]) -> str:
+    lines = [f"# {title}", ""]
+    paths = list(source_paths)
+    for source_path in paths:
+        rel = str(source_path)
+        if (root / source_path).exists():
+            lines.append(f"- {rel}")
+        else:
+            missing.append(rel)
+            lines.append(f"- {rel} (missing)")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def build_api_mcp_n8n_summary(root: Path, missing: list[str]) -> str:
+    lines = [
+        "# API / MCP / n8n Surface Summary",
+        "",
+        "This summary is assembled from current repo evidence and keeps explicit source references.",
+        "",
+        "## Source references",
+    ]
+    for source_path in API_MCP_N8N_SOURCE_FILES:
+        rel = str(source_path)
+        if (root / source_path).exists():
+            lines.append(f"- {rel}")
+        else:
+            missing.append(rel)
+            lines.append(f"- {rel} (missing)")
+    lines.extend(
+        [
+            "",
+            "## Summary",
+            "",
+            "- Product API and MCP surfaces remain validation-first and do not expose production execute_query.",
+            "- Baseline versus system SQL comparison is profile-only and non-executing.",
+            "- n8n workflow evidence remains orchestration-only and must surface backend/comment warnings explicitly.",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
+def build_test_evidence() -> str:
+    lines = [
+        "# Test Evidence",
+        "",
+        "## References",
+    ]
+    for ref in TEST_EVIDENCE_REFERENCES:
+        lines.append(f"- {ref}")
+    lines.extend(
+        [
+            "",
+            "## Suggested verification commands",
+            "",
+            "- `make PYTHON=python3 release-pack RELEASE_ID=<id> RELEASE_OUT=reports/release`",
+            "- `python3 -m pytest -q tests/release/test_build_release_packet.py`",
+            "",
+            "These commands are representative release-smoke evidence references; execution results are captured by the worker run.",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
 def build_release_summary(
     release_id: str,
     generated_at: str,
@@ -259,19 +354,25 @@ def build_manifest(
     missing_evidence: list[str],
     missing_gates: list[dict[str, str]],
     redaction_summary: RedactionSummary,
+    dependency_snapshot_present: bool,
 ) -> dict[str, object]:
     return {
         "release_id": release_id,
         "generated_at": generated_at,
         "git_commit": commit,
         "status": "dry-run",
-        "output_dir": str(out_dir),
+        "output_dir": str(Path("reports") / "release" / release_id),
         "source_files": [str(path) for path in SOURCE_FILES],
         "artifacts": {
             "release_summary": "release_summary.md",
+            "readiness_matrix": "readiness_matrix.md",
             "risk_register": "risk_register.md",
             "known_limitations": "known_limitations.md",
             "support_matrix": "support_matrix.md",
+            "dependency_snapshot": "dependency_snapshot.txt",
+            "evidence_index": "evidence_index.md",
+            "api_mcp_n8n_surface_summary": "api_mcp_n8n_surface_summary.md",
+            "test_evidence": "test_evidence.md",
         },
         "missing_evidence": missing_evidence,
         "missing_gate_evidence": missing_gates,
@@ -282,6 +383,7 @@ def build_manifest(
             "no_production_execute_query_claim": True,
             "no_silent_fallback_claim": True,
             "no_raw_pii_claim": True,
+            "dependency_snapshot_present": dependency_snapshot_present,
         },
     }
 
@@ -290,6 +392,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
     evidence, missing_evidence = source_index(repo)
     generated_at = datetime.now(timezone.utc).isoformat()
     commit = git_commit(repo)
+    dependency_snapshot_text, dependency_snapshot_present = build_dependency_snapshot(repo)
 
     matrix_text = evidence.get(str(SOURCE_FILES[0]), "")
     risk_text = evidence.get(str(SOURCE_FILES[1]), "")
@@ -332,12 +435,42 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         missing_gates=MISSING_GATE_EVIDENCE,
         redaction_summary=redaction_summary,
     )
+    readiness_matrix_raw = read_text(repo / READINESS_MATRIX_SOURCE)
+    readiness_matrix_text, readiness_redactions = redact_text(readiness_matrix_raw)
+    evidence_index_raw = read_text(repo / EVIDENCE_INDEX_SOURCE) if (repo / EVIDENCE_INDEX_SOURCE).exists() else build_source_reference_block("Evidence Index", [EVIDENCE_INDEX_SOURCE], repo, missing_evidence)
+    evidence_index_text, evidence_redactions = redact_text(evidence_index_raw)
+    api_mcp_n8n_summary_raw = build_api_mcp_n8n_summary(repo, missing_evidence)
+    api_mcp_n8n_summary_text, api_redactions = redact_text(api_mcp_n8n_summary_raw)
+    test_evidence_raw = build_test_evidence()
+    test_evidence_text, test_redactions = redact_text(test_evidence_raw)
+    redaction_summary = merge_counts(
+        risk_redactions,
+        limitation_redactions,
+        support_redactions,
+        readiness_redactions,
+        evidence_redactions,
+        api_redactions,
+        test_redactions,
+    )
+    release_summary_text = build_release_summary(
+        release_id=release_id,
+        generated_at=generated_at,
+        commit=commit,
+        missing_evidence=missing_evidence,
+        missing_gates=MISSING_GATE_EVIDENCE,
+        redaction_summary=redaction_summary,
+    )
 
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "release_summary.md").write_text(release_summary_text, encoding="utf-8")
+    (out_dir / "readiness_matrix.md").write_text(readiness_matrix_text, encoding="utf-8")
     (out_dir / "risk_register.md").write_text(risk_register_text, encoding="utf-8")
     (out_dir / "known_limitations.md").write_text(known_limitations_text, encoding="utf-8")
     (out_dir / "support_matrix.md").write_text(support_matrix_text, encoding="utf-8")
+    (out_dir / "dependency_snapshot.txt").write_text(dependency_snapshot_text, encoding="utf-8")
+    (out_dir / "evidence_index.md").write_text(evidence_index_text, encoding="utf-8")
+    (out_dir / "api_mcp_n8n_surface_summary.md").write_text(api_mcp_n8n_summary_text, encoding="utf-8")
+    (out_dir / "test_evidence.md").write_text(test_evidence_text, encoding="utf-8")
 
     manifest = build_manifest(
         release_id=release_id,
@@ -347,6 +480,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         missing_evidence=missing_evidence,
         missing_gates=list(MISSING_GATE_EVIDENCE),
         redaction_summary=redaction_summary,
+        dependency_snapshot_present=dependency_snapshot_present,
     )
     (out_dir / "release_manifest.json").write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n",

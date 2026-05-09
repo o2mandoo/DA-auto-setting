@@ -49,9 +49,14 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     expected_files = {
         "release_manifest.json",
         "release_summary.md",
+        "readiness_matrix.md",
         "risk_register.md",
         "known_limitations.md",
         "support_matrix.md",
+        "dependency_snapshot.txt",
+        "evidence_index.md",
+        "api_mcp_n8n_surface_summary.md",
+        "test_evidence.md",
     }
     assert expected_files == {path.name for path in out_dir.iterdir()}
     assert manifest["release_id"] == "unit-test-release"
@@ -61,17 +66,29 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert manifest["safety_checks"]["no_production_execute_query_claim"] is True
     assert manifest["safety_checks"]["no_silent_fallback_claim"] is True
     assert manifest["safety_checks"]["no_raw_pii_claim"] is True
+    assert manifest["safety_checks"]["dependency_snapshot_present"] is True
 
     summary = (out_dir / "release_summary.md").read_text(encoding="utf-8")
     risk_register = (out_dir / "risk_register.md").read_text(encoding="utf-8")
     known_limitations = (out_dir / "known_limitations.md").read_text(encoding="utf-8")
     support_matrix = (out_dir / "support_matrix.md").read_text(encoding="utf-8")
+    readiness_matrix = (out_dir / "readiness_matrix.md").read_text(encoding="utf-8")
+    dependency_snapshot = (out_dir / "dependency_snapshot.txt").read_text(encoding="utf-8")
+    evidence_index = (out_dir / "evidence_index.md").read_text(encoding="utf-8")
+    surface_summary = (out_dir / "api_mcp_n8n_surface_summary.md").read_text(encoding="utf-8")
+    test_evidence = (out_dir / "test_evidence.md").read_text(encoding="utf-8")
 
     assert "Risk register" in risk_register or "Risk Register" in risk_register
     assert "Known limitations" in known_limitations or "known limitations" in known_limitations
     assert "Support matrix" in support_matrix or "support matrix" in support_matrix
     assert "dry-run release packet" in summary
     assert "Missing gate evidence" in summary
+    assert "PR-7" in summary
+    assert "Production Readiness Matrix" in readiness_matrix
+    assert "PR-0 through PR-7" in evidence_index or "PR-0" in evidence_index
+    assert "MCP" in surface_summary and "n8n" in surface_summary
+    assert "Test Evidence" in test_evidence
+    assert dependency_snapshot.strip() != ""
 
     manifest_path = out_dir / "release_manifest.json"
     loaded = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -81,6 +98,11 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert loaded["artifacts"]["risk_register"] == "risk_register.md"
     assert loaded["artifacts"]["known_limitations"] == "known_limitations.md"
     assert loaded["artifacts"]["support_matrix"] == "support_matrix.md"
+    assert loaded["artifacts"]["readiness_matrix"] == "readiness_matrix.md"
+    assert loaded["artifacts"]["dependency_snapshot"] == "dependency_snapshot.txt"
+    assert loaded["artifacts"]["evidence_index"] == "evidence_index.md"
+    assert loaded["artifacts"]["api_mcp_n8n_surface_summary"] == "api_mcp_n8n_surface_summary.md"
+    assert loaded["artifacts"]["test_evidence"] == "test_evidence.md"
 
 
 def test_generated_packet_contains_no_obvious_secret_markers(tmp_path: Path) -> None:
