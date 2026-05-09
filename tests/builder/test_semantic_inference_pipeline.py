@@ -213,6 +213,68 @@ class SemanticInferencePipelineTests(unittest.TestCase):
         with self.assertRaisesRegex(NotImplementedError, "not implemented"):
             LocalSemanticInferenceProvider(LocalProviderConfig(enabled=True, model="local-test")).infer([])
 
+    def test_local_provider_builds_strict_json_payload_from_sanitized_profiles(self) -> None:
+        captured: dict[str, object] = {}
+
+        def fake_client(payload: dict[str, object], config: LocalProviderConfig) -> str:
+            captured["payload"] = payload
+            captured["config"] = config
+            return json.dumps(
+                {
+                    "hypotheses": [{"id": "hyp.table.users", "kind": "table"}],
+                    "onboarding_questions": [{"id": "question.table.users", "target": "table.users"}],
+                },
+                ensure_ascii=False,
+            )
+
+        provider = LocalSemanticInferenceProvider(
+            LocalProviderConfig(enabled=True, provider="openai-compatible", model="local-test", endpoint="http://localhost:11434"),
+            client=fake_client,
+        )
+        result = provider.infer(
+            [
+                {
+                    "table_name": "users",
+                    "columns": [
+                        {
+                            "name": "email",
+                            "type_guess": "string",
+                            "pii": {"is_pii": True, "categories": ["email"]},
+                            "top_values": [{"value": "ada@example.com", "count": 1}],
+                        }
+                    ],
+                }
+            ]
+        )
+
+        payload = captured["payload"]
+        assert isinstance(payload, dict)
+        self.assertEqual({"type": "json_object", "strict": True}, payload["response_format"])
+        messages = payload["messages"]
+        self.assertIsInstance(messages, list)
+        self.assertIn("strict JSON", messages[0]["content"])
+        request_profiles = json.loads(messages[1]["content"])["profile_records"]
+        self.assertEqual([], request_profiles[0]["columns"][0]["top_values"])
+        self.assertEqual(1, len(result["hypotheses"]))
+        self.assertEqual(1, len(result["onboarding_questions"]))
+
+    def test_local_provider_parses_strict_json_response_shape(self) -> None:
+        provider = LocalSemanticInferenceProvider(LocalProviderConfig(enabled=True, model="local-test"))
+        parsed = provider.parse_response(
+            {
+                "hypotheses": [{"id": "hyp.table.users", "kind": "table"}],
+                "onboarding_questions": [{"id": "question.table.users", "target": "table.users"}],
+            }
+        )
+
+        self.assertEqual("hyp.table.users", parsed["hypotheses"][0]["id"])
+        self.assertEqual("question.table.users", parsed["onboarding_questions"][0]["id"])
+
+        with self.assertRaisesRegex(ValueError, "JSON object"):
+            provider.parse_response("[]")
+        with self.assertRaisesRegex(ValueError, "lists"):
+            provider.parse_response({"hypotheses": {}, "onboarding_questions": []})
+
     def test_local_provider_config_normalizes_env_and_config_aliases(self) -> None:
         config = LocalProviderConfig.from_mapping(
             {

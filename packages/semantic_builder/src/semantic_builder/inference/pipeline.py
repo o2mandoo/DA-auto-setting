@@ -125,13 +125,66 @@ class LocalSemanticInferenceProvider:
 
     name = "local"
 
-    def __init__(self, config: LocalProviderConfig | None = None) -> None:
+    def __init__(
+        self,
+        config: LocalProviderConfig | None = None,
+        *,
+        client: Any | None = None,
+    ) -> None:
         self.config = config or LocalProviderConfig()
+        self._client = client
         if not self.config.enabled:
             raise ValueError("local semantic inference provider requires explicit enabled=True config")
 
-    def infer(self, profile_records: Sequence[ProfileRecord]) -> dict[str, list[JsonObject]]:  # noqa: ARG002
-        raise NotImplementedError("local semantic inference provider seam is configured but not implemented")
+    def infer(self, profile_records: Sequence[ProfileRecord]) -> dict[str, list[JsonObject]]:
+        sanitized_records = [_sanitize_profile_record(record) for record in profile_records]
+        request_payload = self.build_request_payload(sanitized_records)
+        if self._client is None:
+            raise NotImplementedError("local semantic inference provider seam is configured but not implemented")
+        response = self._client(request_payload, self.config)
+        return self.parse_response(response)
+
+    def build_request_payload(self, profile_records: Sequence[ProfileRecord]) -> JsonObject:
+        return {
+            "provider": self.config.provider or "local",
+            "model": self.config.model,
+            "endpoint": self.config.endpoint,
+            "api_key": self.config.api_key,
+            "timeout": self.config.timeout,
+            "max_tokens": self.config.max_tokens,
+            "temperature": self.config.temperature,
+            "response_format": {"type": "json_object", "strict": True},
+            "messages": [
+                {
+                    "role": "system",
+                    "content": (
+                        "Return only strict JSON with top-level keys 'hypotheses' and "
+                        "'onboarding_questions'. Do not emit markdown, prose, or code fences."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": json.dumps(
+                        {"profile_records": list(profile_records)},
+                        ensure_ascii=False,
+                        sort_keys=True,
+                    ),
+                },
+            ],
+        }
+
+    def parse_response(self, response: Any) -> dict[str, list[JsonObject]]:
+        payload = json.loads(response) if isinstance(response, str) else response
+        if not isinstance(payload, Mapping):
+            raise ValueError("local semantic inference provider response must be a JSON object")
+        hypotheses = payload.get("hypotheses", [])
+        questions = payload.get("onboarding_questions", [])
+        if not isinstance(hypotheses, list) or not isinstance(questions, list):
+            raise ValueError("local semantic inference provider response must contain hypothesis/question lists")
+        return {
+            "hypotheses": _dedupe_by_id(hypotheses),
+            "onboarding_questions": _dedupe_by_id(questions),
+        }
 
 
 class DeterministicMockInferenceProvider:
