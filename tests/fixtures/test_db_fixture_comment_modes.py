@@ -57,6 +57,29 @@ def test_fixture_modes_distinguish_no_real_and_synthetic_comments() -> None:
     assert summary["synthetic_truth_blocked"] is True
 
 
+def test_fixture_mode_summary_requires_test_only_marker_on_all_synthetic_comments() -> None:
+    synthetic_with_unmarked_column = build_fixture_table_plan(
+        dataset_id="d",
+        schema_name="semantic_fixture_demo",
+        table_name="orders",
+        columns=["status"],
+        mode=FixtureCommentMode.SYNTHETIC_COMMENTS,
+    )
+    broken_plan = type(synthetic_with_unmarked_column)(
+        schema_name=synthetic_with_unmarked_column.schema_name,
+        table_name=synthetic_with_unmarked_column.table_name,
+        columns=synthetic_with_unmarked_column.columns,
+        mode=synthetic_with_unmarked_column.mode,
+        table_comment=synthetic_with_unmarked_column.table_comment,
+        column_comments={"status": "synthetic fixture meaning without marker"},
+        is_test_only=True,
+    )
+
+    summary = fixture_mode_summary([broken_plan])
+
+    assert summary["synthetic_truth_blocked"] is False
+
+
 def test_real_comment_mode_without_manifest_does_not_use_synthetic_fallback() -> None:
     real_comments = build_fixture_table_plan(
         dataset_id="d",
