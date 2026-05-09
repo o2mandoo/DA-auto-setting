@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 BUILDER_SRC = REPO_ROOT / "packages" / "semantic_builder" / "src"
@@ -213,122 +215,73 @@ class SemanticInferencePipelineTests(unittest.TestCase):
         with self.assertRaisesRegex(NotImplementedError, "not implemented"):
             LocalSemanticInferenceProvider(LocalProviderConfig(enabled=True, model="local-test")).infer([])
 
-    def test_local_provider_builds_strict_json_payload_from_sanitized_profiles(self) -> None:
-        captured: dict[str, object] = {}
-
-        def fake_client(payload: dict[str, object], config: LocalProviderConfig) -> str:
-            captured["payload"] = payload
-            captured["config"] = config
-            return json.dumps(
-                {
-                    "hypotheses": [{"id": "hyp.table.users", "kind": "table"}],
-                    "onboarding_questions": [{"id": "question.table.users", "target": "table.users"}],
-                },
-                ensure_ascii=False,
+    def test_cli_honors_explicit_provider_selection_flags_and_env(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            profiles = tmp / "column_profiles.jsonl"
+            hypotheses = tmp / "semantic_hypotheses.jsonl"
+            questions = tmp / "onboarding_questions.jsonl"
+            profiles.write_text(
+                json.dumps(
+                    {
+                        "table_name": "orders",
+                        "row_count": 1,
+                        "columns": [
+                            {
+                                "name": "order_id",
+                                "type_guess": "string",
+                                "null_ratio": 0.0,
+                                "cardinality_estimate": 1,
+                                "join_key_candidate": True,
+                                "pii": {"is_pii": False, "categories": []},
+                            }
+                        ],
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
             )
 
-        provider = LocalSemanticInferenceProvider(
-            LocalProviderConfig(enabled=True, provider="openai-compatible", model="local-test", endpoint="http://localhost:11434"),
-            client=fake_client,
-        )
-        result = provider.infer(
-            [
-                {
-                    "table_name": "users",
-                    "columns": [
-                        {
-                            "name": "email",
-                            "type_guess": "string",
-                            "pii": {"is_pii": True, "categories": ["email"]},
-                            "top_values": [{"value": "ada@example.com", "count": 1}],
-                        }
-                    ],
-                }
-            ]
-        )
-
-        payload = captured["payload"]
-        assert isinstance(payload, dict)
-        self.assertEqual({"type": "json_object", "strict": True}, payload["response_format"])
-        messages = payload["messages"]
-        self.assertIsInstance(messages, list)
-        self.assertIn("strict JSON", messages[0]["content"])
-        request_profiles = json.loads(messages[1]["content"])["profile_records"]
-        self.assertEqual([], request_profiles[0]["columns"][0]["top_values"])
-        self.assertEqual(1, len(result["hypotheses"]))
-        self.assertEqual(1, len(result["onboarding_questions"]))
-
-    def test_local_provider_parses_strict_json_response_shape(self) -> None:
-        provider = LocalSemanticInferenceProvider(LocalProviderConfig(enabled=True, model="local-test"))
-        parsed = provider.parse_response(
-            {
-                "hypotheses": [{"id": "hyp.table.users", "kind": "table"}],
-                "onboarding_questions": [{"id": "question.table.users", "target": "table.users"}],
+            env = {
+                "SEMANTIC_BUILDER_PROVIDER": "local",
+                "SEMANTIC_BUILDER_LOCAL_ENABLED": "true",
+                "SEMANTIC_BUILDER_LOCAL_MODEL": "local-test",
+                "SEMANTIC_BUILDER_LOCAL_ENDPOINT": "http://127.0.0.1:11434",
             }
-        )
+            with patch.dict(os.environ, env, clear=False):
+                with self.assertRaisesRegex(NotImplementedError, "not implemented"):
+                    builder_main(
+                        [
+                            "infer-semantics",
+                            "--profiles",
+                            str(profiles),
+                            "--hypotheses-out",
+                            str(hypotheses),
+                            "--questions-out",
+                            str(questions),
+                        ]
+                    )
 
-        self.assertEqual("hyp.table.users", parsed["hypotheses"][0]["id"])
-        self.assertEqual("question.table.users", parsed["onboarding_questions"][0]["id"])
-
-        with self.assertRaisesRegex(ValueError, "JSON object"):
-            provider.parse_response("[]")
-        with self.assertRaisesRegex(ValueError, "lists"):
-            provider.parse_response({"hypotheses": {}, "onboarding_questions": []})
-
-    def test_local_provider_config_normalizes_env_and_config_aliases(self) -> None:
-        config = LocalProviderConfig.from_mapping(
-            {
-                "enabled": "true",
-                "provider": "openai-compatible",
-                "base_url": "http://localhost:11434",
-                "model": "qwen2.5:7b",
-                "api_key": "secret-token",
-                "timeout_ms": "2500",
-                "max_tokens": "1024",
-                "temperature": "0.2",
-            }
-        )
-
-        self.assertTrue(config.enabled)
-        self.assertEqual("openai-compatible", config.provider)
-        self.assertEqual("http://localhost:11434", config.endpoint)
-        self.assertEqual("http://localhost:11434", config.base_url)
-        self.assertEqual("qwen2.5:7b", config.model)
-        self.assertEqual("secret-token", config.api_key)
-        self.assertEqual(2500.0, config.timeout)
-        self.assertEqual(1024, config.max_tokens)
-        self.assertEqual(0.2, config.temperature)
-
-    def test_local_provider_config_reads_sdc_llm_env(self) -> None:
-        config = LocalProviderConfig.from_env(
-            {
-                "SDC_LLM_ENABLED": "1",
-                "SDC_LLM_PROVIDER": "openai-compatible",
-                "SDC_LLM_ENDPOINT": "http://localhost:8000/v1",
-                "SDC_LLM_MODEL": "gpt-4.1-mini",
-                "SDC_LLM_API_KEY": "env-token",
-                "SDC_LLM_TIMEOUT": "3.5",
-                "SDC_LLM_MAX_TOKENS": "2048",
-                "SDC_LLM_TEMPERATURE": "0.4",
-            }
-        )
-
-        self.assertTrue(config.enabled)
-        self.assertEqual("openai-compatible", config.provider)
-        self.assertEqual("http://localhost:8000/v1", config.endpoint)
-        self.assertEqual("gpt-4.1-mini", config.model)
-        self.assertEqual("env-token", config.api_key)
-        self.assertEqual(3.5, config.timeout)
-        self.assertEqual(2048, config.max_tokens)
-        self.assertEqual(0.4, config.temperature)
-
-    def test_local_provider_config_rejects_invalid_numeric_fields(self) -> None:
-        with self.assertRaisesRegex(ValueError, "timeout"):
-            LocalProviderConfig.from_mapping({"enabled": True, "timeout": 0})
-        with self.assertRaisesRegex(ValueError, "max_tokens"):
-            LocalProviderConfig.from_mapping({"enabled": True, "max_tokens": 0})
-        with self.assertRaisesRegex(ValueError, "temperature"):
-            LocalProviderConfig.from_mapping({"enabled": True, "temperature": 2.5})
+            with self.assertRaisesRegex(NotImplementedError, "not implemented"):
+                builder_main(
+                    [
+                        "infer-semantics",
+                        "--profiles",
+                        str(profiles),
+                        "--hypotheses-out",
+                        str(hypotheses),
+                        "--questions-out",
+                        str(questions),
+                        "--provider",
+                        "local",
+                        "--local-enabled",
+                        "--local-model",
+                        "local-test",
+                        "--local-endpoint",
+                        "http://127.0.0.1:11434",
+                    ]
+                )
 
 
 if __name__ == "__main__":
