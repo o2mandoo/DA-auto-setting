@@ -5,10 +5,11 @@ Owner: worker-2
 
 ## Current leader/main truth
 
-- Setup, docs, demo, and Makefile no longer rely on `/tmp/semantic-data-context-deps` in the current leader/main truth.
+- Setup, docs, demo, Makefile, and `AGENTS.md` no longer rely on `/tmp/semantic-data-context-deps` in the current leader/main truth.
 - Task 7 fixed the semantic-builder dependency and user-facing docs.
 - Task 8 added the offline CI workflow and packaging test updates.
 - Task 9’s earlier failure snapshot is stale relative to the current leader/main truth and is superseded by this correction.
+- Task 13 fixed the last remaining current-surface `/tmp` reference in `AGENTS.md`.
 - `mypy` remains existing typecheck debt and is **not** a PR-1 acceptance blocker.
 
 ## Changed files in this task
@@ -25,6 +26,7 @@ Owner: worker-2
   - Re-aligned the report to the current leader/main truth.
   - Removed stale verifier-style framing that treated the earlier `/tmp` evidence snapshot as current.
   - Added the exact changed-file list and snapshot guidance below.
+  - Added `AGENTS.md` to the current no-/tmp operational surface.
 
 ## Scope scan
 
@@ -45,6 +47,7 @@ Owner: worker-2
   - clone-ready setup helper validation
   - environment contract validation
 - `mypy` remains existing debt; it is not being used as a PR-1 acceptance gate.
+- `AGENTS.md` is now part of the current no-/tmp operational surface after task 13.
 
 ## Dependency snapshot target
 
@@ -66,6 +69,8 @@ python -m pip freeze > reports/productization/PR1_PIP_FREEZE.txt
 The PR-1 evidence report now reflects the current leader/main truth:
 
 - no user-facing `/tmp` dependency in the accepted setup path
+- no current-surface `/tmp` reference in `AGENTS.md`
 - Task 7 / Task 8 corrections incorporated
 - Task 9 stale failure explicitly superseded
+- Task 13 fixed the last remaining current-surface `/tmp` reference
 - `mypy` documented as existing debt, not a blocker
