@@ -15,7 +15,6 @@ from semantic_builder.connectors import (  # noqa: E402
     ConnectorDependencyError,
     MySQLConnector,
     OracleConnector,
-    UnsupportedConnectorError,
 )
 
 
