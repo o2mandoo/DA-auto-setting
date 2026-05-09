@@ -52,6 +52,26 @@
       "status": "available"
     }
   ],
+  "comment_mode_rules": [
+    {
+      "comment_mode": "real_comments",
+      "fallback_rule": "If real catalog or manifest comments are absent, mark the mode unavailable; do not synthesize replacements.",
+      "metadata_source": "real_db_comment",
+      "product_rule": "Usable only as draft Text-to-SQL context with provenance/status and comment-only warnings."
+    },
+    {
+      "comment_mode": "no_comments",
+      "fallback_rule": "Do not fabricate comments or replace missing semantics with generated text.",
+      "metadata_source": "no_comment",
+      "product_rule": "Represents an explicit metadata gap and reverse-question input, not context truth."
+    },
+    {
+      "comment_mode": "synthetic_comments",
+      "fallback_rule": "Never promote generated comments to real comments or approved truth automatically.",
+      "metadata_source": "test_only_synthetic_comment",
+      "product_rule": "Fixture/lab evidence only; excluded from approved product context and human truth by default."
+    }
+  ],
   "evidence_coverage": [
     {
       "external_missing": [],
@@ -118,16 +138,15 @@
       "status": "present"
     },
     {
-      "external_missing": [
-        "live imported n8n workflow smoke output"
-      ],
+      "external_missing": [],
       "gate": "PR-6 n8n workflow smoke",
       "missing_paths": [],
       "present_paths": [
         "reports/productization/phase20_n8n_readiness_report.md",
-        "reports/productization/final_n8n_readiness_evaluate_after_comment_rules.md"
+        "reports/productization/final_n8n_readiness_evaluate_after_comment_rules.md",
+        "reports/productization/pr6_n8n_live_runtime_smoke.md"
       ],
-      "status": "partial"
+      "status": "present"
     },
     {
       "external_missing": [
@@ -138,7 +157,12 @@
       "missing_paths": [],
       "present_paths": [
         ".github/workflows/packaging-clean-clone.yml",
+        "Makefile",
+        "docs/observability/OBSERVABILITY_SAMPLES.md",
+        "docs/observability/product_api_audit_sample.jsonl",
+        "reports/productization/pr7_ci_observability_release_packet.md",
         "scripts/release/build_release_packet.py",
+        "tests/product/test_observability_samples.py",
         "tests/release/test_build_release_packet.py"
       ],
       "status": "partial"
@@ -146,11 +170,49 @@
   ],
   "evidence_coverage_summary": {
     "missing": 0,
-    "partial": 2,
-    "present": 6
+    "partial": 1,
+    "present": 7
   },
-  "generated_at": "2026-05-09T15:33:05.098356+00:00",
-  "git_commit": "7fcce00604bbfb62edecb67e44afda8a3b73abda",
+  "generated_at": "2026-05-09T15:46:14.104164+00:00",
+  "git_commit": "0cffa4815a732928fbceae02a1b631ec899e2b5d",
+  "known_limitations": [
+    {
+      "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
+      "impact": "Production promotion still requires CI logs, release approval, and signed candidate evidence.",
+      "limitation": "Release status is dry-run/local validation, not production ready.",
+      "status": "open"
+    },
+    {
+      "evidence": "docs/product/PRODUCTION_MODE_ADR.md",
+      "impact": "No production execute_query route, MCP tool, n8n node, or handler is included in v1 scope.",
+      "limitation": "Production SQL execution is forbidden.",
+      "status": "contract_boundary"
+    },
+    {
+      "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
+      "impact": "Missing live DB/VDB/n8n/CI runs remain visible gaps or skips instead of pass claims.",
+      "limitation": "Live external services are optional and evidence-gated.",
+      "status": "evidence_gated"
+    },
+    {
+      "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
+      "impact": "Unsupported backends must fail explicitly and must not be represented by fake fixture success.",
+      "limitation": "Oracle is unsupported.",
+      "status": "unsupported"
+    },
+    {
+      "evidence": "docs/product/METADATA_PROVENANCE_RULES.md",
+      "impact": "Generated comments may support lab/debug comparisons but cannot become approved product truth automatically.",
+      "limitation": "Synthetic comments are fixture-only.",
+      "status": "contract_boundary"
+    },
+    {
+      "evidence": "reports/productization/pr6_n8n_live_runtime_smoke.md",
+      "impact": "n8n must call product APIs, display backend/comment warnings, and avoid duplicating Semantic Pack logic.",
+      "limitation": "n8n remains demo orchestration only.",
+      "status": "demo_only"
+    }
+  ],
   "metadata_provenance_rules": [
     {
       "product_usable": true,
@@ -191,19 +253,23 @@
   "missing_evidence": [],
   "missing_gate_evidence": [
     {
-      "evidence_needed": "missing external/live evidence: live imported n8n workflow smoke output",
-      "gate": "PR-6 n8n workflow smoke",
-      "status": "partial"
-    },
-    {
       "evidence_needed": "missing external/live evidence: live CI run log, signed or promoted release candidate approval",
       "gate": "PR-7 CI, observability, release packet",
       "status": "partial"
     }
   ],
+  "n8n_status": {
+    "evidence": [
+      "reports/productization/pr6_n8n_live_runtime_smoke.md",
+      "reports/productization/phase20_n8n_readiness_report.md"
+    ],
+    "readiness": "demo_orchestration_only_not_production",
+    "status": "pr6_completed_live_runtime_smoke_present",
+    "summary": "PR-6 live n8n runtime smoke evidence is present; n8n is demo orchestration over product APIs, not source of truth or production SQL execution."
+  },
   "output_dir": "reports/release/release-test",
   "redactions": {
-    "local_path": 2,
+    "email": 4,
     "worker_id": 3
   },
   "release_id": "release-test",
@@ -229,7 +295,7 @@
     },
     "no_raw_pii_artifacts": {
       "redaction_findings": {
-        "local_path": 2,
+        "email": 4,
         "worker_id": 3
       },
       "status": "redacted_or_blocked"
@@ -265,33 +331,66 @@
   "support_levels": [
     {
       "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
-      "feature": "Semantic Pack contracts, local Registry, and local MCP interface",
-      "support": "supported_local_mvp"
+      "evidence_status": "present",
+      "limitation": "Schema freeze and external-adapter versioning remain release-gated.",
+      "support_level": "supported_local_validation",
+      "surface": "Semantic Pack contracts"
+    },
+    {
+      "evidence": "reports/productization/PR3_MCP_SAFE_RUNTIME_EVIDENCE.md",
+      "evidence_status": "present",
+      "limitation": "MCP requires the official SDK/runtime; no production SQL execution surface is supported.",
+      "support_level": "supported_local_validation",
+      "surface": "Local Registry and MCP interface"
+    },
+    {
+      "evidence": "reports/productization/PR2_HTTP_ADAPTER_EVIDENCE.md",
+      "evidence_status": "present",
+      "limitation": "Adapter is local/demo scoped and does not make the repo production-server ready.",
+      "support_level": "partial_local_adapter",
+      "surface": "Optional local HTTP adapter"
     },
     {
       "evidence": "reports/productization/PR4_DB_FIXTURE_READONLY_EVIDENCE.md",
-      "feature": "PostgreSQL/MySQL fixture and read-only evidence",
-      "support": "fixture_evidence_available"
+      "evidence_status": "present",
+      "limitation": "Metadata scan/profile/demo validation only; no production execution claim.",
+      "support_level": "fixture_readonly_validation",
+      "surface": "PostgreSQL fixture/read-only metadata"
+    },
+    {
+      "evidence": "reports/productization/PR4_DB_FIXTURE_READONLY_EVIDENCE.md",
+      "evidence_status": "present",
+      "limitation": "No fallback to PostgreSQL/DuckDB/SQLite/cached JSON/synthetic comments.",
+      "support_level": "fixture_readonly_validation",
+      "surface": "MySQL fixture/read-only metadata"
     },
     {
       "evidence": "reports/productization/PR5_SEMANTIC_RETRIEVAL_EVIDENCE.md",
-      "feature": "Weaviate retrieval backend",
-      "support": "optional_evidence_gated"
+      "evidence_status": "present_or_explicit_skip",
+      "limitation": "Selected Weaviate must fail visibly if unavailable; keyword fallback is not allowed after explicit selection.",
+      "support_level": "optional_evidence_gated",
+      "surface": "Weaviate retrieval backend"
     },
     {
-      "evidence": "reports/productization/phase20_n8n_readiness_report.md",
-      "feature": "n8n orchestration",
-      "support": "workflow_template_ready_adapter_required"
+      "evidence": "reports/productization/pr6_n8n_live_runtime_smoke.md",
+      "evidence_status": "present",
+      "limitation": "n8n is not source of truth, must not execute SQL, and must keep backend/comment warnings visible.",
+      "support_level": "demo_orchestration_only",
+      "surface": "n8n orchestration"
     },
     {
-      "evidence": "no current release evidence",
-      "feature": "Oracle",
-      "support": "unsupported"
+      "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
+      "evidence_status": "no_release_evidence",
+      "limitation": "Unsupported backends must fail explicitly; no fake Oracle fixture behavior is allowed.",
+      "support_level": "unsupported",
+      "surface": "Oracle"
     },
     {
       "evidence": "docs/product/PRODUCTION_MODE_ADR.md",
-      "feature": "Production execute_query",
-      "support": "forbidden"
+      "evidence_status": "prohibited_by_contract",
+      "limitation": "No route, MCP tool, handler, workflow, or documentation may promote production SQL execution.",
+      "support_level": "forbidden",
+      "surface": "Production execute_query"
     }
   ],
   "test_status": {

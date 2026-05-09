@@ -1,7 +1,7 @@
 # Release Packet: release-test
 
-- generated_at: 2026-05-09T15:33:05.098356+00:00
-- git_commit: 7fcce00604bbfb62edecb67e44afda8a3b73abda
+- generated_at: 2026-05-09T15:46:14.104164+00:00
+- git_commit: 0cffa4815a732928fbceae02a1b631ec899e2b5d
 - status: dry-run release packet
 
 ## Evidence snapshot
@@ -18,8 +18,14 @@
 
 ## Missing gate evidence
 
-- PR-6 n8n workflow smoke: missing external/live evidence: live imported n8n workflow smoke output
 - PR-7 CI, observability, release packet: missing external/live evidence: live CI run log, signed or promoted release candidate approval
+
+## n8n status
+
+- status: pr6_completed_live_runtime_smoke_present
+- readiness: demo_orchestration_only_not_production
+- evidence: reports/productization/pr6_n8n_live_runtime_smoke.md, reports/productization/phase20_n8n_readiness_report.md
+- summary: PR-6 live n8n runtime smoke evidence is present; n8n is demo orchestration over product APIs, not source of truth or production SQL execution.
 
 ## Baseline vs system SQL comparison evidence
 
@@ -34,5 +40,5 @@
 
 ## Redaction summary
 
-- local_path: 2
+- email: 4
 - worker_id: 3

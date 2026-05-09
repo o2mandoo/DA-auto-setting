@@ -314,7 +314,12 @@ EVIDENCE_GATES: tuple[dict[str, object], ...] = (
         "gate": "PR-7 CI, observability, release packet",
         "paths": (
             ".github/workflows/packaging-clean-clone.yml",
+            "Makefile",
+            "docs/observability/OBSERVABILITY_SAMPLES.md",
+            "docs/observability/product_api_audit_sample.jsonl",
+            "reports/productization/pr7_ci_observability_release_packet.md",
             "scripts/release/build_release_packet.py",
+            "tests/product/test_observability_samples.py",
             "tests/release/test_build_release_packet.py",
         ),
         "external_missing": ("live CI run log", "signed or promoted release candidate approval"),
@@ -333,6 +338,12 @@ def repo_root() -> Path:
 
 def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
+
+
+def strip_trailing_whitespace(text: str) -> str:
+    """Normalize generated text artifacts for diff-check cleanliness."""
+    suffix = "\n" if text.endswith("\n") else ""
+    return "\n".join(line.rstrip() for line in text.splitlines()) + suffix
 
 
 def git_commit(root: Path) -> str:
@@ -661,6 +672,7 @@ def build_release_summary(
     missing_gates: Iterable[dict[str, str]],
     redaction_summary: RedactionSummary,
     n8n_status: dict[str, object] | None = None,
+    baseline_system_sql_evidence: Iterable[dict[str, str]] = (),
 ) -> str:
     missing_lines = list(missing_evidence)
     gate_lines = list(missing_gates)
@@ -753,6 +765,7 @@ def build_manifest(
     redaction_summary: RedactionSummary,
     dependency_snapshot_present: bool,
     n8n_status: dict[str, object],
+    baseline_system_sql_evidence: list[dict[str, str]],
 ) -> dict[str, object]:
     coverage_counts = {
         status: sum(1 for item in evidence_coverage if item["status"] == status)
@@ -785,6 +798,7 @@ def build_manifest(
         "support_levels": list(SUPPORT_LEVELS),
         "known_limitations": list(KNOWN_LIMITATIONS),
         "n8n_status": n8n_status,
+        "baseline_system_sql_comparison_evidence": baseline_system_sql_evidence,
         "test_status": {
             "status": "not_run_by_packer",
             "release_test_command": "make release-test",
@@ -816,6 +830,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
     evidence_coverage = build_evidence_coverage(repo)
     missing_gate_evidence = build_missing_gate_evidence(evidence_coverage)
     n8n_status = build_n8n_status(repo)
+    baseline_system_sql_evidence = build_baseline_system_sql_comparison_evidence(repo)
 
     matrix_text = evidence.get(str(SOURCE_FILES[0]), "")
     risk_text = evidence.get(str(SOURCE_FILES[1]), "")
@@ -830,6 +845,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         missing_gates=missing_gate_evidence,
         redaction_summary=RedactionSummary(counts={}, had_findings=False),
         n8n_status=n8n_status,
+        baseline_system_sql_evidence=baseline_system_sql_evidence,
     )
     risk_register_text, risk_redactions = redact_text(risk_text)
     known_limitations_source = "\n".join(
@@ -861,6 +877,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         missing_gates=missing_gate_evidence,
         redaction_summary=redaction_summary,
         n8n_status=n8n_status,
+        baseline_system_sql_evidence=baseline_system_sql_evidence,
     )
     readiness_matrix_raw = read_text(repo / READINESS_MATRIX_SOURCE)
     readiness_matrix_text, readiness_redactions = redact_text(readiness_matrix_raw)
@@ -888,18 +905,19 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         missing_gates=missing_gate_evidence,
         redaction_summary=redaction_summary,
         n8n_status=n8n_status,
+        baseline_system_sql_evidence=baseline_system_sql_evidence,
     )
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "release_summary.md").write_text(release_summary_text, encoding="utf-8")
-    (out_dir / "readiness_matrix.md").write_text(readiness_matrix_text, encoding="utf-8")
-    (out_dir / "risk_register.md").write_text(risk_register_text, encoding="utf-8")
-    (out_dir / "known_limitations.md").write_text(known_limitations_text, encoding="utf-8")
-    (out_dir / "support_matrix.md").write_text(support_matrix_text, encoding="utf-8")
+    (out_dir / "release_summary.md").write_text(strip_trailing_whitespace(release_summary_text), encoding="utf-8")
+    (out_dir / "readiness_matrix.md").write_text(strip_trailing_whitespace(readiness_matrix_text), encoding="utf-8")
+    (out_dir / "risk_register.md").write_text(strip_trailing_whitespace(risk_register_text), encoding="utf-8")
+    (out_dir / "known_limitations.md").write_text(strip_trailing_whitespace(known_limitations_text), encoding="utf-8")
+    (out_dir / "support_matrix.md").write_text(strip_trailing_whitespace(support_matrix_text), encoding="utf-8")
     (out_dir / "dependency_snapshot.txt").write_text(dependency_snapshot_text, encoding="utf-8")
-    (out_dir / "evidence_index.md").write_text(evidence_index_text, encoding="utf-8")
-    (out_dir / "api_mcp_n8n_surface_summary.md").write_text(api_mcp_n8n_summary_text, encoding="utf-8")
-    (out_dir / "test_evidence.md").write_text(test_evidence_text, encoding="utf-8")
+    (out_dir / "evidence_index.md").write_text(strip_trailing_whitespace(evidence_index_text), encoding="utf-8")
+    (out_dir / "api_mcp_n8n_surface_summary.md").write_text(strip_trailing_whitespace(api_mcp_n8n_summary_text), encoding="utf-8")
+    (out_dir / "test_evidence.md").write_text(strip_trailing_whitespace(test_evidence_text), encoding="utf-8")
 
     manifest = build_manifest(
         release_id=release_id,
@@ -912,6 +930,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         redaction_summary=redaction_summary,
         dependency_snapshot_present=dependency_snapshot_present,
         n8n_status=n8n_status,
+        baseline_system_sql_evidence=baseline_system_sql_evidence,
     )
     (out_dir / "release_manifest.json").write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n",

@@ -1,6 +1,6 @@
 # Production Readiness Matrix
 
-Date: 2026-05-09 KST  
+Date: 2026-05-09 KST
 Lane contract: <redacted_worker_id> edits only `reports/productization/PRODUCTION_READINESS_MATRIX.md` and `reports/productization/PRODUCTION_RISK_REGISTER.md`.
 
 ## Executive verdict
@@ -44,7 +44,7 @@ This repository is **clone-ready for local validation and demo operation**, but 
 
 ### PR-1 — Clean clone package baseline
 
-**Goal:** prove the repo installs and verifies from a clean clone/venv without hidden local state.  
+**Goal:** prove the repo installs and verifies from a clean clone/venv without hidden local state.
 **Acceptance commands:**
 
 ```bash
@@ -66,7 +66,7 @@ make test
 
 ### PR-2 — Optional local HTTP adapter
 
-**Goal:** expose existing product handlers over a local adapter without moving safety logic out of the repo modules.  
+**Goal:** expose existing product handlers over a local adapter without moving safety logic out of the repo modules.
 **Acceptance commands:**
 
 ```bash
@@ -88,7 +88,7 @@ python -m pytest -q tests/product tests/packaging
 
 ### PR-3 — MCP + safe query runtime hardening
 
-**Goal:** prove MCP stdio and local preview are safe automation surfaces.  
+**Goal:** prove MCP stdio and local preview are safe automation surfaces.
 **Acceptance commands:**
 
 ```bash
@@ -110,7 +110,7 @@ PY
 
 ### PR-4 — DB fixture/read-only evidence
 
-**Goal:** prove DB-backed evidence remains fixture/demo/read-only and never silently reroutes.  
+**Goal:** prove DB-backed evidence remains fixture/demo/read-only and never silently reroutes.
 **Acceptance commands:**
 
 ```bash
@@ -129,7 +129,7 @@ python -m pytest -q tests/builder/test_postgres_scanner.py tests/builder/test_my
 
 ### PR-5 — Retrieval / Weaviate optional evidence
 
-**Goal:** prove retrieval uses explicit backend selection and never silently falls back after Weaviate failure.  
+**Goal:** prove retrieval uses explicit backend selection and never silently falls back after Weaviate failure.
 **Acceptance commands:**
 
 ```bash
@@ -161,7 +161,7 @@ semantic-gold retrieval metrics.
 
 ### PR-6 — n8n/local workflow smoke
 
-**Goal:** prove n8n is only an orchestration/demo wrapper over product APIs.  
+**Goal:** prove n8n is only an orchestration/demo wrapper over product APIs.
 **Acceptance commands:**
 
 ```bash
@@ -179,7 +179,7 @@ python -m pytest -q tests/product/test_n8n_workflow_templates.py tests/product/t
 
 ### PR-7 — CI, observability, release packet
 
-**Goal:** make the production-readiness proof repeatable outside one developer machine.  
+**Goal:** make the production-readiness proof repeatable outside one developer machine.
 **Acceptance commands:**
 
 ```bash
@@ -201,17 +201,17 @@ python -m pytest -q tests/security tests/packaging tests/e2e
 
 | Surface | v1 support level | Current evidence | Production caveat |
 |---|---|---|---|
-| Packages (`semantic_contracts`, `semantic_builder`, `semantic_registry`, `semantic_mcp`) | **Supported for local validation** | Package pyprojects, Makefile, Phase 12 install/test evidence. | Needs PR-1 clean-venv proof without temp dependency cache. |
+| Packages (`semantic_contracts`, `semantic_builder`, `semantic_registry`, `semantic_mcp`) | **Supported for local validation** | Package pyprojects, Makefile, PR-1 clean-clone evidence, dependency snapshot, and PR-7 `make ci` evidence. | Still requires external CI logs before production release claims. |
 | MCP stdio | **Supported with official SDK installed** | `semantic_mcp.server` registration surface and tests. | Missing SDK must fail explicitly; no fake stdio runtime. |
-| HTTP adapter | **Planned optional local adapter** | API docs and pure Python handlers only. | Not production server ready until PR-2. |
+| HTTP adapter | **Partial local adapter** | PR-2 API docs, route inventory, product handler tests, typed errors, and audit evidence. | Local/demo scoped; not a production server distribution. |
 | Weaviate | **Optional explicit backend** | Backend seam, docs, deterministic tests, optional live test path. | Live service not mandatory; selected backend must fail explicitly if unavailable. |
-| PostgreSQL | **Read-only fixture/demo metadata validation** | Scanner/docs/tests. | No production execution; fixture schema/environment gated. |
-| MySQL | **Fixture/demo validation; live evidence pending unless provided** | Connector/docs/tests and explicit n8n requirements. | No fallback to other DBs; production MySQL not supported. |
+| PostgreSQL | **Read-only fixture/demo metadata validation** | Scanner/docs/tests and `reports/reality/postgres_live_fixture_evidence.json`. | No production execution; fixture schema/environment gated. |
+| MySQL | **Read-only fixture/demo metadata validation** | Connector/docs/tests and `reports/reality/mysql_live_fixture_evidence.json`. | No fallback to other DBs; production MySQL execution is not supported. |
 | Oracle | **Unsupported** | Docs state unsupported/no fake behavior. | Must fail explicitly until real connector and tests exist. |
-| n8n | **Demo orchestration only** | Requirements/templates/product tests. | Not source of truth; must not execute SQL or hide failures. |
-| CI | **Required for release, not proven here** | Local commands defined. | PR-7 must attach CI evidence. |
-| Observability | **Local audit artifacts only** | Product API audit writes and safety reports. | Needs correlation ID/error taxonomy evidence in PR-2/PR-7. |
-| Release | **Not production release ready** | Clone-ready docs and final integration report. | Needs signed release packet and support-level sign-off. |
+| n8n | **Demo orchestration only** | Requirements/templates/product tests and PR-6 live Docker n8n smoke. | Not source of truth; must not execute SQL or hide failures. |
+| CI | **Local CI-equivalent present; external CI pending** | `.github/workflows/packaging-clean-clone.yml`, `make ci`, `make test`, release/security/product tests. | External CI run URL/log and release approval remain missing gate evidence. |
+| Observability | **Local audit/sample evidence only** | Product API audit writes, correlation IDs, structured error samples, and `docs/observability/product_api_audit_sample.jsonl`. | No Prometheus/Grafana/Jaeger/OTel production stack claim. |
+| Release | **Dry-run release packet only** | `reports/release/release-test/**`, readiness matrix, risk register, support matrix, known limitations. | Needs signed/promoted release candidate and external CI evidence before production release. |
 
 ## Non-negotiable safety gates
 
@@ -220,5 +220,5 @@ python -m pytest -q tests/security tests/packaging tests/e2e
 - No silent fallback after an explicit backend/provider/DB is selected.
 - Missing live DB/VDB evidence is a visible gap, not a pass.
 - PostgreSQL is metadata scan/profile/demo validation only.
-- MySQL is fixture/demo until live read-only evidence is attached.
+- MySQL is fixture/read-only metadata validation only; live local fixture evidence does not imply production MySQL execution support.
 - Oracle remains unsupported.
