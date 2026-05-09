@@ -123,14 +123,14 @@ def test_pymysql_connection_factory_parses_fixture_dsn(monkeypatch) -> None:
 
     factory = mysql_fixture_loader._pymysql_connection_factory()
     assert factory is not None
-    factory("mysql://sdc_fixture:sdc_fixture_pw@localhost:33306/semantic_fixture_mysql_scope_c")
+    factory("mysql://sdc_fixture:<FIXTURE_PASSWORD>@localhost:33306/semantic_fixture_mysql_scope_c")
 
     assert calls == [
         {
             "host": "localhost",
             "port": 33306,
             "user": "sdc_fixture",
-            "password": "sdc_fixture_pw",
+            "password": "<FIXTURE_PASSWORD>",
             "charset": "utf8mb4",
             "connect_timeout": 5,
             "autocommit": False,

@@ -11,8 +11,8 @@ Command rerun before retrieval hardening:
 ```bash
 export SEMANTIC_CONTEXT_FIXTURE_DB=1
 PYTHONPATH=packages/semantic_contracts:packages/semantic_registry:packages/semantic_mcp/src:packages/semantic_builder/src:. .venv/bin/python -m experiments.db_fixtures.scripts.sinagong_corpus_live_evidence \
-  --postgres-dsn postgresql://sdc_fixture:sdc_fixture_pw@localhost:55432/semantic_fixture_postgres_scope_c \
-  --mysql-dsn mysql://sdc_fixture:sdc_fixture_pw@localhost:33306/semantic_fixture_mysql_scope_c \
+  --postgres-dsn postgresql://sdc_fixture:<FIXTURE_PASSWORD>@localhost:55432/semantic_fixture_postgres_scope_c \
+  --mysql-dsn mysql://sdc_fixture:<FIXTURE_PASSWORD>@localhost:33306/semantic_fixture_mysql_scope_c \
   --output reports/reality/sinagong_20_live_db_fixture_evidence.json
 ```
 

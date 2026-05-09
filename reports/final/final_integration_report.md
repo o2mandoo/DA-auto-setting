@@ -175,6 +175,21 @@ Passed checks:
 - `users.email` / blocked PII column SQL is invalid and `execution_allowed=false`.
 - Weaviate requested-without-config path raises explicit no-keyword-fallback error.
 - Feedback and promotion guards prevent raw PII and approved-pack in-place mutation.
+- No secret-shaped fixture passwords or credential examples remain unredacted in release docs/evidence.
+
+## Risk register
+
+The full release risk register is maintained in `reports/productization/PRODUCTION_RISK_REGISTER.md`.
+Key release risks to keep visible in this packet:
+
+| ID | Risk | Status |
+|---|---|---|
+| R-01 | Production readiness is overstated from local demo evidence. | Mitigated-by-gate |
+| R-03 | HTTP adapter bypasses Registry/MCP safety. | Open |
+| R-04 | Production SQL execution is exposed. | Mitigated-by-gate |
+| R-06 | Silent fallback hides backend/provider/DB failures. | Mitigated-by-gate |
+| R-08 | Raw PII leaks into profiles, prompts, runtime artifacts, or reports. | Mitigated-by-gate |
+| R-16 | Release packet lacks support-level clarity. | Open |
 
 ## Known limitations
 
@@ -183,6 +198,7 @@ Passed checks:
 - The demo pack was promoted to `approved` for final local package demo purposes, while generated Builder output remains draft/proposal-based.
 - MCP stdio server creation is smoke-tested; complete client/server transport integration is still a later integration hardening item.
 - Root `unittest discover -s tests` does not discover all tests; run per-suite commands listed above.
+- Released evidence uses redacted fixture passwords in docs and reports; this packet intentionally avoids publishing credential-like DSN literals.
 
 ## Recommended next iteration
 
