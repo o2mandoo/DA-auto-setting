@@ -18,10 +18,9 @@ import json
 import os
 import re
 import subprocess
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, NamedTuple
 
 
 REDACTION_PLACEHOLDERS = {
@@ -63,8 +62,7 @@ SOURCE_FILES: tuple[Path, ...] = (
 )
 
 
-@dataclass(frozen=True)
-class RedactionSummary:
+class RedactionSummary(NamedTuple):
     counts: dict[str, int]
     had_findings: bool
 
