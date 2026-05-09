@@ -1,10 +1,10 @@
 # PR-2 HTTP Adapter Evidence (Verifier)
 
-Status: **BLOCKED (not started)**
+Status: **BLOCKED (waiting on task-61 only)**
 
 ## Current blockers
 - task-61 (worker-1 http-adapter-dev) is still `in_progress`.
-- task-62 (worker-2 api-docs-contract-dev) is still `pending`.
+- task-62 (worker-2 api-docs-contract-dev) is now `completed`.
 - HTTP adapter module not yet available at expected path:
   - `packages/semantic_registry/semantic_registry/product/http_adapter.py` does not exist yet.
 - Environment import prerequisites for PR-2 smoke command are not yet installable in this immediate worker shell.
@@ -19,7 +19,7 @@ Status: **BLOCKED (not started)**
    - Result: missing dependency (`pydantic`) before adapter command could run.
 
 ## Static dependency check pending
-Cannot run scoped PR-2 acceptance commands until task-61/62 complete and module/dependencies are in place:
+Cannot run scoped PR-2 acceptance commands until task-61 completes and module/dependencies are in place:
 - `make env-check`
 - `python -m pytest -q tests/product tests/packaging`
 - `python -m unittest tests.security.test_phase12_hardening tests.security.test_phase12_scope -v`
