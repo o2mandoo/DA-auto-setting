@@ -102,3 +102,22 @@ See:
 
 Start with the mock provider, run the demo, then opt into local or external
 provider settings only after the baseline tests pass.
+
+## Reproducible commands
+
+Copy-paste these commands for a fresh clone:
+
+```bash
+python3 scripts/setup/bootstrap.py --check-only
+cp .env.example .env
+make setup
+make env-check
+make test
+make demo
+```
+
+If you want the repository helper to create `.env` for you:
+
+```bash
+python3 scripts/setup/bootstrap.py --copy-env
+```
