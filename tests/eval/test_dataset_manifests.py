@@ -114,6 +114,11 @@ class DatasetManifestTests(unittest.TestCase):
             self.assertGreaterEqual(len(manifest.golden_questions), 1)
             self.assertGreaterEqual(len(manifest.red_team_cases), 1)
             self.assertTrue(any("semantic-gold" in note.casefold() for note in manifest.notes), manifest.notes)
+            if manifest.dataset_id == "sinagong_tableau_2026":
+                self.assertTrue(
+                    any("benchmark-only support pack" in note.casefold() for note in manifest.notes),
+                    manifest.notes,
+                )
             for finding in expected_findings:
                 self.assertIn(finding, manifest.expected_semantic_findings)
             self.assertTrue(any(expected_file_suffix in path for path in manifest.files), manifest.files)
