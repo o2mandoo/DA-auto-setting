@@ -28,6 +28,8 @@ class FileCorpusBenchmarkRunnerTests(unittest.TestCase):
         self.assertEqual(len([result for result in sinagong_run_one.results if result.category == "file_source"]), 20, sinagong_run_one.as_dict())
         self.assertTrue(any(result.category == "support_artifact" for result in sinagong_run_one.results), sinagong_run_one.as_dict())
         self.assertTrue(any(result.category == "semantic_gold" for result in sinagong_run_one.results))
+        self.assertTrue(all(not result.skipped for result in sinagong_run_one.results if result.category == "semantic_gold"), sinagong_run_one.as_dict())
+        self.assertTrue(all(result.reason for result in sinagong_run_one.results if result.category == "semantic_gold"), sinagong_run_one.as_dict())
         self.assertGreater(sinagong_run_one.summary["passed"], 0, sinagong_run_one.as_dict())
         self.assertGreater(sinagong_run_one.summary["total"], 20, sinagong_run_one.as_dict())
         self.assertEqual(sinagong_run_one.summary["failed"], 0, sinagong_run_one.as_dict())
