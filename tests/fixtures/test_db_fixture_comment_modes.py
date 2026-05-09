@@ -82,6 +82,17 @@ def test_fixture_modes_require_fixture_schema_prefix() -> None:
         )
 
 
+def test_fixture_modes_require_at_least_one_column() -> None:
+    with pytest.raises(ValueError, match="at least one column"):
+        build_fixture_table_plan(
+            dataset_id="d",
+            schema_name="semantic_fixture_demo",
+            table_name="orders",
+            columns=[],
+            mode=FixtureCommentMode.NO_COMMENTS,
+        )
+
+
 def test_postgres_fixture_safety_rejects_production_and_requires_env() -> None:
     unsafe = assert_fixture_environment(dsn="postgresql://prod.example.com/warehouse", schema_name="public", env={})
     assert unsafe.safe is False
