@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 import unittest
 
 
@@ -47,6 +48,34 @@ class EntrypointPackagingTests(unittest.TestCase):
         self.assertIn("SEMANTIC_WEAVIATE_API_KEY=<SEMANTIC_WEAVIATE_API_KEY>", example)
         self.assertNotIn("localhost", example)
         self.assertNotIn("token", example.casefold())
+
+    def test_makefile_exposes_full_local_test_command(self) -> None:
+        makefile = Path("Makefile").read_text(encoding="utf-8")
+
+        self.assertRegex(makefile, r"(?m)^\.PHONY:.*\btest\b")
+        self.assertRegex(makefile, r"(?m)^test:\n\t\$\(PYTHON\) -m pytest -q tests$")
+
+        setup_docs = Path("docs/setup/README.md").read_text(encoding="utf-8")
+        dev_docs = Path("docs/setup/DEVELOPMENT.md").read_text(encoding="utf-8")
+        self.assertIn("make test", setup_docs)
+        self.assertIn("make test", dev_docs)
+
+    def test_clean_clone_packaging_workflow_verifies_install_and_tests(self) -> None:
+        workflow = Path(".github/workflows/packaging-clean-clone.yml").read_text(encoding="utf-8")
+        install_block = re.search(
+            r"name: Install editable local packages\n\s+run: \|\n(?P<body>(?:\s+python -m pip install -e .+\n)+)",
+            workflow,
+        )
+
+        self.assertIsNotNone(install_block)
+        install_body = install_block.group("body") if install_block else ""
+        self.assertIn("python -m pip install -e packages/semantic_contracts", install_body)
+        self.assertIn("python -m pip install -e packages/semantic_registry", install_body)
+        self.assertIn("python -m pip install -e packages/semantic_mcp", install_body)
+        self.assertIn("python -m pip install -e 'packages/semantic_builder[test]'", install_body)
+        self.assertIn("run: make env-check", workflow)
+        self.assertIn("run: PYTHONDONTWRITEBYTECODE=1 make test", workflow)
+        self.assertIn("run: python scripts/setup/clone_ready_setup.py", workflow)
 
 
 if __name__ == "__main__":
