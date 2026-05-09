@@ -31,7 +31,7 @@ n8n workflows are demo/orchestration wrappers around the Product API. They must 
 - Shows missing evidence explicitly.
 - Must not invent per-domain pass rates.
 
-## Workflow 05 — Failure Review Loop
+## Workflow 05 — Failure-safe Demo
 
 - Calls `POST /api/failure-review/run`.
 - Routes failures to review/remediation.

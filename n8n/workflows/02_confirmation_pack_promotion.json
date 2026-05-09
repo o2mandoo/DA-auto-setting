@@ -1,5 +1,5 @@
 {
-  "name": "02 Comment-Aware Reverse Question Demo",
+  "name": "02 Comment-aware Reverse Question Demo",
   "active": false,
   "nodes": [
     {
@@ -15,7 +15,7 @@
     },
     {
       "parameters": {
-        "content": "Shows comment-aware reverse questions, explicit human answers, and versioned promotion. No silent fallback; do not mutate approved packs in place."
+        "content": "Open a confirmation session to surface comment-aware reverse questions, explicit human answers, and versioned promotion. No silent fallback; do not mutate approved packs in place."
       },
       "id": "02 Confirmation Pack Promotion-safety-note",
       "name": "Safety Gate Note",

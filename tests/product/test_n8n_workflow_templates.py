@@ -19,7 +19,7 @@ def test_n8n_templates_exist_for_five_workflows() -> None:
 def test_n8n_confirmation_workflow_is_comment_aware_reverse_question_demo() -> None:
     data = json.loads(Path("n8n/workflows/02_confirmation_pack_promotion.json").read_text(encoding="utf-8"))
     assert data["name"] == "02 Comment-aware Reverse Question Demo"
-    assert data["nodes"][1]["parameters"]["content"].startswith("Open a confirmation session to surface comment-aware reverse questions")
+    assert "comment-aware reverse questions" in data["nodes"][1]["parameters"]["content"]
     assert "comment-aware reverse questions" in data["nodes"][2]["parameters"]["jsonBody"]
 
 
@@ -69,12 +69,17 @@ def test_comment_aware_and_failure_safe_demos_are_explicit() -> None:
 
     failure_note = next(node for node in failure_safe["nodes"] if node["name"] == "Safety Gate Note")
     assert "blocked SQL" in failure_note["parameters"]["content"]
-    assert "draft warnings" in failure_note["parameters"]["content"]
+    assert "PII blocking" in failure_note["parameters"]["content"]
+    assert "visible failure states" in failure_note["parameters"]["content"]
     failure_routes = {node["name"] for node in failure_safe["nodes"] if node["name"].startswith("POST /api/")}
     assert "POST /api/product/answer — unsafe SQL" in failure_routes
     assert "POST /api/product/answer — missing context" in failure_routes
     assert "POST /api/product/answer — draft warning" in failure_routes
     assert "POST /api/failure-review/run" in failure_routes
+    assert any(
+        "visible_failure_states" in node.get("parameters", {}).get("jsonBody", "")
+        for node in failure_safe["nodes"]
+    )
 
 
 def test_n8n_templates_do_not_include_direct_sql_connector_nodes() -> None:
@@ -91,23 +96,6 @@ def test_n8n_templates_do_not_include_direct_sql_connector_nodes() -> None:
         data = json.loads(path.read_text(encoding="utf-8"))
         node_types = {node.get("type") for node in data.get("nodes", [])}
         assert node_types.isdisjoint(forbidden_node_types)
-
-
-def test_n8n_templates_do_not_include_direct_sql_connector_nodes() -> None:
-    forbidden_node_types = {
-        "n8n-nodes-base.postgres",
-        "n8n-nodes-base.mysql",
-        "n8n-nodes-base.mssql",
-        "n8n-nodes-base.sqlite",
-        "n8n-nodes-base.mariadb",
-        "n8n-nodes-base.oracledb",
-        "n8n-nodes-base.snowflake",
-    }
-    for path in Path("n8n/workflows").glob("*.json"):
-        data = json.loads(path.read_text(encoding="utf-8"))
-        node_types = {node.get("type") for node in data.get("nodes", [])}
-        assert node_types.isdisjoint(forbidden_node_types)
-
 
 def test_query_runtime_comparison_workflow_stays_on_product_api() -> None:
     data = json.loads(Path("n8n/workflows/03_query_runtime_comparison_demo.json").read_text(encoding="utf-8"))

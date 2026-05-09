@@ -15,7 +15,7 @@
     },
     {
       "parameters": {
-        "content": "Shows blocked SQL, missing context, draft warnings, and failure review evidence explicitly. No hidden fallback branches."
+        "content": "Failure-safe demo: show blocked SQL, PII blocking, missing context, and visible failure states explicitly. No hidden fallback branches."
       },
       "id": "05 Failure Review Loop-safety-note",
       "name": "Safety Gate Note",
@@ -107,7 +107,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "{\"question\": \"초안 순매출 지표로 설명해줘\", \"space_id\": \"demo_company.revenue\", \"role\": \"marketing_analyst\", \"mode\": \"C_QUERY_RUNTIME\", \"include_preview\": false}",
+        "jsonBody": "{\"question\": \"초안 순매출 지표로 설명해줘\", \"space_id\": \"demo_company.revenue\", \"role\": \"marketing_analyst\", \"mode\": \"C_QUERY_RUNTIME\", \"include_preview\": false, \"visible_failure_states\": [\"clarification_required\", \"pii_blocked\", \"unsafe_sql_blocked\", \"missing_semantic_context\", \"draft_metric_warning\", \"preview_unavailable\"]}",
         "options": {
           "response": {
             "response": {
@@ -140,7 +140,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "{\"scenario_set\": \"phase17_red_team\"}",
+        "jsonBody": "{\"scenario_set\": \"phase17_red_team\", \"demo_focus\": \"failure-safe states\", \"visible_failure_states\": [\"clarification_required\", \"pii_blocked\", \"unsafe_sql_blocked\", \"missing_semantic_context\", \"draft_metric_warning\", \"preview_unavailable\"]}",
         "options": {
           "response": {
             "response": {

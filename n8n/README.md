@@ -13,7 +13,7 @@ These workflow JSON files are importable demo templates for the Semantic Data Co
 2. `02_confirmation_pack_promotion.json` — comment-aware reverse-question demo; starts confirmation and keeps promotion as a separate explicit approval step.
 3. `03_query_runtime_comparison_demo.json` — main baseline vs Semantic Pack comparison demo.
 4. `04_20_domain_benchmark_runner.json` — calls evidence summary route.
-5. `05_failure_review_loop.json` — calls red-team failure review route.
+5. `05_failure_review_loop.json` — failure-safe demo; calls red-team failure review route and keeps blocked states visible.
 
 ## Safety notes
 
