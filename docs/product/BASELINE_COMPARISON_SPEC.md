@@ -4,6 +4,8 @@
 
 Compare generic LLM SQL generation against the Semantic Data Context runtime without giving the generic baseline access to Semantic Pack context.
 
+This is the canonical contract for the baseline-vs-system comparison flow exposed by `compare_baseline_vs_system_sql` and `POST /api/product/compare-sql`.
+
 ## Baseline input contract
 
 Allowed baseline context:
