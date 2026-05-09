@@ -18,13 +18,13 @@
 - `tests/builder/test_db_scanner_cli.py`
 
 ## Verification evidence
-- `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/tmp/semantic-data-context-deps:packages/semantic_builder/src python3 -m unittest discover -s tests/builder -p 'test_optional_db_adapters.py' -v`
+- `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=packages/semantic_builder/src:/tmp/semantic-data-context-deps python3 -m unittest discover -s tests/builder -p 'test_optional_db_adapters.py' -v`
   - result: `OK` (`3 tests`)
-- `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/tmp/semantic-data-context-deps:packages/semantic_builder/src python3 -m unittest discover -s tests/builder -p 'test_db_connector_contract.py' -v`
+- `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=packages/semantic_builder/src:/tmp/semantic-data-context-deps python3 -m unittest discover -s tests/builder -p 'test_db_connector_contract.py' -v`
   - result: `OK` (`4 tests`)
-- `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/tmp/semantic-data-context-deps:packages/semantic_builder/src python3 -m unittest tests.contracts.test_phase0_scope_contract -v`
+- `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=packages/semantic_builder/src:/tmp/semantic-data-context-deps python3 -m unittest tests.contracts.test_phase0_scope_contract -v`
   - result: `OK` (`2 tests`)
-- `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/tmp/semantic-data-context-deps:packages/semantic_builder/src python3 -m unittest tests.builder.test_db_scanner_cli tests.builder.test_db_connector_contract -v`
+- `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=packages/semantic_builder/src:/tmp/semantic-data-context-deps python3 -m unittest tests.builder.test_db_scanner_cli tests.builder.test_db_connector_contract -v`
   - result: `OK` (`8 tests`)
 
 ## Notes

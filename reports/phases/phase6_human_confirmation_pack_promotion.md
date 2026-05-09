@@ -38,35 +38,35 @@ Older preflight logs in the same directory document failed/fallback attempts and
 All commands used:
 
 ```bash
-PYTHONPATH=/tmp/semantic-data-context-deps:packages/semantic_contracts:packages/semantic_registry:packages/semantic_builder/src:packages/semantic_mcp/src \
+PYTHONPATH=packages/semantic_contracts:packages/semantic_registry:packages/semantic_builder/src:packages/semantic_mcp/src:/tmp/semantic-data-context-deps \
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/registry -v
 ```
 
 Result: **PASS** — `Ran 38 tests ... OK` in `runtime/phase6_verifier/registry_unittest_postmerge2.log`.
 
 ```bash
-PYTHONPATH=/tmp/semantic-data-context-deps:packages/semantic_contracts:packages/semantic_registry:packages/semantic_builder/src:packages/semantic_mcp/src \
+PYTHONPATH=packages/semantic_contracts:packages/semantic_registry:packages/semantic_builder/src:packages/semantic_mcp/src:/tmp/semantic-data-context-deps \
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/contracts -v
 ```
 
 Result: **PASS** — `Ran 20 tests ... OK` in `runtime/phase6_verifier/contracts_unittest_postmerge.log`.
 
 ```bash
-PYTHONPATH=/tmp/semantic-data-context-deps:packages/semantic_contracts:packages/semantic_registry:packages/semantic_builder/src:packages/semantic_mcp/src \
+PYTHONPATH=packages/semantic_contracts:packages/semantic_registry:packages/semantic_builder/src:packages/semantic_mcp/src:/tmp/semantic-data-context-deps \
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/builder -v
 ```
 
 Result: **PASS** — `Ran 40 tests ... OK` in `runtime/phase6_verifier/builder_unittest_postmerge.log`.
 
 ```bash
-PYTHONPATH=/tmp/semantic-data-context-deps:packages/semantic_contracts:packages/semantic_registry:packages/semantic_builder/src:packages/semantic_mcp/src \
+PYTHONPATH=packages/semantic_contracts:packages/semantic_registry:packages/semantic_builder/src:packages/semantic_mcp/src:/tmp/semantic-data-context-deps \
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/mcp -v
 ```
 
 Result: **PASS** — `Ran 19 tests ... OK` in `runtime/phase6_verifier/mcp_unittest_postmerge.log`.
 
 ```bash
-PYTHONPATH=/tmp/semantic-data-context-deps:packages/semantic_contracts:packages/semantic_registry:packages/semantic_builder/src:packages/semantic_mcp/src \
+PYTHONPATH=packages/semantic_contracts:packages/semantic_registry:packages/semantic_builder/src:packages/semantic_mcp/src:/tmp/semantic-data-context-deps \
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest tests.registry.test_pack_promotion tests.registry.test_pack_proposals -v
 ```
 

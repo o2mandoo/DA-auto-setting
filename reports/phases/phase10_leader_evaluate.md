@@ -29,7 +29,7 @@ Phase 10 may close. Phase 11 may start.
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 \
-PYTHONPATH=/tmp/semantic-data-context-deps:packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src:tests/contracts \
+PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src:tests/contracts:/tmp/semantic-data-context-deps \
 python3 -m unittest tests.builder.test_db_connector_contract tests.builder.test_postgres_scanner tests.builder.test_optional_db_adapters tests.builder.test_safe_db_profiler tests.builder.test_db_scanner_cli -v
 ```
 Result: PASS, 20 tests OK.
