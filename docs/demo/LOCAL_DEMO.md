@@ -7,6 +7,8 @@ PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/se
 python3 scripts/demo/run_local_demo.py
 ```
 
+Run this from the repository root. If you already have a virtualenv active, keep the repository package paths ahead of `/tmp/semantic-data-context-deps` so the checkout code wins over any temporary dependency cache.
+
 The script performs:
 
 1. scan `examples/demo_data`
@@ -20,6 +22,8 @@ The script performs:
 9. plan and validate a golden revenue question
 10. run local/demo `preview_query`
 11. run the Phase 11 eval benchmark
+
+Outputs are written under `runtime/phase12_demo/` and include the scan report, profiles, semantic hypotheses, onboarding questions, draft pack, preview audit, eval report, and demo summary.
 
 Safety boundaries:
 

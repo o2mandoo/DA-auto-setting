@@ -7,6 +7,7 @@ It is not a dashboard, SaaS BI platform, or production SQL execution engine.
 ## What is included
 
 - **Semantic Builder**: scans CSV/JSON/XLS/XLSX and safe PostgreSQL metadata/profiles, profiles columns, detects PII candidates, generates draft hypotheses/questions, and writes draft Semantic Packs.
+- **PostgreSQL scanner/profiler**: read-only, fixture-safe metadata/profile path for PostgreSQL sources.
 - **Semantic Registry**: loads Semantic Packs as source of truth, lists spaces, searches/resolve cards, stores feedback, handles proposal/confirmation/promotion guards.
 - **Local MCP Server**: exposes deterministic tool/resource/prompt functions over the Registry.
 - **Retrieval layer**: keyword backend plus explicit Weaviate backend configuration path. No silent fallback when Weaviate is requested and unavailable.
@@ -22,6 +23,8 @@ Declared console scripts:
 - `semantic-registry`
 - `semantic-mcp`
 - `semantic-eval`
+
+Use `--help` on each command for the reproducible local CLI flow. The exact local-demo path lives in `docs/demo/LOCAL_DEMO.md`, and the optional Weaviate configuration notes live in `docs/demo/WEAVIATE_OPTIONAL.md`.
 
 For source checkout usage, set:
 
