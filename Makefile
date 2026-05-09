@@ -1,4 +1,5 @@
 PYTHON ?= python3
+LOCAL_PYTHONPATH := packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src
 
 .PHONY: setup test demo env-check clean-runtime
 
@@ -16,7 +17,7 @@ demo:
 	@printf 'Demo artifacts written to runtime/phase12_demo\n'
 
 env-check:
-	$(PYTHON) -c 'import importlib, sys; [importlib.import_module(name) for name in ("semantic_contracts", "semantic_builder", "semantic_registry", "semantic_mcp")]; print(f"environment ok: {sys.version.split()[0]}")'
+	PYTHONPATH=$(LOCAL_PYTHONPATH) $(PYTHON) -c 'import importlib, sys; [importlib.import_module(name) for name in ("semantic_contracts", "semantic_builder", "semantic_registry", "semantic_mcp")]; print(f"environment ok: {sys.version.split()[0]}")'
 
 clean-runtime:
 	rm -rf runtime/phase12_demo runtime/hardening_feedback
