@@ -32,14 +32,30 @@ class PreviewQueryMcpToolTests(unittest.TestCase):
                     preview_query(**kwargs)
 
     def test_mcp_preview_query_uses_internal_validation_and_explicit_row_limit(self) -> None:
-        response = preview_query(
-            "demo_company.revenue",
-            "SELECT payment_id, amount FROM payments ORDER BY payment_id",
-            role="marketing_analyst",
-            root=ROOT / "semantic_packs",
-            fixture_root=ROOT / "examples" / "demo_data",
-            max_rows=2,
-        )
+        calls = []
+
+        def fake_runner(**kwargs):
+            calls.append(kwargs)
+            return {
+                "status": "ok",
+                "valid": True,
+                "preview_allowed": True,
+                "columns": ["payment_id", "amount"],
+                "rows": [{"payment_id": "p001", "amount": 10}, {"payment_id": "p002", "amount": 20}],
+                "row_count": 2,
+                "truncated": True,
+                "audit_record": {"status": "success"},
+            }
+
+        with patch("semantic_mcp.tools.preview_query._load_registry_preview_query", return_value=(fake_runner, None)):
+            response = preview_query(
+                "demo_company.revenue",
+                "SELECT payment_id, amount FROM payments ORDER BY payment_id",
+                role="marketing_analyst",
+                root=ROOT / "semantic_packs",
+                fixture_root=ROOT / "examples" / "demo_data",
+                max_rows=2,
+            )
 
         self.assertTrue(response["valid"], response)
         self.assertTrue(response["preview_allowed"])
@@ -50,6 +66,10 @@ class PreviewQueryMcpToolTests(unittest.TestCase):
         self.assertEqual(response["execution_target"], "local_fixture_only")
         self.assertFalse(response["execution_allowed"])
         self.assertFalse(response["production_execution_allowed"])
+        self.assertEqual(calls[0]["space_id"], "demo_company.revenue")
+        self.assertEqual(calls[0]["role"], "marketing_analyst")
+        self.assertEqual(calls[0]["max_rows"], 2)
+        self.assertTrue(calls[0]["require_validation"])
 
     def test_preview_query_delegates_to_execution_runtime_with_validation_forced(self) -> None:
         calls = []
