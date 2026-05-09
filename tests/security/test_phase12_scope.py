@@ -55,14 +55,17 @@ class Phase12ScopeTests(unittest.TestCase):
             self.assertNotIn("grace@example.com", text)
 
     def test_test_commands_keep_repo_packages_before_temp_dependency_path(self) -> None:
-        repo_package_prefixes = (
-            "packages/semantic_contracts",
-            "packages/semantic_builder",
-            "packages/semantic_registry",
-            "packages/semantic_mcp",
+        current_surface_roots = (
+            Path("AGENTS.md"),
+            Path("README.md"),
+            Path("docs/demo"),
+            Path("docs/execution"),
+            Path("docs/product"),
+            Path("docs/setup"),
+            Path("scripts/setup"),
         )
         offenders: list[str] = []
-        for path in (Path("README.md"), Path("docs"), Path("reports")):
+        for path in current_surface_roots:
             if not path.exists():
                 continue
             candidates = [path] if path.is_file() else list(path.rglob("*"))
@@ -72,19 +75,12 @@ class Phase12ScopeTests(unittest.TestCase):
                 if candidate.suffix.lower() not in {".md", ".txt"}:
                     continue
                 text = candidate.read_text(encoding="utf-8", errors="ignore")
-                for line in text.splitlines():
-                    if "PYTHONPATH=" not in line or "/tmp/semantic-data-context-deps" not in line:
-                        continue
-                    temp_index = line.index("/tmp/semantic-data-context-deps")
-                    for package_prefix in repo_package_prefixes:
-                        package_index = line.find(package_prefix)
-                        if package_index != -1 and package_index > temp_index:
-                            offenders.append(f"{candidate}: {line.strip()}")
-                            break
+                if "/tmp/semantic-data-context-deps" in text:
+                    offenders.append(str(candidate))
         self.assertEqual(
             offenders,
             [],
-            "Repo package paths must appear before /tmp/semantic-data-context-deps in test commands",
+            "Current operational/user/agent-facing docs must not rely on /tmp/semantic-data-context-deps",
         )
 
     @staticmethod
