@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import re
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping, Protocol, Sequence
@@ -36,11 +37,82 @@ class SemanticInferenceProvider(Protocol):
 
 @dataclass(frozen=True)
 class LocalProviderConfig:
-    """Explicit opt-in configuration for a future local LLM provider seam."""
+    """Explicit opt-in configuration for a future local LLM provider seam.
+
+    The config accepts common provider field names now so env/config mappings
+    can be passed through directly. The seam remains opt-in and unimplemented
+    until a real provider is wired in.
+    """
 
     enabled: bool = False
-    model: str | None = None
+    provider: str | None = None
     endpoint: str | None = None
+    base_url: str | None = None
+    model: str | None = None
+    api_key: str | None = None
+    timeout: float | int | None = None
+    max_tokens: int | None = None
+    temperature: float | None = None
+
+    def __post_init__(self) -> None:
+        endpoint = self.endpoint or self.base_url
+        object.__setattr__(self, "endpoint", endpoint)
+        object.__setattr__(self, "base_url", endpoint)
+        if self.provider is not None and not str(self.provider).strip():
+            raise ValueError("provider must not be empty when configured")
+        if self.model is not None and not str(self.model).strip():
+            raise ValueError("model must not be empty when configured")
+        if self.api_key is not None and not str(self.api_key).strip():
+            raise ValueError("api_key must not be empty when configured")
+        if self.timeout is not None and float(self.timeout) <= 0:
+            raise ValueError("timeout must be greater than zero when configured")
+        if self.max_tokens is not None and int(self.max_tokens) <= 0:
+            raise ValueError("max_tokens must be greater than zero when configured")
+        if self.temperature is not None and not 0.0 <= float(self.temperature) <= 2.0:
+            raise ValueError("temperature must be between 0.0 and 2.0 when configured")
+
+    @classmethod
+    def from_mapping(cls, payload: Mapping[str, Any]) -> "LocalProviderConfig":
+        """Build a local provider config from env/config mappings."""
+
+        endpoint = payload.get("endpoint") or payload.get("base_url")
+        timeout_value = payload.get("timeout")
+        if timeout_value is None:
+            timeout_value = payload.get("timeout_ms")
+        timeout = _coerce_float_or_none(timeout_value)
+        max_tokens = _coerce_int_or_none(payload.get("max_tokens"))
+        temperature = _coerce_float_or_none(payload.get("temperature"))
+        return cls(
+            enabled=_to_bool(payload.get("enabled")),
+            provider=_clean_text(payload.get("provider")),
+            endpoint=_clean_text(endpoint),
+            base_url=_clean_text(endpoint),
+            model=_clean_text(payload.get("model")),
+            api_key=_clean_text(payload.get("api_key")),
+            timeout=timeout,
+            max_tokens=max_tokens,
+            temperature=temperature,
+        )
+
+    @classmethod
+    def from_env(cls, environ: Mapping[str, str] | None = None) -> "LocalProviderConfig":
+        """Build a provider config from SDC_LLM_* environment variables."""
+
+        env = environ or os.environ
+        return cls.from_mapping(
+            {
+                "enabled": env.get("SDC_LLM_ENABLED"),
+                "provider": env.get("SDC_LLM_PROVIDER"),
+                "endpoint": env.get("SDC_LLM_ENDPOINT"),
+                "base_url": env.get("SDC_LLM_BASE_URL"),
+                "model": env.get("SDC_LLM_MODEL"),
+                "api_key": env.get("SDC_LLM_API_KEY"),
+                "timeout": env.get("SDC_LLM_TIMEOUT"),
+                "timeout_ms": env.get("SDC_LLM_TIMEOUT_MS"),
+                "max_tokens": env.get("SDC_LLM_MAX_TOKENS"),
+                "temperature": env.get("SDC_LLM_TEMPERATURE"),
+            }
+        )
 
 
 class LocalSemanticInferenceProvider:
@@ -264,6 +336,33 @@ def generate_semantic_inference(
         "hypotheses": _dedupe_by_id(result.get("hypotheses", [])),
         "onboarding_questions": _dedupe_by_id(result.get("onboarding_questions", [])),
     }
+
+
+def _clean_text(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _to_bool(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return False
+    return str(value).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _coerce_float_or_none(value: Any) -> float | None:
+    if value is None or value == "":
+        return None
+    return float(value)
+
+
+def _coerce_int_or_none(value: Any) -> int | None:
+    if value is None or value == "":
+        return None
+    return int(value)
 
 
 def load_profile_jsonl(path: str | Path) -> list[JsonObject]:

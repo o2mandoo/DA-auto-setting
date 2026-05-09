@@ -213,6 +213,61 @@ class SemanticInferencePipelineTests(unittest.TestCase):
         with self.assertRaisesRegex(NotImplementedError, "not implemented"):
             LocalSemanticInferenceProvider(LocalProviderConfig(enabled=True, model="local-test")).infer([])
 
+    def test_local_provider_config_normalizes_env_and_config_aliases(self) -> None:
+        config = LocalProviderConfig.from_mapping(
+            {
+                "enabled": "true",
+                "provider": "openai-compatible",
+                "base_url": "http://localhost:11434",
+                "model": "qwen2.5:7b",
+                "api_key": "secret-token",
+                "timeout_ms": "2500",
+                "max_tokens": "1024",
+                "temperature": "0.2",
+            }
+        )
+
+        self.assertTrue(config.enabled)
+        self.assertEqual("openai-compatible", config.provider)
+        self.assertEqual("http://localhost:11434", config.endpoint)
+        self.assertEqual("http://localhost:11434", config.base_url)
+        self.assertEqual("qwen2.5:7b", config.model)
+        self.assertEqual("secret-token", config.api_key)
+        self.assertEqual(2500.0, config.timeout)
+        self.assertEqual(1024, config.max_tokens)
+        self.assertEqual(0.2, config.temperature)
+
+    def test_local_provider_config_reads_sdc_llm_env(self) -> None:
+        config = LocalProviderConfig.from_env(
+            {
+                "SDC_LLM_ENABLED": "1",
+                "SDC_LLM_PROVIDER": "openai-compatible",
+                "SDC_LLM_ENDPOINT": "http://localhost:8000/v1",
+                "SDC_LLM_MODEL": "gpt-4.1-mini",
+                "SDC_LLM_API_KEY": "env-token",
+                "SDC_LLM_TIMEOUT": "3.5",
+                "SDC_LLM_MAX_TOKENS": "2048",
+                "SDC_LLM_TEMPERATURE": "0.4",
+            }
+        )
+
+        self.assertTrue(config.enabled)
+        self.assertEqual("openai-compatible", config.provider)
+        self.assertEqual("http://localhost:8000/v1", config.endpoint)
+        self.assertEqual("gpt-4.1-mini", config.model)
+        self.assertEqual("env-token", config.api_key)
+        self.assertEqual(3.5, config.timeout)
+        self.assertEqual(2048, config.max_tokens)
+        self.assertEqual(0.4, config.temperature)
+
+    def test_local_provider_config_rejects_invalid_numeric_fields(self) -> None:
+        with self.assertRaisesRegex(ValueError, "timeout"):
+            LocalProviderConfig.from_mapping({"enabled": True, "timeout": 0})
+        with self.assertRaisesRegex(ValueError, "max_tokens"):
+            LocalProviderConfig.from_mapping({"enabled": True, "max_tokens": 0})
+        with self.assertRaisesRegex(ValueError, "temperature"):
+            LocalProviderConfig.from_mapping({"enabled": True, "temperature": 2.5})
+
 
 if __name__ == "__main__":
     unittest.main()
