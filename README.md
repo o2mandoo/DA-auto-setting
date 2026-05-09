@@ -8,6 +8,7 @@ It is not a dashboard, SaaS BI platform, or production SQL execution engine.
 
 - **Semantic Builder**: scans CSV/JSON/XLS/XLSX and safe PostgreSQL metadata/profiles, profiles columns, detects PII candidates, generates draft hypotheses/questions, and writes draft Semantic Packs.
 - **PostgreSQL scanner/profiler**: read-only, fixture-safe metadata/profile path for PostgreSQL sources.
+- **MySQL fixture/scanner path**: explicit MySQL fixture DDL/comment planner plus read-only scanner surface that preserves the same comment provenance contract; live MySQL evidence remains opt-in and is not claimed unless the gated local fixture run is executed.
 - **Semantic Registry**: loads Semantic Packs as source of truth, lists spaces, searches/resolve cards, stores feedback, handles proposal/confirmation/promotion guards.
 - **Local MCP Server**: exposes deterministic tool/resource/prompt functions over the Registry.
 - **Retrieval layer**: keyword backend plus explicit Weaviate backend configuration path. No silent fallback when Weaviate is requested and unavailable.
@@ -52,7 +53,19 @@ For clone-ready install/provider/test instructions, see `docs/setup/DEVELOPMENT.
 - Feedback cannot mutate approved packs.
 - Weaviate backend requests must fail explicitly if not configured; no silent keyword fallback.
 - PostgreSQL support is read-only scanner/profiler scope unless separately approved.
+- MySQL support is explicit and no-fallback: fixture/schema names must stay under `semantic_fixture_*`; `synthetic_comments` stay test-only; missing live MySQL config/dependency evidence must be reported as pending or an explicit error, never rerouted to PostgreSQL, DuckDB, or SQLite.
 - Dashboard UI and SaaS multi-tenancy are non-goals.
+
+
+## DB fixture and MySQL readiness
+
+DB-backed fixture work is product-external and safety-gated. See `docs/dev/DB_FIXTURE_GUIDE.md` and `docs/product/METADATA_PROVENANCE_RULES.md` for the source-of-truth rules. Current code-level coverage includes:
+
+- `no_comments`, `real_comments`, and `synthetic_comments` fixture modes.
+- PostgreSQL and MySQL fixture DDL/comment planners with backend-specific syntax.
+- MySQL scanner exports that label connector and provenance evidence as `mysql` rather than silently using PostgreSQL evidence.
+
+Readiness is **PARTIAL** until live DB evidence is collected under explicit local fixture gates. A MySQL run requires `SEMANTIC_CONTEXT_FIXTURE_DB=1` plus target-specific MySQL opt-in/config such as `SEMANTIC_MYSQL_ENABLED=1`, `SEMANTIC_MYSQL_DSN`, `SEMANTIC_MYSQL_DATABASE`, and `SEMANTIC_MYSQL_TABLES`. Without that live run, reports should say `live_mysql_evidence_pending` or show the exact configuration/dependency error.
 
 ## Source-of-truth docs
 
