@@ -73,7 +73,9 @@ def assert_fixture_environment(
         reasons.append("schema_name must start with semantic_fixture_*")
     parsed = urlparse(dsn)
     if parsed.scheme and parsed.scheme not in {"postgres", "postgresql"}:
-        reasons.append("only PostgreSQL fixture DSNs are supported; no MySQL/DuckDB/SQLite fallback")
+        reasons.append(
+            "only PostgreSQL fixture DSNs are supported; no MySQL/Oracle fake support and no DuckDB/SQLite fallback"
+        )
     host = parsed.hostname or ""
     database = (parsed.path or "").lstrip("/")
     if host and host not in {"localhost", "127.0.0.1", "::1", "host.docker.internal"}:
