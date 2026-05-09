@@ -26,6 +26,28 @@ class EntrypointPackagingTests(unittest.TestCase):
         self.assertTrue(callable(registry_main))
         self.assertTrue(callable(mcp_main))
 
+    def test_clone_ready_setup_assets_exist(self) -> None:
+        self.assertTrue(Path("scripts/setup/bootstrap.py").is_file())
+        self.assertTrue(Path("docs/setup/DEVELOPMENT.md").is_file())
+        self.assertTrue(Path(".env.example").is_file())
+
+    def test_clone_ready_setup_commands_are_documented(self) -> None:
+        docs = Path("docs/setup/DEVELOPMENT.md").read_text(encoding="utf-8")
+        self.assertIn("python3 scripts/setup/bootstrap.py --check-only", docs)
+        self.assertIn("python3 scripts/setup/bootstrap.py --copy-env", docs)
+        self.assertIn("cp .env.example .env", docs)
+        self.assertIn("make setup", docs)
+        self.assertIn("make env-check", docs)
+        self.assertIn("make test", docs)
+        self.assertIn("make demo", docs)
+
+        example = Path(".env.example").read_text(encoding="utf-8")
+        self.assertIn("SEMANTIC_WEAVIATE_ENABLED=<0|1>", example)
+        self.assertIn("SEMANTIC_WEAVIATE_URL=<SEMANTIC_WEAVIATE_URL>", example)
+        self.assertIn("SEMANTIC_WEAVIATE_API_KEY=<SEMANTIC_WEAVIATE_API_KEY>", example)
+        self.assertNotIn("localhost", example)
+        self.assertNotIn("token", example.casefold())
+
 
 if __name__ == "__main__":
     unittest.main()
