@@ -36,6 +36,25 @@ Owns focused tests, no-silent-fallback/security assertions, and regression comma
 ### Worker 6 — verifier
 Owns final inspection, test execution, scope violation checks, and final verification report.
 
+
+## Worker 2 lane contract and task map
+
+Worker 2 owns only the MySQL scanner/provenance slice for this team run:
+
+- Task 18: keep synthetic comments fixture-only and require `TEST_ONLY_SYNTHETIC_METADATA`.
+- Task 19: treat real MySQL comments/descriptions as product-usable draft semantic metadata with `real_db_comment` provenance.
+- Task 20: treat missing MySQL comments as `no_comment` gaps and reverse-question inputs.
+- Tasks 40-42: implement/extend a read-only MySQL connector that reads `information_schema.tables.TABLE_COMMENT` and `information_schema.columns.COLUMN_COMMENT`.
+- Tasks 43-44: emit scanner provenance and reuse metadata-gap logic for `no_comment`.
+- Tasks 69, 74, 90, 92, 95: document no silent fallback / fixture-only synthetic rules and report changed files, tests, and remaining risks.
+
+Safety constraints for this lane:
+
+- Do not connect to production databases or expose a general SQL execution surface.
+- Do not silently fall back from MySQL to PostgreSQL, DuckDB, or SQLite.
+- Use fake/mocked connector tests for catalog-comment reads unless a local MySQL fixture is explicitly available and gated.
+- Preserve synthetic fixture annotations as test-only evidence; never promote them into approved Text-to-SQL context.
+
 ## Acceptance criteria
 
 - MySQL fixture planner supports no_comments, real_comments, synthetic_comments.
