@@ -194,6 +194,10 @@ class QueryPlan(StrictRuntimeModel):
     used_cards: list[str] = Field(default_factory=list)
     confidence: float = Field(default=0.0, ge=0, le=1)
     warnings: list[str] = Field(default_factory=list)
+    used_context_sources: list[str] = Field(default_factory=list)
+    cards_used: list[str] = Field(default_factory=list)
+    source_status: dict[str, str] = Field(default_factory=dict)
+    context_warnings: list[str] = Field(default_factory=list)
     sql_draft_allowed: bool = False
 
 

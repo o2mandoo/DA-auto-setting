@@ -93,6 +93,10 @@ class DomainQueryPlanner:
             used_cards=used_cards,
             confidence=confidence,
             warnings=_unique(warnings),
+            used_context_sources=list(getattr(registry_plan, "used_context_sources", [])),
+            cards_used=list(getattr(registry_plan, "cards_used", used_cards)),
+            source_status=dict(getattr(registry_plan, "source_status", {})),
+            context_warnings=list(getattr(registry_plan, "context_warnings", [])),
             sql_draft_allowed=sql_draft_allowed,
         )
 

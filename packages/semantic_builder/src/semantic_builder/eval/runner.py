@@ -15,7 +15,6 @@ from typing import Any, Iterable, Mapping, Sequence
 
 from semantic_builder.builder import attach_inference_artifacts_to_draft_pack, build_semantic_pack_draft, write_semantic_pack_yaml
 from semantic_builder.connectors import scan_source
-from semantic_builder.inference.pipeline import generate_semantic_inference
 from semantic_builder.inference.pipeline import DeterministicMockInferenceProvider, generate_semantic_inference
 from semantic_builder.inference.reverse_questions import generate_reverse_questions
 from semantic_builder.profiler import profile_dataset
@@ -1056,8 +1055,6 @@ def _run_multi_source_file_corpus_benchmark(
     hypotheses_path = artifact_root / "semantic_hypotheses.jsonl"
     questions_path = artifact_root / "onboarding_questions.jsonl"
     draft_path = artifact_root / "semantic_pack.draft.yaml"
-    report_json_path = artifact_root / "benchmark.json"
-    report_md_path = artifact_root / "benchmark.md"
 
     _write_json_file({"datasets": source_records}, scan_path)
     _write_jsonl_file(profile_records, profiles_path)

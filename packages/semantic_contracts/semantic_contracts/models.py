@@ -42,6 +42,26 @@ class ConfirmationStatus(StrEnum):
     DISMISSED = "dismissed"
 
 
+class MetadataSource(StrEnum):
+    NO_COMMENT = "no_comment"
+    REAL_DB_COMMENT = "real_db_comment"
+    TEST_ONLY_SYNTHETIC_COMMENT = "test_only_synthetic_comment"
+    SIDECAR_METADATA = "sidecar_metadata"
+    LLM_HYPOTHESIS = "llm_hypothesis"
+    HUMAN_CONFIRMED = "human_confirmed"
+    VERIFIED_QUERY = "verified_query"
+
+
+class MetadataStatus(StrEnum):
+    OPEN = "open"
+    DRAFT = "draft"
+    REVIEWED = "reviewed"
+    APPROVED = "approved"
+    CONFIRMED = "confirmed"
+    REJECTED = "rejected"
+    DEPRECATED = "deprecated"
+
+
 class SourceKind(StrEnum):
     FILE = "file"
     POSTGRESQL = "postgresql"
@@ -238,6 +258,53 @@ class PiiPolicy(StrictModel):
         return self
 
 
+class MetadataProvenance(StrictModel):
+    """Provenance for metadata used as semantic context or metadata-gap evidence."""
+
+    metadata_source: MetadataSource
+    source_detail: str | None = None
+    confidence: float | None = Field(default=None, ge=0, le=1)
+    status: MetadataStatus = MetadataStatus.DRAFT
+    is_test_only: bool = False
+    can_use_for_text2sql: bool | None = None
+    requires_human_confirmation: bool | None = None
+    metadata_gap_reason: str | None = None
+
+    @model_validator(mode="after")
+    def enforce_source_status_policy(self) -> "MetadataProvenance":
+        source = self.metadata_source
+        if source == MetadataSource.TEST_ONLY_SYNTHETIC_COMMENT:
+            object.__setattr__(self, "is_test_only", True)
+            if self.status in {MetadataStatus.APPROVED, MetadataStatus.CONFIRMED}:
+                raise ValueError("test-only synthetic metadata cannot be approved or confirmed product truth")
+        if self.is_test_only and self.can_use_for_text2sql is True:
+            raise ValueError("test-only metadata cannot be used as approved Text-to-SQL context")
+        if source == MetadataSource.NO_COMMENT and not self.metadata_gap_reason:
+            raise ValueError("no_comment provenance requires metadata_gap_reason")
+
+        if self.can_use_for_text2sql is None:
+            object.__setattr__(self, "can_use_for_text2sql", source in {
+                MetadataSource.REAL_DB_COMMENT,
+                MetadataSource.HUMAN_CONFIRMED,
+                MetadataSource.VERIFIED_QUERY,
+            })
+        if self.requires_human_confirmation is None:
+            object.__setattr__(self, "requires_human_confirmation", source not in {
+                MetadataSource.HUMAN_CONFIRMED,
+                MetadataSource.VERIFIED_QUERY,
+            })
+        if source == MetadataSource.NO_COMMENT:
+            object.__setattr__(self, "can_use_for_text2sql", False)
+            object.__setattr__(self, "requires_human_confirmation", True)
+        return self
+
+
+def default_provenance(source: MetadataSource, **kwargs: Any) -> MetadataProvenance:
+    """Small helper for code that needs contract-shaped provenance defaults."""
+
+    return MetadataProvenance(metadata_source=source, **kwargs)
+
+
 class TableCard(StrictModel):
     id: str
     space_id: str
@@ -251,6 +318,7 @@ class TableCard(StrictModel):
     pii_level: PiiLevel = PiiLevel.NONE
     status: CardStatus = CardStatus.DRAFT
     confidence: float | None = Field(default=None, ge=0, le=1)
+    metadata_provenance: list[MetadataProvenance] = Field(default_factory=list)
 
 
 class ColumnCard(StrictModel):
@@ -265,6 +333,7 @@ class ColumnCard(StrictModel):
     pii: PiiPolicy = Field(default_factory=PiiPolicy)
     status: CardStatus = CardStatus.DRAFT
     confidence: float | None = Field(default=None, ge=0, le=1)
+    metadata_provenance: list[MetadataProvenance] = Field(default_factory=list)
 
 
 class ValueDictionaryEntry(StrictModel):
@@ -281,6 +350,7 @@ class ValueDictionary(StrictModel):
     table: str
     column: str
     values: list[ValueDictionaryEntry] = Field(default_factory=list)
+    metadata_provenance: list[MetadataProvenance] = Field(default_factory=list)
 
 
 class Metric(StrictModel):
@@ -294,6 +364,7 @@ class Metric(StrictModel):
     default_filters: list[str] = Field(default_factory=list)
     status: CardStatus = CardStatus.DRAFT
     owner: str | None = None
+    metadata_provenance: list[MetadataProvenance] = Field(default_factory=list)
 
 
 class AmbiguityRule(StrictModel):
@@ -305,6 +376,7 @@ class AmbiguityRule(StrictModel):
     question: str
     required_when: str | None = None
     status: CardStatus = CardStatus.DRAFT
+    metadata_provenance: list[MetadataProvenance] = Field(default_factory=list)
 
 
 class BusinessTerm(StrictModel):
@@ -318,6 +390,7 @@ class BusinessTerm(StrictModel):
     ambiguity_policy: str | None = None
     ambiguity_rules: list[AmbiguityRule] = Field(default_factory=list)
     status: CardStatus = CardStatus.DRAFT
+    metadata_provenance: list[MetadataProvenance] = Field(default_factory=list)
 
 
 class JoinRecipe(StrictModel):
@@ -328,6 +401,7 @@ class JoinRecipe(StrictModel):
     condition: str
     recommended: bool = False
     warnings: list[str] = Field(default_factory=list)
+    metadata_provenance: list[MetadataProvenance] = Field(default_factory=list)
 
 
 class PolicyAppliesTo(StrictModel):
@@ -343,6 +417,7 @@ class Policy(StrictModel):
     # the default cap without implying production SQL execution authority.
     max_preview_rows: int = Field(default=100, ge=1, le=1000)
     notes: list[str] = Field(default_factory=list)
+    metadata_provenance: list[MetadataProvenance] = Field(default_factory=list)
 
 
 class VerifiedQuery(StrictModel):
@@ -352,6 +427,7 @@ class VerifiedQuery(StrictModel):
     related_terms: list[str] = Field(default_factory=list)
     related_metrics: list[str] = Field(default_factory=list)
     status: CardStatus = CardStatus.CONFIRMED
+    metadata_provenance: list[MetadataProvenance] = Field(default_factory=list)
 
 
 class ReverseQuestion(StrictModel):
@@ -361,6 +437,9 @@ class ReverseQuestion(StrictModel):
     reason: str
     status: ReverseQuestionStatus = ReverseQuestionStatus.OPEN
     answer: str | None = None
+    metadata_provenance: list[MetadataProvenance] = Field(default_factory=list)
+    metadata_gap_reason: str | None = None
+    evidence_source: str | None = None
 
     @model_validator(mode="after")
     def answered_questions_require_answer(self) -> "ReverseQuestion":

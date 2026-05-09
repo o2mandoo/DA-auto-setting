@@ -24,6 +24,9 @@ class SystemSqlPanel:
     selected_tables: list[str] = field(default_factory=list)
     selected_joins: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
+    used_context_sources: list[str] = field(default_factory=list)
+    source_status: dict[str, str] = field(default_factory=dict)
+    context_warnings: list[str] = field(default_factory=list)
     execution_allowed: bool = False
 
 

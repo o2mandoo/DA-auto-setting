@@ -145,6 +145,10 @@ def _coerce_query_plan(plan: QueryPlan | Any, packs: Iterable[SemanticPack]) -> 
         used_cards=list(_field(plan, "used_cards", [])),
         confidence=float(_field(plan, "confidence", 0.0)),
         warnings=list(_field(plan, "warnings", [])),
+        used_context_sources=list(_field(plan, "used_context_sources", [])),
+        cards_used=list(_field(plan, "cards_used", [])),
+        source_status=dict(_field(plan, "source_status", {})),
+        context_warnings=list(_field(plan, "context_warnings", [])),
         sql_draft_allowed=bool(_field(plan, "sql_draft_allowed", selected_verified_query is not None)),
     )
 

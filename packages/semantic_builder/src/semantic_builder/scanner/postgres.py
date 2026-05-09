@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any, Sequence
 
 from semantic_builder.connectors.db import ColumnMetadata, DBConnector, SafeScanConfig, TableMetadata
+from semantic_builder.metadata import attach_metadata_gaps, provenance_for_comment
 
 
 @dataclass
@@ -25,17 +26,24 @@ class PostgresScanner:
             column_payloads: list[dict[str, Any]] = []
             for column in columns:
                 column_payloads.append(self._profile_column(table, column, config))
-            report_tables.append(
-                {
-                    "schema_name": table.schema_name,
-                    "table_name": table.table_name,
-                    "qualified_name": f"{table.schema_name}.{table.table_name}",
-                    "table_type": table.table_type,
-                    "is_view": table.is_view,
-                    "is_materialized_view": table.is_materialized_view,
-                    "columns": column_payloads,
-                }
-            )
+            table_payload = {
+                "schema_name": table.schema_name,
+                "table_name": table.table_name,
+                "qualified_name": f"{table.schema_name}.{table.table_name}",
+                "table_type": table.table_type,
+                "is_view": table.is_view,
+                "is_materialized_view": table.is_materialized_view,
+                "description": table.comment,
+                "metadata_provenance": [
+                    provenance_for_comment(
+                        table.comment,
+                        source_detail=f"postgres.table_comment:{table.schema_name}.{table.table_name}",
+                        confidence=0.8 if table.comment else None,
+                    )
+                ],
+                "columns": column_payloads,
+            }
+            report_tables.append(attach_metadata_gaps(table_payload))
         return {
             "connector": "postgres",
             "config": config.to_dict(),
@@ -84,7 +92,15 @@ class PostgresScanner:
         profile["column_type"] = column.data_type
         profile["is_nullable"] = column.is_nullable
         profile["ordinal_position"] = column.ordinal_position
-        return profile
+        profile["description"] = column.comment
+        profile["metadata_provenance"] = [
+            provenance_for_comment(
+                column.comment,
+                source_detail=f"postgres.column_comment:{table.schema_name}.{table.table_name}.{column.column_name}",
+                confidence=0.8 if column.comment else None,
+            )
+        ]
+        return attach_metadata_gaps({"table_name": table.table_name, "columns": [profile]})["columns"][0]
 
 
 def scan_postgres_database(connector: DBConnector, *, config: SafeScanConfig | None = None) -> dict[str, Any]:

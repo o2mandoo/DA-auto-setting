@@ -68,13 +68,17 @@ class PostgresConnector:
     def list_tables(self, config: SafeScanConfig | None = None) -> Sequence[TableMetadata]:
         rows = self._fetchall(
             """
-            SELECT table_schema, table_name, table_type
-            FROM information_schema.tables
-            WHERE table_schema NOT IN ('information_schema', 'pg_catalog')
+            SELECT t.table_schema, t.table_name, t.table_type, obj_description(c.oid, 'pg_class') AS comment
+            FROM information_schema.tables t
+            LEFT JOIN pg_catalog.pg_namespace n ON n.nspname = t.table_schema
+            LEFT JOIN pg_catalog.pg_class c ON c.relnamespace = n.oid AND c.relname = t.table_name
+            WHERE t.table_schema NOT IN ('information_schema', 'pg_catalog')
             UNION ALL
-            SELECT schemaname AS table_schema, matviewname AS table_name, 'MATERIALIZED VIEW' AS table_type
-            FROM pg_matviews
-            WHERE schemaname NOT IN ('information_schema', 'pg_catalog')
+            SELECT m.schemaname AS table_schema, m.matviewname AS table_name, 'MATERIALIZED VIEW' AS table_type, obj_description(c.oid, 'pg_class') AS comment
+            FROM pg_matviews m
+            LEFT JOIN pg_catalog.pg_namespace n ON n.nspname = m.schemaname
+            LEFT JOIN pg_catalog.pg_class c ON c.relnamespace = n.oid AND c.relname = m.matviewname
+            WHERE m.schemaname NOT IN ('information_schema', 'pg_catalog')
             ORDER BY 1, 2, 3
             """
         )
@@ -85,6 +89,7 @@ class PostgresConnector:
                 table_type=str(row[2]),
                 is_view=str(row[2]) == "VIEW",
                 is_materialized_view=str(row[2]) == "MATERIALIZED VIEW",
+                comment=str(row[3]) if len(row) > 3 and row[3] is not None else None,
             )
             for row in rows
         ]
@@ -112,10 +117,13 @@ class PostgresConnector:
     def list_columns(self, schema_name: str, table_name: str, config: SafeScanConfig | None = None) -> Sequence[ColumnMetadata]:
         rows = self._fetchall(
             """
-            SELECT table_schema, table_name, column_name, data_type, is_nullable, ordinal_position
-            FROM information_schema.columns
-            WHERE table_schema = %s AND table_name = %s
-            ORDER BY ordinal_position
+            SELECT c.table_schema, c.table_name, c.column_name, c.data_type, c.is_nullable, c.ordinal_position,
+                   col_description(pc.oid, c.ordinal_position) AS comment
+            FROM information_schema.columns c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.nspname = c.table_schema
+            LEFT JOIN pg_catalog.pg_class pc ON pc.relnamespace = n.oid AND pc.relname = c.table_name
+            WHERE c.table_schema = %s AND c.table_name = %s
+            ORDER BY c.ordinal_position
             """,
             (schema_name, table_name),
         )
@@ -127,6 +135,7 @@ class PostgresConnector:
                 data_type=str(row[3]),
                 is_nullable=str(row[4]).upper() == "YES",
                 ordinal_position=int(row[5]),
+                comment=str(row[6]) if len(row) > 6 and row[6] is not None else None,
             )
             for row in rows
         ]

@@ -83,6 +83,9 @@ class SearchIndex:
         for card in self._cards:
             if allowed_types and card["card_type"] not in allowed_types:
                 continue
+            metadata = dict(card.get("metadata") or {})
+            if metadata.get("can_use_for_text2sql") is False:
+                continue
             haystack = card["search_text"]
             score = _score(normalized_query, terms, haystack)
             if score <= 0:

@@ -188,6 +188,7 @@ class TableMetadata:
     is_view: bool = False
     is_materialized_view: bool = False
     row_count_estimate: int | None = None
+    comment: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         payload = {
@@ -199,6 +200,8 @@ class TableMetadata:
         }
         if self.row_count_estimate is not None:
             payload["row_count_estimate"] = self.row_count_estimate
+        if self.comment is not None:
+            payload["comment"] = self.comment
         return payload
 
 
@@ -213,6 +216,7 @@ class ColumnMetadata:
     is_nullable: bool
     ordinal_position: int
     is_pii: bool = False
+    comment: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -223,6 +227,7 @@ class ColumnMetadata:
             "is_nullable": self.is_nullable,
             "ordinal_position": self.ordinal_position,
             "is_pii": self.is_pii,
+            "comment": self.comment,
         }
 
 

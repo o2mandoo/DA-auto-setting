@@ -102,6 +102,9 @@ def post_product_answer(payload: dict[str, Any], *, pack_root: str | Path = DEFA
             selected_tables=list(plan.candidate_tables),
             selected_joins=list(plan.join_recipes),
             warnings=list(draft.warnings),
+            used_context_sources=list(getattr(plan, "used_context_sources", [])),
+            source_status=dict(getattr(plan, "source_status", {})),
+            context_warnings=list(getattr(plan, "context_warnings", [])),
         ),
         difference_summary_panel=DifferenceSummaryPanel(
             items=[asdict(item) for item in comparison.differences],

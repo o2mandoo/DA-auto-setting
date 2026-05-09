@@ -92,6 +92,10 @@ class PlanDataQueryResponse(StrictModel):
     filters: list[str] = Field(default_factory=list)
     policy_notes: list[str] = Field(default_factory=list)
     ambiguities: list[PlannedAmbiguity] = Field(default_factory=list)
+    used_context_sources: list[str] = Field(default_factory=list)
+    cards_used: list[str] = Field(default_factory=list)
+    source_status: dict[str, str] = Field(default_factory=dict)
+    context_warnings: list[str] = Field(default_factory=list)
     execution_allowed: Literal[False] = False
 
 

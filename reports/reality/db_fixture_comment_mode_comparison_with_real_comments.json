@@ -1,0 +1,56 @@
+{
+  "comparisons": [
+    {
+      "mode": "no_comments",
+      "available": true,
+      "table_name": "orders",
+      "useful_metadata_coverage": 0.0,
+      "reverse_question_count": 12,
+      "text2sql_context_available": false,
+      "pack_draft_quality": "gap_driven_onboarding_required",
+      "runtime_warnings": [
+        "metadata_gap_not_context_truth"
+      ],
+      "baseline_vs_system_sql_difference": "baseline_sql_has_no_domain_context; system_should_surface_reverse_questions_before_sql",
+      "sql_comment_statements": 0,
+      "notes": [
+        "absence is represented as metadata gaps, not a scanner failure"
+      ]
+    },
+    {
+      "mode": "real_comments",
+      "available": true,
+      "table_name": "orders",
+      "useful_metadata_coverage": 0.4286,
+      "reverse_question_count": 8,
+      "text2sql_context_available": true,
+      "pack_draft_quality": "gap_driven_onboarding_required",
+      "runtime_warnings": [
+        "comment_only_draft_context"
+      ],
+      "baseline_vs_system_sql_difference": "system_can_use_real_comment_draft_context_with_warning; baseline_sql_cannot_explain_source",
+      "sql_comment_statements": 3,
+      "notes": [
+        "real comments are usable draft semantic evidence and still require review before approval"
+      ]
+    },
+    {
+      "mode": "synthetic_comments",
+      "available": true,
+      "table_name": "orders",
+      "useful_metadata_coverage": 0.0,
+      "reverse_question_count": 0,
+      "text2sql_context_available": false,
+      "pack_draft_quality": "debug_upper_bound_fixture_only",
+      "runtime_warnings": [
+        "test_only_synthetic_metadata_excluded"
+      ],
+      "baseline_vs_system_sql_difference": "synthetic_comments_help_fixture_debug_only; system_must_exclude_from_product_context",
+      "sql_comment_statements": 7,
+      "notes": [
+        "all generated comments include TEST_ONLY_SYNTHETIC_METADATA",
+        "fixture-only annotations are excluded from product truth"
+      ]
+    }
+  ]
+}

@@ -74,7 +74,8 @@ def build_semantic_pack_draft(
                 "space_id": "local_files",
                 "physical_name": table_name,
                 "title": _title_from_name(table_name),
-                "description": "Draft table inferred from local file input.",
+                "description": _table_description(record, table_name),
+                "metadata_provenance": _metadata_provenance(record),
                 "role": _guess_table_role(table_name),
                 "grain": "one row per source record",
                 "primary_key": _primary_key(column_names),
@@ -101,6 +102,7 @@ def build_semantic_pack_draft(
                     "nullable": bool(column.get("null_count", 0)),
                     "semantic_type": _semantic_type(column_name, column),
                     "description": _column_description(column_name, column),
+                    "metadata_provenance": _metadata_provenance(column),
                     "profile": _contract_profile(column),
                     "pii": {
                         "is_candidate": pii,
@@ -367,6 +369,20 @@ def _semantic_type(column_name: str, column: Mapping[str, Any]) -> str | None:
     if column_name.endswith("_id"):
         return "foreign_key_candidate"
     return None
+
+
+def _metadata_provenance(value: Mapping[str, Any]) -> list[dict[str, Any]]:
+    provenance = value.get("metadata_provenance") or []
+    if isinstance(provenance, Mapping):
+        provenance = [provenance]
+    return [dict(item) for item in provenance if isinstance(item, Mapping)]
+
+
+def _table_description(record: Mapping[str, Any], table_name: str) -> str:
+    description = str(record.get("description") or "").strip()
+    if description:
+        return description
+    return "Draft table inferred from local file or database profile."
 
 
 def _column_description(column_name: str, column: Mapping[str, Any]) -> str:

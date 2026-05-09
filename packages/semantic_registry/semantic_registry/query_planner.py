@@ -63,6 +63,7 @@ class QueryPlanner:
         )
         policy_notes = self._policy_notes_for_role(role)
         ambiguities = self._collect_ambiguities(set(term_ids + metric_ids), matched_terms)
+        context = _context_source_summary([*matched_terms, *matched_metrics])
 
         return PlanDataQueryResponse(
             intent="semantic_context_query_plan",
@@ -73,6 +74,10 @@ class QueryPlanner:
             filters=filters,
             policy_notes=policy_notes,
             ambiguities=ambiguities,
+            used_context_sources=context["used_context_sources"],
+            cards_used=[*term_ids, *metric_ids],
+            source_status=context["source_status"],
+            context_warnings=context["context_warnings"],
             execution_allowed=False,
         )
 
@@ -207,6 +212,32 @@ def policy_limits_for_role(packs: Iterable[SemanticPack], role: str | None) -> t
             blocked_columns.update(column.casefold() for column in policy.blocked_columns)
     return allowed_tables, blocked_columns
 
+
+
+
+def _context_source_summary(items: Iterable[Any]) -> dict[str, Any]:
+    sources: list[str] = []
+    source_status: dict[str, str] = {}
+    warnings: list[str] = []
+    for item in items:
+        for provenance in getattr(item, "metadata_provenance", []) or []:
+            payload = provenance.model_dump(mode="json") if hasattr(provenance, "model_dump") else dict(provenance)
+            source = str(payload.get("metadata_source") or "")
+            if not source:
+                continue
+            sources.append(source)
+            source_status[source] = str(payload.get("status") or "unknown")
+            if source == "real_db_comment" and payload.get("status") == "draft":
+                warnings.append("comment_only_draft_context")
+            if source == "test_only_synthetic_comment" or payload.get("is_test_only") is True:
+                warnings.append("test_only_synthetic_metadata_excluded")
+            if source == "no_comment":
+                warnings.append("metadata_gap_not_context_truth")
+    return {
+        "used_context_sources": _unique(sources),
+        "source_status": source_status,
+        "context_warnings": _unique(warnings),
+    }
 
 def _load_space_packs(space_id: str, pack_root: str | Path) -> list[SemanticPack]:
     store = PackStore(pack_root)

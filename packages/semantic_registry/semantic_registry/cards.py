@@ -147,6 +147,7 @@ def iter_pack_card_documents(pack: SemanticPack, source_path: str | Path | None 
                 "columns": list(table.columns),
                 "pii_level": str(table.pii_level),
                 "confidence": table.confidence,
+                **_provenance_projection(table),
             },
             source_path=source,
         )
@@ -180,6 +181,7 @@ def iter_pack_card_documents(pack: SemanticPack, source_path: str | Path | None 
                 "raw_value_storage": str(column.pii.raw_value_storage),
                 "top_values_safe": column.profile.top_values_safe,
                 "confidence": column.confidence,
+                **_provenance_projection(column),
             },
             source_path=source,
         )
@@ -199,6 +201,7 @@ def iter_pack_card_documents(pack: SemanticPack, source_path: str | Path | None 
                 "table": dictionary.table,
                 "column": dictionary.column,
                 **value_metadata,
+                **_provenance_projection(dictionary),
             },
             source_path=source,
         )
@@ -228,6 +231,7 @@ def iter_pack_card_documents(pack: SemanticPack, source_path: str | Path | None 
                 "required_tables": list(metric.required_tables),
                 "default_filters": list(metric.default_filters),
                 "owner": metric.owner,
+                **_provenance_projection(metric),
             },
             source_path=source,
         )
@@ -255,6 +259,7 @@ def iter_pack_card_documents(pack: SemanticPack, source_path: str | Path | None 
                 "related_tables": list(term.related_tables),
                 "related_metrics": list(term.related_metrics),
                 "ambiguity_policy": term.ambiguity_policy,
+                **_provenance_projection(term),
             },
             source_path=source,
         )
@@ -271,6 +276,7 @@ def iter_pack_card_documents(pack: SemanticPack, source_path: str | Path | None 
                     "parent_term_id": term.id,
                     "condition": rule.condition,
                     "required_when": rule.required_when,
+                    **_provenance_projection(rule),
                 },
                 source_path=source,
             )
@@ -289,6 +295,7 @@ def iter_pack_card_documents(pack: SemanticPack, source_path: str | Path | None 
                 "join_type": join.join_type,
                 "recommended": join.recommended,
                 "warnings": list(join.warnings),
+                **_provenance_projection(join),
             },
             source_path=source,
         )
@@ -307,6 +314,7 @@ def iter_pack_card_documents(pack: SemanticPack, source_path: str | Path | None 
                 "allowed_tables": list(policy.allowed_tables),
                 "blocked_columns": list(policy.blocked_columns),
                 "notes": list(policy.notes),
+                **_provenance_projection(policy),
             },
             source_path=source,
         )
@@ -323,6 +331,7 @@ def iter_pack_card_documents(pack: SemanticPack, source_path: str | Path | None 
                 "question": query.question,
                 "related_terms": list(query.related_terms),
                 "related_metrics": list(query.related_metrics),
+                **_provenance_projection(query),
             },
             source_path=source,
         )
@@ -339,6 +348,7 @@ def iter_pack_card_documents(pack: SemanticPack, source_path: str | Path | None 
                 "target": question.target,
                 "question": question.question,
                 "answer_present": bool(question.answer),
+                **_provenance_projection(question),
             },
             source_path=source,
         )
@@ -388,6 +398,51 @@ def _document(
         metadata=clean_metadata,
         source_path=source_path,
     )
+
+
+def _provenance_projection(item: object) -> dict[str, Any]:
+    provenance_items = list(getattr(item, "metadata_provenance", []) or [])
+    if not provenance_items:
+        return {}
+    payloads: list[dict[str, Any]] = []
+    for provenance in provenance_items:
+        if hasattr(provenance, "model_dump"):
+            payload = provenance.model_dump(mode="json")
+        elif isinstance(provenance, Mapping):
+            payload = dict(provenance)
+        else:
+            continue
+        payloads.append(payload)
+    if not payloads:
+        return {}
+    sources = [str(payload.get("metadata_source")) for payload in payloads if payload.get("metadata_source")]
+    can_use = any(payload.get("can_use_for_text2sql") is True for payload in payloads)
+    has_blocking = any(
+        payload.get("is_test_only") is True
+        or payload.get("metadata_source") in {"no_comment", "test_only_synthetic_comment"}
+        for payload in payloads
+    )
+    return {
+        "metadata_provenance": payloads,
+        "metadata_sources": sources,
+        "metadata_source": sources[0] if sources else None,
+        "can_use_for_text2sql": bool(can_use and not has_blocking),
+        "source_status": [str(payload.get("status")) for payload in payloads if payload.get("status")],
+        "context_warnings": _provenance_warnings(payloads),
+    }
+
+
+def _provenance_warnings(payloads: list[dict[str, Any]]) -> list[str]:
+    warnings: list[str] = []
+    for payload in payloads:
+        source = payload.get("metadata_source")
+        if source == "real_db_comment" and payload.get("status") == "draft":
+            warnings.append("comment_only_draft_context")
+        if source == "no_comment":
+            warnings.append("metadata_gap_not_context_truth")
+        if source == "test_only_synthetic_comment" or payload.get("is_test_only") is True:
+            warnings.append("test_only_synthetic_metadata_excluded")
+    return sorted(set(warnings))
 
 
 def _safe_value_dictionary_projection(dictionary: object, *, values_are_safe: bool) -> tuple[str, dict[str, Any]]:

@@ -521,6 +521,7 @@ def _hypothesis(
         "confidence": round(confidence, 2),
         "status": _DRAFT_STATUS,
         "source": "deterministic_mock_provider",
+        "metadata_provenance": _provenance_from_evidence(evidence),
         "evidence": evidence,
         "uncertainties": sorted(set(uncertainties)),
         "payload": payload,
@@ -534,6 +535,7 @@ def _question(record_id: str, *, target: str, question: str, reason: str, eviden
         "question": question,
         "reason": reason,
         "status": _OPEN_STATUS,
+        "metadata_provenance": _provenance_from_evidence(evidence),
         "evidence": evidence,
     }
 
@@ -549,7 +551,79 @@ def _evidence(record: ProfileRecord, record_index: int, column_name: str | None)
         evidence["sheet_name"] = record.get("sheet_name")
     if column_name is not None:
         evidence["column_name"] = column_name
+    subject = _column_by_name(record, column_name) if column_name is not None else record
+    metadata_source = _metadata_source(subject)
+    gap_reason = _first_gap_reason(subject)
+    if metadata_source:
+        evidence["metadata_source"] = metadata_source
+    if gap_reason:
+        evidence["metadata_gap_reason"] = gap_reason
     return evidence
+
+
+def _column_by_name(record: ProfileRecord, column_name: str | None) -> Mapping[str, Any]:
+    for column in _safe_columns(record):
+        if str(column.get("name")) == str(column_name):
+            return column
+    return {}
+
+
+def _metadata_source(value: Mapping[str, Any]) -> str | None:
+    provenance = value.get("metadata_provenance") or []
+    if isinstance(provenance, Mapping):
+        provenance = [provenance]
+    for item in provenance:
+        if isinstance(item, Mapping) and item.get("metadata_source"):
+            return str(item.get("metadata_source"))
+    return str(value.get("metadata_source")) if value.get("metadata_source") else None
+
+
+def _first_gap_reason(value: Mapping[str, Any]) -> str | None:
+    gaps = value.get("metadata_gaps") or []
+    if isinstance(gaps, list) and gaps:
+        first = gaps[0]
+        if isinstance(first, Mapping):
+            return str(first.get("metadata_gap_reason") or "metadata_gap")
+    provenance = value.get("metadata_provenance") or []
+    if isinstance(provenance, Mapping):
+        provenance = [provenance]
+    for item in provenance:
+        if isinstance(item, Mapping) and item.get("metadata_gap_reason"):
+            return str(item.get("metadata_gap_reason"))
+    return None
+
+
+def _provenance_from_evidence(evidence: list[JsonObject]) -> list[JsonObject]:
+    result: list[JsonObject] = []
+    seen: set[tuple[str, str | None]] = set()
+    for item in evidence:
+        source = item.get("metadata_source")
+        if not source:
+            continue
+        gap_reason = item.get("metadata_gap_reason")
+        key = (str(source), str(gap_reason) if gap_reason else None)
+        if key in seen:
+            continue
+        seen.add(key)
+        payload: JsonObject = {
+            "metadata_source": source,
+            "status": "draft",
+            "is_test_only": source == "test_only_synthetic_comment",
+            "can_use_for_text2sql": source == "real_db_comment",
+            "requires_human_confirmation": source not in {"human_confirmed", "verified_query"},
+        }
+        if gap_reason:
+            payload["metadata_gap_reason"] = gap_reason
+        result.append(payload)
+    if not result:
+        result.append({
+            "metadata_source": "llm_hypothesis",
+            "status": "draft",
+            "is_test_only": False,
+            "can_use_for_text2sql": False,
+            "requires_human_confirmation": True,
+        })
+    return result
 
 
 def _source_ref(record: ProfileRecord) -> JsonObject:

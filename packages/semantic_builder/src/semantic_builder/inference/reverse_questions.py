@@ -44,6 +44,8 @@ class EvidenceReference:
     column: str | None = None
     source_name: str | None = None
     sheet_name: str | None = None
+    metadata_source: str | None = None
+    metadata_gap_reason: str | None = None
     safe_reference: bool = True
 
     def to_dict(self) -> dict[str, Any]:
@@ -56,6 +58,10 @@ class EvidenceReference:
             payload["source_name"] = self.source_name
         if self.sheet_name:
             payload["sheet_name"] = self.sheet_name
+        if self.metadata_source:
+            payload["metadata_source"] = self.metadata_source
+        if self.metadata_gap_reason:
+            payload["metadata_gap_reason"] = self.metadata_gap_reason
         return payload
 
 
@@ -71,6 +77,12 @@ class ReverseQuestion:
     status: str = "open"
     priority: str = "medium"
     evidence: tuple[EvidenceReference, ...] = field(default_factory=tuple)
+    evidence_source: str | None = None
+    metadata_gap_reason: str | None = None
+    expected_answer_type: str = "text"
+    candidate_options: tuple[str, ...] = field(default_factory=tuple)
+    severity: str = "medium"
+    risk_if_unanswered: str = "semantic_context_remains_draft"
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -82,6 +94,12 @@ class ReverseQuestion:
             "status": self.status,
             "priority": self.priority,
             "evidence": [item.to_dict() for item in self.evidence],
+            "evidence_source": self.evidence_source or _first_evidence_source(self.evidence),
+            "metadata_gap_reason": self.metadata_gap_reason,
+            "expected_answer_type": self.expected_answer_type,
+            "candidate_options": list(self.candidate_options),
+            "severity": self.severity,
+            "risk_if_unanswered": self.risk_if_unanswered,
         }
 
 
@@ -118,6 +136,8 @@ def generate_reverse_questions(
         table = _safe_identifier(record.get("table_name") or record.get("name") or "unknown_table")
         columns = [_column_dict(column) for column in record.get("columns", []) if isinstance(column, Mapping)]
         table_evidence = (_evidence(record, table=table),)
+        for gap in _metadata_gaps(record):
+            questions.append(_question_from_gap(gap, record, table=table))
 
         if not columns:
             questions.append(
@@ -182,7 +202,41 @@ def generate_reverse_questions(
 
         for column in columns:
             column_name = _safe_identifier(column.get("name"))
-            evidence = (_evidence(record, table=table, column=column_name),)
+            evidence = (_evidence(record, table=table, column=column_name, column_record=column),)
+            for gap in _metadata_gaps(column):
+                questions.append(_question_from_gap(gap, record, table=table, column=column_name, column_record=column))
+            if _has_vague_comment(column):
+                questions.append(
+                    _question(
+                        category="comment_clarification",
+                        target=f"column.{table}.{column_name}",
+                        question=f"The DB comment for `{table}.{column_name}` is vague. What exact business meaning should it carry?",
+                        reason="A real DB comment exists but is too generic to serve as reliable Text-to-SQL context without clarification.",
+                        priority="medium",
+                        evidence=evidence,
+                        metadata_gap_reason="vague_db_comment",
+                        expected_answer_type="business_definition",
+                        candidate_options=("business term", "value dictionary", "ignore column"),
+                        severity="medium",
+                        risk_if_unanswered="comment_only_context_may_be_misleading",
+                    )
+                )
+            if _comment_conflicts_with_profile(column):
+                questions.append(
+                    _question(
+                        category="comment_profile_conflict",
+                        target=f"column.{table}.{column_name}",
+                        question=f"DB comment/profile evidence for `{table}.{column_name}` conflict. Which meaning is correct?",
+                        reason="Comment text conflicts with the profiled type or name hints, so semantics must be confirmed.",
+                        priority="high",
+                        evidence=evidence,
+                        metadata_gap_reason="comment_profile_conflict",
+                        expected_answer_type="clarification",
+                        candidate_options=("trust DB comment", "trust profile", "provide corrected definition"),
+                        severity="high",
+                        risk_if_unanswered="sql_generation_may_use_wrong_column_semantics",
+                    )
+                )
             if _is_pii_column(column):
                 questions.append(
                     _question(
@@ -197,7 +251,7 @@ def generate_reverse_questions(
                         evidence=evidence,
                     )
                 )
-            if _has_weak_evidence(column):
+            if _has_weak_evidence(column) and not _has_informative_real_comment(column):
                 questions.append(
                     _question(
                         category="missing_evidence",
@@ -269,6 +323,11 @@ def _question(
     reason: str,
     evidence: Sequence[EvidenceReference],
     priority: str,
+    metadata_gap_reason: str | None = None,
+    expected_answer_type: str = "text",
+    candidate_options: Sequence[str] = (),
+    severity: str | None = None,
+    risk_if_unanswered: str = "semantic_context_remains_draft",
 ) -> ReverseQuestion:
     safe_target = _safe_target(target)
     digest = hashlib.sha1(f"{category}|{safe_target}|{question}".encode("utf-8")).hexdigest()[:10]
@@ -280,6 +339,12 @@ def _question(
         category=category,
         priority=priority,
         evidence=tuple(evidence),
+        evidence_source=_first_evidence_source(evidence),
+        metadata_gap_reason=metadata_gap_reason,
+        expected_answer_type=expected_answer_type,
+        candidate_options=tuple(candidate_options),
+        severity=severity or priority,
+        risk_if_unanswered=risk_if_unanswered,
     )
 
 
@@ -305,10 +370,14 @@ def _column_dict(column: Mapping[str, Any]) -> dict[str, Any]:
         "cardinality_estimate": column.get("cardinality_estimate"),
         "join_key_candidate": column.get("join_key_candidate"),
         "pii": dict(column.get("pii") or {}),
+        "description": column.get("description"),
+        "metadata_source": column.get("metadata_source"),
+        "metadata_provenance": column.get("metadata_provenance") or [],
+        "metadata_gaps": column.get("metadata_gaps") or [],
     }
 
 
-def _evidence(record: Mapping[str, Any], *, table: str, column: str | None = None) -> EvidenceReference:
+def _evidence(record: Mapping[str, Any], *, table: str, column: str | None = None, column_record: Mapping[str, Any] | None = None) -> EvidenceReference:
     source_ref = record.get("source_ref") if isinstance(record.get("source_ref"), Mapping) else {}
     source_type = str(source_ref.get("type") or record.get("source_type") or _infer_source_type(record))
     source_name = source_ref.get("name") or record.get("source_name") or record.get("path")
@@ -318,8 +387,121 @@ def _evidence(record: Mapping[str, Any], *, table: str, column: str | None = Non
         column=_safe_identifier(column) if column else None,
         source_name=_safe_source_name(source_name),
         sheet_name=_safe_source_name(record.get("sheet_name")),
+        metadata_source=_metadata_source(column_record or record),
+        metadata_gap_reason=_first_gap_reason(column_record or record),
         safe_reference=True,
     )
+
+
+def _metadata_gaps(value: Mapping[str, Any]) -> list[dict[str, Any]]:
+    gaps = value.get("metadata_gaps") or []
+    return [dict(item) for item in gaps if isinstance(item, Mapping)]
+
+
+def _question_from_gap(gap: Mapping[str, Any], record: Mapping[str, Any], *, table: str, column: str | None = None, column_record: Mapping[str, Any] | None = None) -> ReverseQuestion:
+    reason = str(gap.get("metadata_gap_reason") or "metadata_gap")
+    target = str(gap.get("target") or (f"column.{table}.{column}" if column else f"table.{table}"))
+    expected = str(gap.get("expected_answer_type") or "text")
+    severity = str(gap.get("severity") or "medium")
+    return _question(
+        category="metadata_gap",
+        target=target,
+        question=_gap_question(target, reason, expected),
+        reason=f"Metadata gap detected: {reason}.",
+        priority="high" if severity == "high" else "medium",
+        evidence=(_evidence(record, table=table, column=column, column_record=column_record),),
+        metadata_gap_reason=reason,
+        expected_answer_type=expected,
+        candidate_options=_gap_options(reason),
+        severity=severity,
+        risk_if_unanswered=_gap_risk(reason),
+    )
+
+
+def _gap_question(target: str, reason: str, expected: str) -> str:
+    return f"For `{target}`, what {expected} should be confirmed because {reason.replace('_', ' ')}?"
+
+
+def _gap_options(reason: str) -> tuple[str, ...]:
+    if "date" in reason:
+        return ("created_at", "updated_at", "paid_at", "other")
+    if "metric" in reason:
+        return ("sum", "count", "average", "not a metric")
+    if "abstract" in reason or "status" in reason:
+        return ("value dictionary", "business term", "ignore")
+    if "join" in reason:
+        return ("primary key", "foreign key", "not a join key")
+    return ("confirm definition", "needs owner review", "ignore")
+
+
+def _gap_risk(reason: str) -> str:
+    if "date" in reason:
+        return "time_filters_may_use_wrong_date_basis"
+    if "metric" in reason:
+        return "sql_generation_may_use_wrong_metric"
+    if "pii" in reason:
+        return "pii_policy_may_be_unsafe"
+    return "semantic_context_remains_ambiguous"
+
+
+def _metadata_source(value: Mapping[str, Any] | None) -> str | None:
+    if not value:
+        return None
+    provenance = value.get("metadata_provenance") or []
+    if isinstance(provenance, Mapping):
+        provenance = [provenance]
+    for item in provenance:
+        if isinstance(item, Mapping) and item.get("metadata_source"):
+            return str(item.get("metadata_source"))
+    return str(value.get("metadata_source")) if value.get("metadata_source") else None
+
+
+def _first_gap_reason(value: Mapping[str, Any] | None) -> str | None:
+    if not value:
+        return None
+    gaps = _metadata_gaps(value)
+    if gaps:
+        return str(gaps[0].get("metadata_gap_reason") or "metadata_gap")
+    provenance = value.get("metadata_provenance") or []
+    if isinstance(provenance, Mapping):
+        provenance = [provenance]
+    for item in provenance:
+        if isinstance(item, Mapping) and item.get("metadata_gap_reason"):
+            return str(item.get("metadata_gap_reason"))
+    return None
+
+
+def _first_evidence_source(evidence: Sequence[EvidenceReference]) -> str | None:
+    for item in evidence:
+        if item.metadata_source:
+            return item.metadata_source
+        if item.source_type:
+            return item.source_type
+    return None
+
+
+def _has_informative_real_comment(column: Mapping[str, Any]) -> bool:
+    return _metadata_source(column) == "real_db_comment" and len(str(column.get("description") or "").strip()) >= 12
+
+
+def _has_vague_comment(column: Mapping[str, Any]) -> bool:
+    if _metadata_source(column) != "real_db_comment":
+        return False
+    text = str(column.get("description") or "").strip().casefold()
+    return text in {"status", "type", "code", "value", "data"} or len(text) < 8
+
+
+def _comment_conflicts_with_profile(column: Mapping[str, Any]) -> bool:
+    if _metadata_source(column) != "real_db_comment":
+        return False
+    description = str(column.get("description") or "").casefold()
+    type_guess = str(column.get("type_guess") or "").casefold()
+    name = str(column.get("name") or "").casefold()
+    if "date" in description and type_guess == "number":
+        return True
+    if ("amount" in name or "price" in name) and ("name" in description or "identifier" in description):
+        return True
+    return False
 
 
 def _hypothesis_evidence(hypothesis: Mapping[str, Any]) -> tuple[EvidenceReference, ...]:
