@@ -9,6 +9,7 @@
     "dependency_snapshot.txt": "reports/productization/PR1_PIP_FREEZE.txt"
   },
   "derived_artifacts": [
+    "final_verifier_report.md",
     "release_summary.md",
     "test_evidence.md",
     "api_mcp_n8n_surface_summary.md",

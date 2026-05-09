@@ -8,3 +8,5 @@
 - Release posture: `reports/productization/PRODUCTION_READINESS_MATRIX.md`, `reports/productization/PRODUCTION_RISK_REGISTER.md`
 - Dependency snapshot: `reports/productization/PR1_PIP_FREEZE.txt`
 - Test evidence references: `reports/productization/PR1_FINAL_VERIFIER_EVIDENCE.md`, `reports/productization/mysql_db_target_test_report.md`, `reports/productization/mysql_db_target_readiness_report.md`, `reports/final/final_integration_report.md`
+- Metadata provenance / comment-mode rules: `docs/product/METADATA_PROVENANCE_RULES.md`, `reports/productization/br0_metadata_provenance_rules_report.md`, `reports/productization/br4_text2sql_context_provenance_report.md`, `reports/productization/br5_db_fixture_harness_alignment_report.md`, `reports/productization/final_n8n_readiness_evaluate_after_comment_rules.md`
+- Baseline SQL comparison evidence: `docs/product/BASELINE_COMPARISON_SPEC.md`, `reports/productization/phase14_baseline_sql_runner.md`

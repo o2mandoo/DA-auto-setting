@@ -10,6 +10,7 @@ Clone-ready for local validation and demo operation, not production ready.
 
 ## Included evidence
 
+- Final verifier report: `final_verifier_report.md`
 - Readiness matrix: `readiness_matrix.md`
 - Risk register: `risk_register.md`
 - Dependency snapshot: `dependency_snapshot.txt`
