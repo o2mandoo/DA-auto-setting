@@ -3,6 +3,14 @@
 This repository is a local, validation-first Semantic Data Context system.
 It is not a dashboard, SaaS BI product, or production SQL execution engine.
 
+For a first-time clone, start with:
+
+1. `python3 scripts/setup/bootstrap.py --check-only`
+2. `cp .env.example .env` or `python3 scripts/setup/bootstrap.py --copy-env`
+3. `make setup`
+4. `make env-check`
+5. `make demo`
+
 ## Quick start
 
 ```bash
