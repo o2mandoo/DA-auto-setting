@@ -80,6 +80,11 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert any(item["gate"].startswith("PR-4") and item["status"] == "present" for item in manifest["evidence_coverage"])
     assert any(item["gate"].startswith("PR-7") and item["status"] == "partial" for item in manifest["evidence_coverage"])
     assert manifest["support_levels"]
+    assert manifest["known_limitations"]
+    limitation_by_status = {item["status"]: item for item in manifest["known_limitations"]}
+    assert "unsupported" in limitation_by_status
+    assert "evidence_gated" in limitation_by_status
+    assert any(item["limitation"] == "Production SQL execution is forbidden." for item in manifest["known_limitations"])
     support_by_surface = {item["surface"]: item for item in manifest["support_levels"]}
     assert support_by_surface["Oracle"]["support_level"] == "unsupported"
     assert support_by_surface["Production execute_query"]["support_level"] == "forbidden"
@@ -103,6 +108,10 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
 
     assert "Risk register" in risk_register or "Risk Register" in risk_register
     assert "Known limitations" in known_limitations or "known limitations" in known_limitations
+    assert "Structured known limitations" in known_limitations
+    assert "Production SQL execution is forbidden" in known_limitations
+    assert "Oracle is unsupported" in known_limitations
+    assert "Synthetic comments are fixture-only" in known_limitations
     assert "Support matrix" in support_matrix or "support matrix" in support_matrix
     assert "Structured support levels" in support_matrix
     assert "Production execute_query" in support_matrix
@@ -131,6 +140,7 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert loaded["baseline_system_sql_comparison_evidence"]
     assert loaded["artifacts"]["risk_register"] == "risk_register.md"
     assert loaded["artifacts"]["known_limitations"] == "known_limitations.md"
+    assert loaded["known_limitations"]
     assert loaded["artifacts"]["support_matrix"] == "support_matrix.md"
     assert loaded["artifacts"]["readiness_matrix"] == "readiness_matrix.md"
     assert loaded["artifacts"]["dependency_snapshot"] == "dependency_snapshot.txt"
