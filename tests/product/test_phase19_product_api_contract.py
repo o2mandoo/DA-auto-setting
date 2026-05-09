@@ -22,6 +22,7 @@ def test_all_required_product_api_routes_exist() -> None:
 def test_product_api_answer_and_compare_routes_are_callable() -> None:
     answer = handle_product_api("POST", "/api/product/answer", {"question": "월별 신규 고객 순매출을 보여줘"})
     assert answer["execution_allowed"] is False
+    assert answer["baseline_sql_panel"]["not_executed"] is True
 
     comparison = handle_product_api(
         "POST",
@@ -29,6 +30,8 @@ def test_product_api_answer_and_compare_routes_are_callable() -> None:
         {"question": "매출", "baseline_sql": "SELECT SUM(payments.amount) FROM payments", "system_sql": None},
     )
     assert comparison["execution_allowed"] is False
+    assert comparison["baseline_profile"]["not_executed"] is True
+    assert comparison["system_profile"]["not_executed"] is True
 
 
 def test_product_api_audit_redacts_raw_pii(tmp_path: Path, monkeypatch) -> None:
