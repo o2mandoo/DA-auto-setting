@@ -68,6 +68,11 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert manifest["safety_checks"]["no_raw_pii_claim"] is True
     assert manifest["safety_checks"]["dependency_snapshot_present"] is True
     assert manifest["metadata_provenance_rules"]
+    assert manifest["comment_mode_rules"]
+    comment_modes = {rule["comment_mode"]: rule for rule in manifest["comment_mode_rules"]}
+    assert comment_modes["real_comments"]["metadata_source"] == "real_db_comment"
+    assert comment_modes["no_comments"]["metadata_source"] == "no_comment"
+    assert comment_modes["synthetic_comments"]["metadata_source"] == "test_only_synthetic_comment"
     assert {rule["source"] for rule in manifest["metadata_provenance_rules"]} >= {
         "real_db_comment",
         "no_comment",
@@ -123,6 +128,10 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert "Production Readiness Matrix" in readiness_matrix
     assert "PR-0 through PR-7" in evidence_index or "PR-0" in evidence_index
     assert "MCP" in surface_summary and "n8n" in surface_summary
+    assert "DB comment-mode rules" in surface_summary
+    assert "`real_comments`" in surface_summary and "`real_db_comment`" in surface_summary
+    assert "`no_comments`" in surface_summary and "`no_comment`" in surface_summary
+    assert "`synthetic_comments`" in surface_summary and "`test_only_synthetic_comment`" in surface_summary
     assert "Test Evidence" in test_evidence
     assert "make release-test" in test_evidence
     assert dependency_snapshot.strip() != ""
@@ -140,6 +149,7 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert loaded["artifacts"]["dependency_snapshot"] == "dependency_snapshot.txt"
     assert loaded["artifacts"]["evidence_index"] == "evidence_index.md"
     assert loaded["artifacts"]["api_mcp_n8n_surface_summary"] == "api_mcp_n8n_surface_summary.md"
+    assert loaded["comment_mode_rules"]
     assert loaded["artifacts"]["test_evidence"] == "test_evidence.md"
 
 
