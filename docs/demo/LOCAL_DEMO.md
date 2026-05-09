@@ -3,11 +3,11 @@
 This demo runs the complete local path without external services or production database credentials.
 
 ```bash
-PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src:/tmp/semantic-data-context-deps \
+PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src \
 python3 scripts/demo/run_local_demo.py
 ```
 
-Run this from the repository root. If you already have a virtualenv active, keep the repository package paths ahead of `/tmp/semantic-data-context-deps` so the checkout code wins over any temporary dependency cache.
+Run this from the repository root. If you already have a virtualenv active, keep the repository package paths ahead of any temporary dependency cache so the checkout code wins over installed packages.
 
 The script performs:
 
