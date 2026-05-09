@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Sequence
+from typing import Any, ClassVar, Sequence
 
 from semantic_builder.connectors.db import ColumnMetadata, DBConnector, SafeScanConfig, TableMetadata
 from semantic_builder.metadata import attach_metadata_gaps, provenance_for_comment
@@ -15,8 +15,8 @@ class PostgresScanner:
 
     connector: DBConnector
     config: SafeScanConfig | None = None
-    connector_name: str = "postgres"
-    source_detail_prefix: str = "postgres"
+    connector_name: ClassVar[str] = "postgres"
+    source_detail_prefix: ClassVar[str] = "postgres"
 
     def scan(self) -> dict[str, Any]:
         config = self.config or SafeScanConfig()

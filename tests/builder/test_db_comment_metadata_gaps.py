@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from semantic_builder.connectors.db import ColumnMetadata, SafeScanConfig, TableMetadata
 from semantic_builder.metadata import TEST_ONLY_SYNTHETIC_METADATA_MARKER
-from semantic_builder.scanner import PostgresScanner
+from semantic_builder.scanner import MySQLScanner, PostgresScanner
 
 
 class _CommentConnector:
@@ -52,12 +52,31 @@ def _scan(connector: _CommentConnector):
     return PostgresScanner(connector, SafeScanConfig(max_tables=5, max_columns=10)).scan()["tables"][0]
 
 
+def _scan_mysql(connector: _CommentConnector):
+    return MySQLScanner(connector, SafeScanConfig(max_tables=5, max_columns=10)).scan()["tables"][0]
+
+
 def test_real_db_comments_are_scanned_as_product_usable_provenance() -> None:
     table = _scan(_CommentConnector(table_comment="Real sales orders", column_comments={"amount": "Net payment amount"}))
     assert table["metadata_provenance"][0]["metadata_source"] == "real_db_comment"
     amount = next(col for col in table["columns"] if col["column_name"] == "amount")
     assert amount["metadata_provenance"][0]["metadata_source"] == "real_db_comment"
     assert amount["metadata_provenance"][0]["can_use_for_text2sql"] is True
+
+
+def test_real_mysql_comments_are_product_usable_draft_provenance() -> None:
+    table = _scan_mysql(_CommentConnector(table_comment="Real MySQL sales orders", column_comments={"amount": "Net payment amount from MySQL"}))
+    table_provenance = table["metadata_provenance"][0]
+    assert table_provenance["metadata_source"] == "real_db_comment"
+    assert table_provenance["source_detail"] == "mysql.table_comment:semantic_fixture_sales.orders"
+    assert table_provenance["can_use_for_text2sql"] is True
+
+    amount = next(col for col in table["columns"] if col["column_name"] == "amount")
+    column_provenance = amount["metadata_provenance"][0]
+    assert column_provenance["metadata_source"] == "real_db_comment"
+    assert column_provenance["source_detail"] == "mysql.column_comment:semantic_fixture_sales.orders.amount"
+    assert column_provenance["can_use_for_text2sql"] is True
+    assert column_provenance["is_test_only"] is False
 
 
 def test_missing_comments_are_no_comment_gaps_without_scanner_failure() -> None:
