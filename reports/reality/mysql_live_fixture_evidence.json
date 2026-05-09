@@ -1,0 +1,35 @@
+{
+  "backend": "mysql",
+  "fixture_only": true,
+  "fallback_used": false,
+  "fallback_backend": null,
+  "dsn_configured": false,
+  "status": {
+    "backend": "mysql",
+    "status": "pending",
+    "attempted": false,
+    "safe": false,
+    "reasons": [
+      "SEMANTIC_CONTEXT_MYSQL_FIXTURE_DSN is not set; no fallback backend was used"
+    ],
+    "executed_statement_count": 0,
+    "row_count": 0,
+    "plan_checksum": null
+  },
+  "sql_plan": {
+    "schema_name": "semantic_fixture_mysql_scope_c",
+    "table_name": "orders",
+    "statements": [
+      "CREATE DATABASE IF NOT EXISTS `semantic_fixture_mysql_scope_c`;",
+      "DROP TABLE IF EXISTS `semantic_fixture_mysql_scope_c`.`orders`;",
+      "CREATE TABLE `semantic_fixture_mysql_scope_c`.`orders` (`status` TEXT COMMENT 'Order lifecycle status', `amount` TEXT COMMENT 'Order amount represented as fixture text', `order_date` TEXT COMMENT 'Order date represented as fixture text') COMMENT='Fixture-only order table for MySQL scope C validation';",
+      "INSERT INTO `semantic_fixture_mysql_scope_c`.`orders` (`status`, `amount`, `order_date`) VALUES ('PAID', '100.00', '2026-01-01');",
+      "INSERT INTO `semantic_fixture_mysql_scope_c`.`orders` (`status`, `amount`, `order_date`) VALUES ('REFUNDED', '20.00', '2026-01-02');"
+    ],
+    "row_count": 2,
+    "checksum": "0a96cada577b449c",
+    "mode": "real_comments",
+    "backend": "mysql"
+  },
+  "generated_at": "2026-05-09T09:06:27.712065+00:00"
+}

@@ -20,6 +20,14 @@ class MySQLScanner(PostgresScanner):
     connector_name = "mysql"
     source_detail_prefix = "mysql"
 
+    def __init__(self, connector: DBConnector, config: SafeScanConfig | None = None) -> None:
+        super().__init__(
+            connector=connector,
+            config=config,
+            connector_name=self.connector_name,
+            source_detail_prefix=self.source_detail_prefix,
+        )
+
 
 def scan_mysql_database(connector: DBConnector, *, config: SafeScanConfig | None = None) -> dict[str, Any]:
     """Convenience wrapper for MySQL connectors that implement DBConnector."""

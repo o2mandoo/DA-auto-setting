@@ -195,25 +195,25 @@ def test_postgres_live_loader_executes_only_when_local_gate_passes() -> None:
 def test_mysql_fixture_safety_requires_local_semantic_fixture_database_and_env() -> None:
     unsafe = assert_mysql_fixture_environment(
         dsn="mysql://prod.example.com/warehouse",
-        database_name="warehouse",
+        schema_name="warehouse",
         env={},
     )
     assert unsafe.safe is False
     assert any("SEMANTIC_CONTEXT_FIXTURE_DB" in reason for reason in unsafe.reasons)
-    assert any("database/schema name" in reason for reason in unsafe.reasons)
+    assert any(("schema_name" in reason or "database name" in reason) for reason in unsafe.reasons)
     assert any("host must be local" in reason for reason in unsafe.reasons)
     assert any("production" in reason for reason in unsafe.reasons)
 
     safe = assert_mysql_fixture_environment(
         dsn="mysql://localhost/semantic_fixture_lab",
-        database_name="semantic_fixture_lab",
+        schema_name="semantic_fixture_lab",
         env={"SEMANTIC_CONTEXT_FIXTURE_DB": "1"},
     )
     assert safe.safe is True
 
     wrong_backend = assert_mysql_fixture_environment(
         dsn="postgresql://localhost/semantic_fixture_lab",
-        database_name="semantic_fixture_lab",
+        schema_name="semantic_fixture_lab",
         env={"SEMANTIC_CONTEXT_FIXTURE_DB": "1"},
     )
     assert wrong_backend.safe is False
