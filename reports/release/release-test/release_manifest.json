@@ -173,8 +173,8 @@
     "partial": 1,
     "present": 7
   },
-  "generated_at": "2026-05-09T15:46:14.104164+00:00",
-  "git_commit": "0cffa4815a732928fbceae02a1b631ec899e2b5d",
+  "generated_at": "2026-05-09T16:24:56.598218+00:00",
+  "git_commit": "fdf1f337fce7f4586cf4dd7d26f385a56eb0e412",
   "known_limitations": [
     {
       "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
