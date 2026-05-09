@@ -12,6 +12,7 @@ async function loadSample() {
   document.querySelector('#system-sql-panel pre').textContent = model.system_sql_panel.sql || '(none)';
   document.querySelector('#difference-summary-panel ul').innerHTML = model.difference_summary_panel.items.map((item) => `<li>${item.category}: ${item.message}</li>`).join('');
   document.querySelector('#applied-definitions-panel pre').textContent = JSON.stringify(model.applied_definitions_panel, null, 2);
+  document.querySelector('#comment-mode-comparison-panel pre').textContent = JSON.stringify(model.comment_mode_comparison_panel, null, 2);
   document.querySelector('#verification-panel pre').textContent = JSON.stringify(model.verification_panel, null, 2);
   document.querySelector('#failure-state-panel pre').textContent = JSON.stringify(model.failure_state_panel, null, 2);
   document.querySelector('#preview-result-panel pre').textContent = JSON.stringify(model.preview_result_panel, null, 2);

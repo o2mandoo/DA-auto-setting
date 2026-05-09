@@ -19,6 +19,15 @@ class LocalDemoE2ETest(unittest.TestCase):
         self.assertGreaterEqual(payload["counts"]["scan_datasets"], 3)
         self.assertGreaterEqual(payload["counts"]["questions"], 1)
         self.assertEqual(payload["lifecycle"]["confirmation_status"], "approved")
+        self.assertEqual(payload["comment_mode_comparison_panel"]["selected_comment_mode"], "no_comments")
+        self.assertEqual(
+            [item["mode"] for item in payload["comment_mode_comparison_panel"]["comparisons"]],
+            ["no_comments", "real_comments", "synthetic_comments"],
+        )
+        self.assertEqual(
+            payload["comment_mode_comparison_panel"]["comparisons"][1]["runtime_warnings"],
+            ["comment_only_draft_context"],
+        )
         self.assertFalse(payload["mcp_like"]["blocked_sql_valid"])
         self.assertFalse(payload["mcp_like"]["blocked_sql_execution_allowed"])
         self.assertFalse(payload["mcp_like"]["preview_execution_allowed"])
