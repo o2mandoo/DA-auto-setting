@@ -26,6 +26,12 @@ jobs:
           python -m pip install -e packages/semantic_mcp
           python -m pip install -e 'packages/semantic_builder[test]'
 
+      - name: Run make env-check
+        run: make env-check
+
+      - name: Run make test
+        run: PYTHONDONTWRITEBYTECODE=1 make test
+
       - name: Validate clone-ready setup helper
         run: python scripts/setup/clone_ready_setup.py
 
