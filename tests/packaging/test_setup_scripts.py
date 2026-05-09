@@ -21,7 +21,7 @@ class SetupScriptsPackagingTests(unittest.TestCase):
         self.assertTrue(SETUP_DIR.exists(), SETUP_DIR)
         self.assertTrue(expected.issubset({path.name for path in SETUP_DIR.iterdir()}))
 
-    def test_clone_ready_setup_prints_repo_paths_before_temp_bundle(self) -> None:
+    def test_clone_ready_setup_prints_repo_paths_without_temp_bundle(self) -> None:
         completed = subprocess.run(
             [sys.executable, str(SETUP_DIR / "clone_ready_setup.py")],
             check=True,
@@ -33,11 +33,21 @@ class SetupScriptsPackagingTests(unittest.TestCase):
         self.assertIn("clone-ready setup checks: PASS", stdout)
         self.assertIn("cp .env.example .env", stdout)
         self.assertIn("python3 scripts/demo/run_local_demo.py", stdout)
-        self.assertIn("packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src:/tmp/semantic-data-context-deps", stdout)
-        self.assertLess(
-            stdout.index("packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src:/tmp/semantic-data-context-deps"),
-            stdout.index("python3 scripts/demo/run_local_demo.py"),
+        self.assertIn(
+            "packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src",
+            stdout,
         )
+        self.assertNotIn("/tmp/semantic-data-context-deps", stdout)
+
+    def test_setup_docs_and_helper_do_not_depend_on_hidden_temp_bundle(self) -> None:
+        contents = [
+            Path("docs/setup/README.md").read_text(encoding="utf-8"),
+            Path("docs/setup/DEVELOPMENT.md").read_text(encoding="utf-8"),
+            Path("docs/setup/CLONE_READY_USAGE_SUMMARY.md").read_text(encoding="utf-8"),
+            Path("scripts/setup/clone_ready_setup.py").read_text(encoding="utf-8"),
+        ]
+        for content in contents:
+            self.assertNotIn("/tmp/semantic-data-context-deps", content)
 
     def test_env_check_script_passes(self) -> None:
         subprocess.run(
