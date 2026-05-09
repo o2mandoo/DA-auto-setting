@@ -1,0 +1,25 @@
+{
+  "release_id": "2026-05-09-kst-6dc9efa72348",
+  "generated_at": "2026-05-09T13:52:02.209539+00:00",
+  "git_commit": "6dc9efa72348",
+  "artifact_root": "reports/release/2026-05-09-kst-6dc9efa72348",
+  "source_snapshots": {
+    "readiness_matrix.md": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
+    "risk_register.md": "reports/productization/PRODUCTION_RISK_REGISTER.md",
+    "dependency_snapshot.txt": "reports/productization/PR1_PIP_FREEZE.txt"
+  },
+  "derived_artifacts": [
+    "release_summary.md",
+    "api_mcp_n8n_surface_summary.md",
+    "known_limitations.md",
+    "readiness_matrix.md",
+    "risk_register.md",
+    "dependency_snapshot.txt"
+  ],
+  "evidence_scope": {
+    "api_surface": "docs/api/PRODUCT_API.md and docs/api/OPENAPI_LIKE.yaml",
+    "mcp_surface": "docs/execution/MODULES.md, docs/execution/MVP_SCOPE.md, reports/productization/PR3_MCP_SAFE_RUNTIME_EVIDENCE.md",
+    "n8n_surface": "reports/productization/phase19_product_api_contract_for_n8n.md, reports/productization/phase20_n8n_readiness_report.md, reports/productization/n8n_workflow_templates.md, n8n/README.md"
+  },
+  "status": "local_validation_demo_ready_not_production_ready"
+}
