@@ -28,6 +28,12 @@ intend to use.
 cp .env.example .env
 ```
 
+You can also use the repo helper:
+
+```bash
+python3 scripts/setup/bootstrap.py --copy-env
+```
+
 ## 3) Choose an LLM provider
 
 The Builder supports three practical modes:
