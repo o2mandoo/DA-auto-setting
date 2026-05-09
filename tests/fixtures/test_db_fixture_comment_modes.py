@@ -4,7 +4,41 @@ import pytest
 
 from experiments.db_fixtures.scripts.fixture_modes import FixtureCommentMode, TEST_ONLY_MARKER, build_fixture_table_plan, fixture_mode_summary
 from experiments.db_fixtures.scripts.mysql_fixture_loader import assert_mysql_fixture_environment, build_mysql_sql_plan
-from experiments.db_fixtures.scripts.postgres_fixture_loader import assert_fixture_environment, build_postgres_sql_plan
+from experiments.db_fixtures.scripts.postgres_fixture_loader import (
+    POSTGRES_DSN_ENV,
+    assert_fixture_environment,
+    build_postgres_sql_plan,
+    load_postgres_fixture,
+    load_postgres_fixture_from_env,
+)
+
+
+class _FakeCursor:
+    def __init__(self) -> None:
+        self.statements: list[str] = []
+        self.closed = False
+
+    def execute(self, statement: str) -> None:
+        self.statements.append(statement)
+
+    def close(self) -> None:
+        self.closed = True
+
+
+class _FakeConnection:
+    def __init__(self) -> None:
+        self.cursor_obj = _FakeCursor()
+        self.committed = False
+        self.closed = False
+
+    def cursor(self) -> _FakeCursor:
+        return self.cursor_obj
+
+    def commit(self) -> None:
+        self.committed = True
+
+    def close(self) -> None:
+        self.closed = True
 
 
 def test_fixture_modes_distinguish_no_real_and_synthetic_comments() -> None:
@@ -68,7 +102,9 @@ def test_postgres_sql_plan_applies_synthetic_comments_only_when_selected() -> No
     text = "\n".join(plan.statements)
     assert "COMMENT ON TABLE" in text
     assert TEST_ONLY_MARKER in text
+    assert 'INSERT INTO "semantic_fixture_demo"."orders"' in text
     assert plan.mode == "synthetic_comments"
+    assert plan.backend == "postgres"
     assert plan.row_count == 1
 
 
@@ -98,6 +134,51 @@ def test_postgres_sql_plan_has_no_comment_statements_for_no_comments_mode() -> N
     assert "COMMENT ON TABLE" not in text
     assert "COMMENT ON COLUMN" not in text
     assert plan.mode == "no_comments"
+
+
+def test_postgres_live_loader_reports_missing_env_as_pending_not_fallback() -> None:
+    fixture_plan = build_fixture_table_plan(
+        dataset_id="d",
+        schema_name="semantic_fixture_demo",
+        table_name="orders",
+        columns=["status"],
+        mode="no_comments",
+    )
+
+    status = load_postgres_fixture_from_env(fixture_plan, env={"SEMANTIC_CONTEXT_FIXTURE_DB": "1"})
+
+    assert status.backend == "postgres"
+    assert status.status == "pending"
+    assert status.attempted is False
+    assert any(POSTGRES_DSN_ENV in reason for reason in status.reasons)
+    assert any("no fallback backend" in reason for reason in status.reasons)
+
+
+def test_postgres_live_loader_executes_only_when_local_gate_passes() -> None:
+    fixture_plan = build_fixture_table_plan(
+        dataset_id="d",
+        schema_name="semantic_fixture_demo",
+        table_name="orders",
+        columns=["status"],
+        mode="no_comments",
+    )
+    connection = _FakeConnection()
+
+    status = load_postgres_fixture(
+        dsn="postgresql://localhost/semantic_fixture_lab",
+        fixture_plan=fixture_plan,
+        rows=[{"status": "PAID"}],
+        env={"SEMANTIC_CONTEXT_FIXTURE_DB": "1"},
+        connection_factory=lambda _dsn: connection,
+    )
+
+    assert status.status == "loaded"
+    assert status.attempted is True
+    assert status.safe is True
+    assert status.executed_statement_count == len(connection.cursor_obj.statements)
+    assert connection.committed is True
+    assert connection.closed is True
+    assert all("mysql" not in statement.lower() for statement in connection.cursor_obj.statements)
 
 
 def test_mysql_fixture_safety_requires_local_semantic_fixture_database_and_env() -> None:
