@@ -1,7 +1,7 @@
 # Release Packet: release-test
 
-- generated_at: 2026-05-09T14:02:59.605639+00:00
-- git_commit: 3474ee45c9b86f557abfc5fbd891aa5917fe8d59
+- generated_at: 2026-05-09T14:13:21.530047+00:00
+- git_commit: 0baf5dd2acbe25f12bfcec1597ec3887fc9a538c
 - status: dry-run release packet
 
 ## Evidence snapshot
@@ -18,14 +18,10 @@
 
 ## Missing gate evidence
 
-- PR-1 clean clone package baseline: Clean-venv install log, make env-check output, make test output, dependency snapshot.
-- PR-2 optional local HTTP adapter: Adapter smoke output, /healthz and /readyz proof, OpenAPI, typed error payloads.
-- PR-3 MCP + safe query runtime hardening: Registration-surface proof and SQL red-team blocking outputs.
-- PR-4 DB fixture/read-only evidence: Read-only fixture evidence and explicit live-service unavailable artifacts where relevant.
-- PR-5 retrieval/Weaviate optional evidence: Explicit live/skip/failure evidence for selected Weaviate backend.
-- PR-6 n8n workflow smoke: Workflow smoke against local APIs and visible backend/comment warnings.
-- PR-7 CI, observability, release packet: CI logs, release candidate identifier, dependency snapshot, and signed release packet.
+- PR-6 n8n workflow smoke: missing external/live evidence: live imported n8n workflow smoke output
+- PR-7 CI, observability, release packet: missing external/live evidence: live CI run log, signed or promoted release candidate approval
 
 ## Redaction summary
 
+- email: 4
 - worker_id: 3

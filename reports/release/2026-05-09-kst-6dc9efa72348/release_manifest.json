@@ -1,27 +1,260 @@
 {
-  "release_id": "2026-05-09-kst-6dc9efa72348",
-  "generated_at": "2026-05-09T13:52:02.209539+00:00",
-  "git_commit": "6dc9efa72348",
-  "artifact_root": "reports/release/2026-05-09-kst-6dc9efa72348",
-  "source_snapshots": {
-    "readiness_matrix.md": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
-    "risk_register.md": "reports/productization/PRODUCTION_RISK_REGISTER.md",
-    "dependency_snapshot.txt": "reports/productization/PR1_PIP_FREEZE.txt"
+  "artifacts": {
+    "api_mcp_n8n_surface_summary": "api_mcp_n8n_surface_summary.md",
+    "dependency_snapshot": "dependency_snapshot.txt",
+    "evidence_index": "evidence_index.md",
+    "known_limitations": "known_limitations.md",
+    "readiness_matrix": "readiness_matrix.md",
+    "release_summary": "release_summary.md",
+    "risk_register": "risk_register.md",
+    "support_matrix": "support_matrix.md",
+    "test_evidence": "test_evidence.md"
   },
-  "derived_artifacts": [
-    "final_verifier_report.md",
-    "release_summary.md",
-    "test_evidence.md",
-    "api_mcp_n8n_surface_summary.md",
-    "known_limitations.md",
-    "readiness_matrix.md",
-    "risk_register.md",
-    "dependency_snapshot.txt"
+  "evidence_coverage": [
+    {
+      "external_missing": [],
+      "gate": "PR-0 production boundary and readiness baseline",
+      "missing_paths": [],
+      "present_paths": [
+        "docs/product/PRODUCTION_MODE_ADR.md",
+        "reports/productization/PRODUCTION_READINESS_MATRIX.md",
+        "reports/productization/PRODUCTION_RISK_REGISTER.md"
+      ],
+      "status": "present"
+    },
+    {
+      "external_missing": [],
+      "gate": "PR-1 clean clone package baseline",
+      "missing_paths": [],
+      "present_paths": [
+        "reports/productization/PR1_CLEAN_CLONE_EVIDENCE.md",
+        "reports/productization/PR1_FINAL_VERIFIER_EVIDENCE.md",
+        "reports/productization/PR1_PIP_FREEZE.txt"
+      ],
+      "status": "present"
+    },
+    {
+      "external_missing": [],
+      "gate": "PR-2 optional local HTTP adapter",
+      "missing_paths": [],
+      "present_paths": [
+        "reports/productization/PR2_HTTP_ADAPTER_EVIDENCE.md",
+        "docs/api/PRODUCT_API.md",
+        "docs/api/OPENAPI_LIKE.yaml"
+      ],
+      "status": "present"
+    },
+    {
+      "external_missing": [],
+      "gate": "PR-3 MCP + safe query runtime hardening",
+      "missing_paths": [],
+      "present_paths": [
+        "reports/productization/PR3_MCP_SAFE_RUNTIME_EVIDENCE.md",
+        "docs/product/PRODUCT_MODES.md"
+      ],
+      "status": "present"
+    },
+    {
+      "external_missing": [],
+      "gate": "PR-4 DB fixture/read-only evidence",
+      "missing_paths": [],
+      "present_paths": [
+        "reports/productization/PR4_DB_FIXTURE_READONLY_EVIDENCE.md",
+        "reports/reality/postgres_live_fixture_evidence.json",
+        "reports/reality/mysql_live_fixture_evidence.json"
+      ],
+      "status": "present"
+    },
+    {
+      "external_missing": [],
+      "gate": "PR-5 retrieval/Weaviate optional evidence",
+      "missing_paths": [],
+      "present_paths": [
+        "reports/productization/PR5_PRECHECK_DB_CORPUS_EVIDENCE.md",
+        "reports/productization/PR5_SEMANTIC_RETRIEVAL_EVIDENCE.md"
+      ],
+      "status": "present"
+    },
+    {
+      "external_missing": [
+        "live imported n8n workflow smoke output"
+      ],
+      "gate": "PR-6 n8n workflow smoke",
+      "missing_paths": [],
+      "present_paths": [
+        "reports/productization/phase20_n8n_readiness_report.md",
+        "reports/productization/final_n8n_readiness_evaluate_after_comment_rules.md"
+      ],
+      "status": "partial"
+    },
+    {
+      "external_missing": [
+        "live CI run log",
+        "signed or promoted release candidate approval"
+      ],
+      "gate": "PR-7 CI, observability, release packet",
+      "missing_paths": [],
+      "present_paths": [
+        ".github/workflows/packaging-clean-clone.yml",
+        "scripts/release/build_release_packet.py",
+        "tests/release/test_build_release_packet.py"
+      ],
+      "status": "partial"
+    }
   ],
-  "evidence_scope": {
-    "api_surface": "docs/api/PRODUCT_API.md and docs/api/OPENAPI_LIKE.yaml",
-    "mcp_surface": "docs/execution/MODULES.md, docs/execution/MVP_SCOPE.md, reports/productization/PR3_MCP_SAFE_RUNTIME_EVIDENCE.md",
-    "n8n_surface": "reports/productization/phase19_product_api_contract_for_n8n.md, reports/productization/phase20_n8n_readiness_report.md, reports/productization/n8n_workflow_templates.md, n8n/README.md"
+  "evidence_coverage_summary": {
+    "missing": 0,
+    "partial": 2,
+    "present": 6
   },
-  "status": "local_validation_demo_ready_not_production_ready"
+  "generated_at": "2026-05-09T14:13:21.931663+00:00",
+  "git_commit": "0baf5dd2acbe25f12bfcec1597ec3887fc9a538c",
+  "metadata_provenance_rules": [
+    {
+      "product_usable": true,
+      "rule": "Real DB table/column comments are product-usable context only with preserved provenance/status.",
+      "source": "real_db_comment"
+    },
+    {
+      "product_usable": false,
+      "rule": "Missing comments are metadata gaps and must trigger reverse questions instead of hallucinated semantics.",
+      "source": "no_comment"
+    },
+    {
+      "product_usable": false,
+      "rule": "Synthetic comments are fixture-only and must never become product truth or human-approved context automatically.",
+      "source": "test_only_synthetic_comment"
+    },
+    {
+      "product_usable": true,
+      "rule": "Sidecar metadata can be used only with explicit source attribution and status.",
+      "source": "sidecar_metadata"
+    },
+    {
+      "product_usable": false,
+      "rule": "LLM hypotheses remain draft context until review/promotion.",
+      "source": "llm_hypothesis"
+    },
+    {
+      "product_usable": true,
+      "rule": "Human-confirmed context can be used as approved semantic truth within pack policy boundaries.",
+      "source": "human_confirmed"
+    },
+    {
+      "product_usable": true,
+      "rule": "Verified queries can be used as high-confidence examples but do not authorize production SQL execution.",
+      "source": "verified_query"
+    }
+  ],
+  "missing_evidence": [],
+  "missing_gate_evidence": [
+    {
+      "evidence_needed": "missing external/live evidence: live imported n8n workflow smoke output",
+      "gate": "PR-6 n8n workflow smoke",
+      "status": "partial"
+    },
+    {
+      "evidence_needed": "missing external/live evidence: live CI run log, signed or promoted release candidate approval",
+      "gate": "PR-7 CI, observability, release packet",
+      "status": "partial"
+    }
+  ],
+  "output_dir": "reports/release/2026-05-09-kst-6dc9efa72348",
+  "redactions": {
+    "email": 4,
+    "worker_id": 3
+  },
+  "release_id": "2026-05-09-kst-6dc9efa72348",
+  "risk_summary": {
+    "source": "reports/productization/PRODUCTION_RISK_REGISTER.md",
+    "status": "included"
+  },
+  "safety_checks": {
+    "dependency_snapshot_present": true,
+    "no_production_execute_query_claim": true,
+    "no_raw_pii_claim": true,
+    "no_silent_fallback_claim": true,
+    "secrets_redacted": true,
+    "sensitive_content_redacted": true
+  },
+  "safety_proof": {
+    "no_production_execute_query": {
+      "evidence": [
+        "docs/product/PRODUCTION_MODE_ADR.md",
+        "reports/productization/PRODUCTION_READINESS_MATRIX.md"
+      ],
+      "status": "prohibited"
+    },
+    "no_raw_pii_artifacts": {
+      "redaction_findings": {
+        "email": 4,
+        "worker_id": 3
+      },
+      "status": "redacted_or_blocked"
+    },
+    "no_silent_fallback": {
+      "evidence": [
+        "reports/productization/PRODUCTION_READINESS_MATRIX.md",
+        "reports/productization/PR5_SEMANTIC_RETRIEVAL_EVIDENCE.md"
+      ],
+      "status": "prohibited"
+    },
+    "no_synthetic_metadata_as_product_truth": {
+      "evidence": [
+        "docs/product/METADATA_PROVENANCE_RULES.md",
+        "reports/productization/PR4_DB_FIXTURE_READONLY_EVIDENCE.md"
+      ],
+      "status": "fixture_only"
+    },
+    "no_unsupported_db_claim": {
+      "evidence": [
+        "reports/productization/PRODUCTION_READINESS_MATRIX.md"
+      ],
+      "status": "oracle_unsupported"
+    }
+  },
+  "source_files": [
+    "reports/productization/PRODUCTION_READINESS_MATRIX.md",
+    "reports/productization/PRODUCTION_RISK_REGISTER.md",
+    "reports/final/final_integration_report.md",
+    "docs/execution/VALIDATION_DATASETS.md"
+  ],
+  "status": "dry-run",
+  "support_levels": [
+    {
+      "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
+      "feature": "Semantic Pack contracts, local Registry, and local MCP interface",
+      "support": "supported_local_mvp"
+    },
+    {
+      "evidence": "reports/productization/PR4_DB_FIXTURE_READONLY_EVIDENCE.md",
+      "feature": "PostgreSQL/MySQL fixture and read-only evidence",
+      "support": "fixture_evidence_available"
+    },
+    {
+      "evidence": "reports/productization/PR5_SEMANTIC_RETRIEVAL_EVIDENCE.md",
+      "feature": "Weaviate retrieval backend",
+      "support": "optional_evidence_gated"
+    },
+    {
+      "evidence": "reports/productization/phase20_n8n_readiness_report.md",
+      "feature": "n8n orchestration",
+      "support": "workflow_template_ready_adapter_required"
+    },
+    {
+      "evidence": "no current release evidence",
+      "feature": "Oracle",
+      "support": "unsupported"
+    },
+    {
+      "evidence": "docs/product/PRODUCTION_MODE_ADR.md",
+      "feature": "Production execute_query",
+      "support": "forbidden"
+    }
+  ],
+  "test_status": {
+    "note": "The release packer records test references; verifier lanes must attach real command output.",
+    "release_test_command": "python3 -m pytest -q tests/release/test_build_release_packet.py",
+    "status": "not_run_by_packer"
+  }
 }

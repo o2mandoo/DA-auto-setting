@@ -1,27 +1,27 @@
-# Release Packet Summary
+# Release Packet: 2026-05-09-kst-6dc9efa72348
 
-Release ID: `2026-05-09-kst-6dc9efa72348`
-Source commit: `6dc9efa72348`
-Generated at: `2026-05-09T13:52:02.209539+00:00`
+- generated_at: 2026-05-09T14:13:21.931663+00:00
+- git_commit: 0baf5dd2acbe25f12bfcec1597ec3887fc9a538c
+- status: dry-run release packet
 
-## Verdict
+## Evidence snapshot
 
-Clone-ready for local validation and demo operation, not production ready.
+- Production readiness matrix included.
+- Risk register included.
+- Known limitations included.
+- Support matrix included.
+- Secret-like and PII-like values are redacted before writing packet files.
 
-## Included evidence
+## Missing evidence
 
-- Final verifier report: `final_verifier_report.md`
-- Readiness matrix: `readiness_matrix.md`
-- Risk register: `risk_register.md`
-- Dependency snapshot: `dependency_snapshot.txt`
-- Test evidence: `test_evidence.md`
-- API/MCP/n8n surface summary: `api_mcp_n8n_surface_summary.md`
-- Known limitations: `known_limitations.md`
+- none
 
-## Scope boundaries
+## Missing gate evidence
 
-- No production `execute_query` surface.
-- No silent fallback.
-- No raw PII in release claims.
-- n8n is orchestration-only over documented Product API routes.
-- MCP remains stdio-first with explicit registration surface.
+- PR-6 n8n workflow smoke: missing external/live evidence: live imported n8n workflow smoke output
+- PR-7 CI, observability, release packet: missing external/live evidence: live CI run log, signed or promoted release candidate approval
+
+## Redaction summary
+
+- email: 4
+- worker_id: 3

@@ -67,6 +67,24 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert manifest["safety_checks"]["no_silent_fallback_claim"] is True
     assert manifest["safety_checks"]["no_raw_pii_claim"] is True
     assert manifest["safety_checks"]["dependency_snapshot_present"] is True
+    assert manifest["metadata_provenance_rules"]
+    assert {rule["source"] for rule in manifest["metadata_provenance_rules"]} >= {
+        "real_db_comment",
+        "no_comment",
+        "test_only_synthetic_comment",
+        "llm_hypothesis",
+        "human_confirmed",
+        "verified_query",
+    }
+    assert manifest["evidence_coverage"]
+    assert any(item["gate"].startswith("PR-4") and item["status"] == "present" for item in manifest["evidence_coverage"])
+    assert any(item["gate"].startswith("PR-7") and item["status"] == "partial" for item in manifest["evidence_coverage"])
+    assert manifest["support_levels"]
+    assert any(item["feature"] == "Oracle" and item["support"] == "unsupported" for item in manifest["support_levels"])
+    assert manifest["test_status"]["status"] == "not_run_by_packer"
+    assert manifest["risk_summary"]["status"] == "included"
+    assert manifest["safety_proof"]["no_production_execute_query"]["status"] == "prohibited"
+    assert manifest["safety_proof"]["no_synthetic_metadata_as_product_truth"]["status"] == "fixture_only"
 
     summary = (out_dir / "release_summary.md").read_text(encoding="utf-8")
     risk_register = (out_dir / "risk_register.md").read_text(encoding="utf-8")
@@ -94,7 +112,7 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     loaded = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert loaded["release_id"] == "unit-test-release"
     assert loaded["missing_gate_evidence"]
-    assert any(item["gate"].startswith("PR-1") for item in loaded["missing_gate_evidence"])
+    assert any(item["gate"].startswith("PR-7") for item in loaded["missing_gate_evidence"])
     assert loaded["artifacts"]["risk_register"] == "risk_register.md"
     assert loaded["artifacts"]["known_limitations"] == "known_limitations.md"
     assert loaded["artifacts"]["support_matrix"] == "support_matrix.md"

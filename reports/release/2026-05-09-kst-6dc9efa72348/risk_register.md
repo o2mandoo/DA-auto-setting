@@ -1,7 +1,7 @@
 # Production Risk Register
 
 Date: 2026-05-09 KST  
-Lane contract: worker-2 edits only `reports/productization/PRODUCTION_READINESS_MATRIX.md` and `reports/productization/PRODUCTION_RISK_REGISTER.md`.
+Lane contract: <redacted_worker_id> edits only `reports/productization/PRODUCTION_READINESS_MATRIX.md` and `reports/productization/PRODUCTION_RISK_REGISTER.md`.
 
 Replacement task note: this file is the replacement correction artifact for failed task-3 / task-6 and remains docs-only.
 

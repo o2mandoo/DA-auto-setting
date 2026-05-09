@@ -1,7 +1,7 @@
 # Production Readiness Matrix
 
 Date: 2026-05-09 KST  
-Lane contract: worker-2 edits only `reports/productization/PRODUCTION_READINESS_MATRIX.md` and `reports/productization/PRODUCTION_RISK_REGISTER.md`.
+Lane contract: <redacted_worker_id> edits only `reports/productization/PRODUCTION_READINESS_MATRIX.md` and `reports/productization/PRODUCTION_RISK_REGISTER.md`.
 
 ## Executive verdict
 

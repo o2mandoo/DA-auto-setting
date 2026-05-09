@@ -78,42 +78,140 @@ TEST_EVIDENCE_REFERENCES: tuple[Path, ...] = (
     Path("Makefile"),
 )
 
+METADATA_PROVENANCE_RULES: tuple[dict[str, object], ...] = (
+    {
+        "source": "real_db_comment",
+        "product_usable": True,
+        "rule": "Real DB table/column comments are product-usable context only with preserved provenance/status.",
+    },
+    {
+        "source": "no_comment",
+        "product_usable": False,
+        "rule": "Missing comments are metadata gaps and must trigger reverse questions instead of hallucinated semantics.",
+    },
+    {
+        "source": "test_only_synthetic_comment",
+        "product_usable": False,
+        "rule": "Synthetic comments are fixture-only and must never become product truth or human-approved context automatically.",
+    },
+    {
+        "source": "sidecar_metadata",
+        "product_usable": True,
+        "rule": "Sidecar metadata can be used only with explicit source attribution and status.",
+    },
+    {
+        "source": "llm_hypothesis",
+        "product_usable": False,
+        "rule": "LLM hypotheses remain draft context until review/promotion.",
+    },
+    {
+        "source": "human_confirmed",
+        "product_usable": True,
+        "rule": "Human-confirmed context can be used as approved semantic truth within pack policy boundaries.",
+    },
+    {
+        "source": "verified_query",
+        "product_usable": True,
+        "rule": "Verified queries can be used as high-confidence examples but do not authorize production SQL execution.",
+    },
+)
 
-MISSING_GATE_EVIDENCE: tuple[dict[str, str], ...] = (
+SUPPORT_LEVELS: tuple[dict[str, str], ...] = (
+    {
+        "feature": "Semantic Pack contracts, local Registry, and local MCP interface",
+        "support": "supported_local_mvp",
+        "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
+    },
+    {
+        "feature": "PostgreSQL/MySQL fixture and read-only evidence",
+        "support": "fixture_evidence_available",
+        "evidence": "reports/productization/PR4_DB_FIXTURE_READONLY_EVIDENCE.md",
+    },
+    {
+        "feature": "Weaviate retrieval backend",
+        "support": "optional_evidence_gated",
+        "evidence": "reports/productization/PR5_SEMANTIC_RETRIEVAL_EVIDENCE.md",
+    },
+    {
+        "feature": "n8n orchestration",
+        "support": "workflow_template_ready_adapter_required",
+        "evidence": "reports/productization/phase20_n8n_readiness_report.md",
+    },
+    {
+        "feature": "Oracle",
+        "support": "unsupported",
+        "evidence": "no current release evidence",
+    },
+    {
+        "feature": "Production execute_query",
+        "support": "forbidden",
+        "evidence": "docs/product/PRODUCTION_MODE_ADR.md",
+    },
+)
+
+EVIDENCE_GATES: tuple[dict[str, object], ...] = (
+    {
+        "gate": "PR-0 production boundary and readiness baseline",
+        "paths": (
+            "docs/product/PRODUCTION_MODE_ADR.md",
+            "reports/productization/PRODUCTION_READINESS_MATRIX.md",
+            "reports/productization/PRODUCTION_RISK_REGISTER.md",
+        ),
+    },
     {
         "gate": "PR-1 clean clone package baseline",
-        "status": "missing",
-        "evidence_needed": "Clean-venv install log, make env-check output, make test output, dependency snapshot.",
+        "paths": (
+            "reports/productization/PR1_CLEAN_CLONE_EVIDENCE.md",
+            "reports/productization/PR1_FINAL_VERIFIER_EVIDENCE.md",
+            "reports/productization/PR1_PIP_FREEZE.txt",
+        ),
     },
     {
         "gate": "PR-2 optional local HTTP adapter",
-        "status": "missing",
-        "evidence_needed": "Adapter smoke output, /healthz and /readyz proof, OpenAPI, typed error payloads.",
+        "paths": (
+            "reports/productization/PR2_HTTP_ADAPTER_EVIDENCE.md",
+            "docs/api/PRODUCT_API.md",
+            "docs/api/OPENAPI_LIKE.yaml",
+        ),
     },
     {
         "gate": "PR-3 MCP + safe query runtime hardening",
-        "status": "missing",
-        "evidence_needed": "Registration-surface proof and SQL red-team blocking outputs.",
+        "paths": (
+            "reports/productization/PR3_MCP_SAFE_RUNTIME_EVIDENCE.md",
+            "docs/product/PRODUCT_MODES.md",
+        ),
     },
     {
         "gate": "PR-4 DB fixture/read-only evidence",
-        "status": "missing",
-        "evidence_needed": "Read-only fixture evidence and explicit live-service unavailable artifacts where relevant.",
+        "paths": (
+            "reports/productization/PR4_DB_FIXTURE_READONLY_EVIDENCE.md",
+            "reports/reality/postgres_live_fixture_evidence.json",
+            "reports/reality/mysql_live_fixture_evidence.json",
+        ),
     },
     {
         "gate": "PR-5 retrieval/Weaviate optional evidence",
-        "status": "missing",
-        "evidence_needed": "Explicit live/skip/failure evidence for selected Weaviate backend.",
+        "paths": (
+            "reports/productization/PR5_PRECHECK_DB_CORPUS_EVIDENCE.md",
+            "reports/productization/PR5_SEMANTIC_RETRIEVAL_EVIDENCE.md",
+        ),
     },
     {
         "gate": "PR-6 n8n workflow smoke",
-        "status": "missing",
-        "evidence_needed": "Workflow smoke against local APIs and visible backend/comment warnings.",
+        "paths": (
+            "reports/productization/phase20_n8n_readiness_report.md",
+            "reports/productization/final_n8n_readiness_evaluate_after_comment_rules.md",
+        ),
+        "external_missing": ("live imported n8n workflow smoke output",),
     },
     {
         "gate": "PR-7 CI, observability, release packet",
-        "status": "missing",
-        "evidence_needed": "CI logs, release candidate identifier, dependency snapshot, and signed release packet.",
+        "paths": (
+            ".github/workflows/packaging-clean-clone.yml",
+            "scripts/release/build_release_packet.py",
+            "tests/release/test_build_release_packet.py",
+        ),
+        "external_missing": ("live CI run log", "signed or promoted release candidate approval"),
     },
 )
 
@@ -288,6 +386,78 @@ def build_test_evidence() -> str:
     return "\n".join(lines) + "\n"
 
 
+def build_evidence_coverage(root: Path) -> list[dict[str, object]]:
+    coverage: list[dict[str, object]] = []
+    for gate in EVIDENCE_GATES:
+        paths = [Path(str(path)) for path in gate["paths"]]  # type: ignore[index]
+        present_paths = [str(path) for path in paths if (root / path).exists()]
+        missing_paths = [str(path) for path in paths if not (root / path).exists()]
+        external_missing = list(gate.get("external_missing", ()))  # type: ignore[union-attr]
+        if missing_paths:
+            status = "partial" if present_paths else "missing"
+        elif external_missing:
+            status = "partial"
+        else:
+            status = "present"
+        coverage.append(
+            {
+                "gate": gate["gate"],
+                "status": status,
+                "present_paths": present_paths,
+                "missing_paths": missing_paths,
+                "external_missing": external_missing,
+            }
+        )
+    return coverage
+
+
+def build_missing_gate_evidence(coverage: Iterable[dict[str, object]]) -> list[dict[str, str]]:
+    missing: list[dict[str, str]] = []
+    for item in coverage:
+        missing_paths = [str(path) for path in item.get("missing_paths", [])]
+        external_missing = [str(entry) for entry in item.get("external_missing", [])]
+        if not missing_paths and not external_missing:
+            continue
+        needed = []
+        if missing_paths:
+            needed.append("missing files: " + ", ".join(missing_paths))
+        if external_missing:
+            needed.append("missing external/live evidence: " + ", ".join(external_missing))
+        missing.append(
+            {
+                "gate": str(item["gate"]),
+                "status": str(item["status"]),
+                "evidence_needed": "; ".join(needed),
+            }
+        )
+    return missing
+
+
+def build_safety_proof(redaction_summary: RedactionSummary) -> dict[str, dict[str, object]]:
+    return {
+        "no_production_execute_query": {
+            "status": "prohibited",
+            "evidence": ["docs/product/PRODUCTION_MODE_ADR.md", "reports/productization/PRODUCTION_READINESS_MATRIX.md"],
+        },
+        "no_silent_fallback": {
+            "status": "prohibited",
+            "evidence": ["reports/productization/PRODUCTION_READINESS_MATRIX.md", "reports/productization/PR5_SEMANTIC_RETRIEVAL_EVIDENCE.md"],
+        },
+        "no_raw_pii_artifacts": {
+            "status": "redacted_or_blocked",
+            "redaction_findings": redaction_summary.counts,
+        },
+        "no_unsupported_db_claim": {
+            "status": "oracle_unsupported",
+            "evidence": ["reports/productization/PRODUCTION_READINESS_MATRIX.md"],
+        },
+        "no_synthetic_metadata_as_product_truth": {
+            "status": "fixture_only",
+            "evidence": ["docs/product/METADATA_PROVENANCE_RULES.md", "reports/productization/PR4_DB_FIXTURE_READONLY_EVIDENCE.md"],
+        },
+    }
+
+
 def build_release_summary(
     release_id: str,
     generated_at: str,
@@ -353,9 +523,14 @@ def build_manifest(
     out_dir: Path,
     missing_evidence: list[str],
     missing_gates: list[dict[str, str]],
+    evidence_coverage: list[dict[str, object]],
     redaction_summary: RedactionSummary,
     dependency_snapshot_present: bool,
 ) -> dict[str, object]:
+    coverage_counts = {
+        status: sum(1 for item in evidence_coverage if item["status"] == status)
+        for status in ("present", "partial", "missing")
+    }
     return {
         "release_id": release_id,
         "generated_at": generated_at,
@@ -376,6 +551,19 @@ def build_manifest(
         },
         "missing_evidence": missing_evidence,
         "missing_gate_evidence": missing_gates,
+        "evidence_coverage": evidence_coverage,
+        "evidence_coverage_summary": coverage_counts,
+        "metadata_provenance_rules": list(METADATA_PROVENANCE_RULES),
+        "support_levels": list(SUPPORT_LEVELS),
+        "test_status": {
+            "status": "not_run_by_packer",
+            "release_test_command": "python3 -m pytest -q tests/release/test_build_release_packet.py",
+            "note": "The release packer records test references; verifier lanes must attach real command output.",
+        },
+        "risk_summary": {
+            "source": str(SOURCE_FILES[1]),
+            "status": "included" if str(SOURCE_FILES[1]) not in missing_evidence else "missing",
+        },
         "redactions": redaction_summary.counts,
         "safety_checks": {
             "sensitive_content_redacted": redaction_summary.had_findings,
@@ -385,6 +573,7 @@ def build_manifest(
             "no_raw_pii_claim": True,
             "dependency_snapshot_present": dependency_snapshot_present,
         },
+        "safety_proof": build_safety_proof(redaction_summary),
     }
 
 
@@ -393,6 +582,9 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
     generated_at = datetime.now(timezone.utc).isoformat()
     commit = git_commit(repo)
     dependency_snapshot_text, dependency_snapshot_present = build_dependency_snapshot(repo)
+    dependency_snapshot_text, dependency_redactions = redact_text(dependency_snapshot_text)
+    evidence_coverage = build_evidence_coverage(repo)
+    missing_gate_evidence = build_missing_gate_evidence(evidence_coverage)
 
     matrix_text = evidence.get(str(SOURCE_FILES[0]), "")
     risk_text = evidence.get(str(SOURCE_FILES[1]), "")
@@ -404,7 +596,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         generated_at=generated_at,
         commit=commit,
         missing_evidence=missing_evidence,
-        missing_gates=MISSING_GATE_EVIDENCE,
+        missing_gates=missing_gate_evidence,
         redaction_summary=RedactionSummary(counts={}, had_findings=False),
     )
     risk_register_text, risk_redactions = redact_text(risk_text)
@@ -432,7 +624,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         generated_at=generated_at,
         commit=commit,
         missing_evidence=missing_evidence,
-        missing_gates=MISSING_GATE_EVIDENCE,
+        missing_gates=missing_gate_evidence,
         redaction_summary=redaction_summary,
     )
     readiness_matrix_raw = read_text(repo / READINESS_MATRIX_SOURCE)
@@ -447,6 +639,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         risk_redactions,
         limitation_redactions,
         support_redactions,
+        dependency_redactions,
         readiness_redactions,
         evidence_redactions,
         api_redactions,
@@ -457,7 +650,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         generated_at=generated_at,
         commit=commit,
         missing_evidence=missing_evidence,
-        missing_gates=MISSING_GATE_EVIDENCE,
+        missing_gates=missing_gate_evidence,
         redaction_summary=redaction_summary,
     )
 
@@ -478,7 +671,8 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         commit=commit,
         out_dir=out_dir,
         missing_evidence=missing_evidence,
-        missing_gates=list(MISSING_GATE_EVIDENCE),
+        missing_gates=missing_gate_evidence,
+        evidence_coverage=evidence_coverage,
         redaction_summary=redaction_summary,
         dependency_snapshot_present=dependency_snapshot_present,
     )
@@ -491,7 +685,10 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--release-id", default=os.environ.get("RELEASE_ID", "release-packer-20260509T134905Z"))
+    parser.add_argument(
+        "--release-id",
+        default=os.environ.get("RELEASE_ID") or f"release-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}",
+    )
     parser.add_argument(
         "--out",
         default=str(repo_root() / "reports" / "release"),
