@@ -1,9 +1,11 @@
-PYTHON ?= python3
+VENV_DIR ?= .venv
+PYTHON ?= $(VENV_DIR)/bin/python
 LOCAL_PYTHONPATH := packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src
 
 .PHONY: setup test demo env-check clean-runtime
 
 setup:
+	python3 -m venv $(VENV_DIR)
 	$(PYTHON) -m pip install -r requirements-dev.txt
 
 test:
