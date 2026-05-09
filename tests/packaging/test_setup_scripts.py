@@ -31,13 +31,12 @@ class SetupScriptsPackagingTests(unittest.TestCase):
         )
         stdout = completed.stdout
         self.assertIn("clone-ready setup checks: PASS", stdout)
+        self.assertIn(
+            "python3 -m pip install -e packages/semantic_contracts -e packages/semantic_registry -e packages/semantic_mcp -e packages/semantic_builder",
+            stdout,
+        )
         self.assertIn("cp .env.example .env", stdout)
         self.assertIn("python3 scripts/demo/run_local_demo.py", stdout)
-        self.assertIn("packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src", stdout)
-        self.assertLess(
-            stdout.index("packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src"),
-            stdout.index("python3 scripts/demo/run_local_demo.py"),
-        )
         self.assertNotIn("/tmp/semantic-data-context-deps", stdout)
 
     def test_setup_docs_and_helper_do_not_depend_on_hidden_temp_bundle(self) -> None:
