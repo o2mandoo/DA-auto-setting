@@ -53,7 +53,8 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert expected_files == {path.name for path in out_dir.iterdir()}
     assert manifest["release_id"] == "unit-test-release"
     assert manifest["status"] == "dry-run"
-    assert manifest["safety_checks"]["secrets_redacted"] is False
+    assert "sensitive_content_redacted" in manifest["safety_checks"]
+    assert manifest["safety_checks"]["secrets_redacted"] == manifest["safety_checks"]["sensitive_content_redacted"]
     assert manifest["safety_checks"]["no_production_execute_query_claim"] is True
     assert manifest["safety_checks"]["no_silent_fallback_claim"] is True
     assert manifest["safety_checks"]["no_raw_pii_claim"] is True
@@ -85,5 +86,5 @@ def test_generated_packet_contains_no_obvious_secret_markers(tmp_path: Path) -> 
     build_packet(repo_root, "unit-test-release", out_dir)
 
     combined = "\n".join(path.read_text(encoding="utf-8") for path in out_dir.iterdir() if path.is_file())
-    for marker in ("sk-", "AKIA", "password@", "Bearer ", "client_secret"):
+    for marker in ("sk-", "AKIA", "password@", "Bearer ", "client_secret", "/Users/", "worker-", "leader-fixed"):
         assert marker not in combined

@@ -35,6 +35,9 @@ REDACTION_PLACEHOLDERS = {
 
 REDACTION_PATTERNS: list[tuple[str, re.Pattern[str], str | None]] = [
     ("email", re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"), REDACTION_PLACEHOLDERS["email"]),
+    ("local_path", re.compile(r"(?P<path>/Users/[^\s\"'`<>]+)"), "<redacted_local_path>"),
+    ("worker_id", re.compile(r"\bworker-\d+\b"), "<redacted_worker_id>"),
+    ("leader_id", re.compile(r"\bleader-fixed\b"), "<redacted_worker_id>"),
     (
         "url_credentials",
         re.compile(r"(?P<scheme>\b[a-zA-Z][a-zA-Z0-9+.-]*://)(?P<userinfo>[^/\s@]+@)"),
@@ -133,6 +136,14 @@ def redact_text(text: str) -> tuple[str, RedactionSummary]:
     return redacted, RedactionSummary(counts=counts, had_findings=bool(counts))
 
 
+def merge_counts(*summaries: RedactionSummary) -> RedactionSummary:
+    counts: dict[str, int] = {}
+    for summary in summaries:
+        for key, value in summary.counts.items():
+            counts[key] = counts.get(key, 0) + value
+    return RedactionSummary(counts=counts, had_findings=bool(counts))
+
+
 def source_index(root: Path) -> tuple[dict[str, str], list[str]]:
     indexed: dict[str, str] = {}
     missing: list[str] = []
@@ -214,6 +225,7 @@ def build_manifest(
         "missing_evidence": missing_evidence,
         "redactions": redaction_summary.counts,
         "safety_checks": {
+            "sensitive_content_redacted": redaction_summary.had_findings,
             "secrets_redacted": redaction_summary.had_findings,
             "no_production_execute_query_claim": True,
             "no_silent_fallback_claim": True,
@@ -258,15 +270,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         if section
     )
     support_matrix_text, support_redactions = redact_text(support_matrix_source)
-    summary_redaction_count = {
-        **risk_redactions.counts,
-        **limitation_redactions.counts,
-        **support_redactions.counts,
-    }
-    redaction_summary = RedactionSummary(
-        counts=summary_redaction_count,
-        had_findings=bool(summary_redaction_count),
-    )
+    redaction_summary = merge_counts(risk_redactions, limitation_redactions, support_redactions)
     release_summary_text = build_release_summary(
         release_id=release_id,
         generated_at=generated_at,
