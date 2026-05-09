@@ -4,7 +4,7 @@
 
 **PARTIAL**
 
-The product contracts and local code paths now support the corrected rule for real DB comments, no-comment gaps, synthetic fixture separation, Text-to-SQL provenance, and fixture-mode comparison. n8n workflow implementation can be planned, but should not be treated as fully READY until a live Postgres fixture run proves the DB-backed path end to end under explicit fixture safety gates.
+The product contracts and local code paths now support the corrected rule for real DB comments, no-comment gaps, synthetic fixture separation, Text-to-SQL provenance, fixture-mode comparison, and the MySQL Scope C read-only catalog scanner path. n8n workflow implementation can be planned, but should not be treated as fully READY until live fixture runs prove the DB-backed path end to end under explicit fixture safety gates. MySQL is code-verified with fake read-only catalog connections only; live MySQL remains gated evidence, not a silent substitute.
 
 ## Evidence reviewed
 
@@ -16,6 +16,8 @@ The product contracts and local code paths now support the corrected rule for re
 - BR-5 report: `reports/productization/br5_db_fixture_harness_alignment_report.md`
 - Fixture comparison: `reports/reality/db_fixture_comment_mode_comparison.json`
 - Fixture comparison with manifest real comments: `reports/reality/db_fixture_comment_mode_comparison_with_real_comments.json`
+- MySQL Scope C plan: `reports/productization/mysql_scope_c_team_execution_plan.md`
+- MySQL connector/tests: `packages/semantic_builder/src/semantic_builder/connectors/mysql_connector.py`, `tests/builder/test_optional_db_adapters.py`, `tests/builder/test_db_comment_metadata_gaps.py`
 
 ## Readiness criteria
 
@@ -30,6 +32,7 @@ The product contracts and local code paths now support the corrected rule for re
 | Baseline vs system SQL comparison can show differences. | PARTIAL | Existing comparison product surface exists; comment-mode comparison explains expected baseline/system differences, but live n8n visualization is not created. |
 | Failure-safe behavior is visible. | PASS | Product failure-safe reports and no-silent-fallback fixture behavior exist. |
 | API endpoints are stable enough for n8n. | PARTIAL | Product API pure Python contract exists; HTTP adapter/live n8n binding remains next work. |
+| MySQL read-only catalog scanner can expose comments. | PASS (code/fake-connection) | `MySQLConnector` reads `information_schema.tables.table_comment` and `information_schema.columns.column_comment`; fake connection tests cover table/column comments and explicit missing dependency behavior. |
 
 ## Blockers before READY
 
@@ -38,8 +41,9 @@ The product contracts and local code paths now support the corrected rule for re
    - `no_comments` -> gaps/questions,
    - `real_comments` where manifest comments are available -> draft Text-to-SQL context,
    - `synthetic_comments` -> fixture-only exclusion.
-3. Expose the Product API through a stable local HTTP adapter for n8n, or document the exact invocation bridge.
-4. Import and dry-run n8n workflows only after the above evidence exists.
+3. Run a live local MySQL fixture/scan only through the explicit MySQL connector path; if unavailable, report `live_mysql_not_run` rather than falling back to Postgres, DuckDB, or SQLite.
+4. Expose the Product API through a stable local HTTP adapter for n8n, or document the exact invocation bridge.
+5. Import and dry-run n8n workflows only after the above evidence exists.
 
 ## Required n8n workflows if proceeding under PARTIAL
 
@@ -88,6 +92,7 @@ Rules:
 - Display metadata provenance and warnings explicitly.
 - Synthetic comments must remain fixture-only.
 - If a live DB is unavailable, the workflow must stop with an explicit environment error, not substitute DuckDB/SQLite.
+- MySQL must use its own read-only connector and catalog comments; it must not be silently rerouted to PostgreSQL or another local backend.
 
 Final output:
 - workflow JSON template
