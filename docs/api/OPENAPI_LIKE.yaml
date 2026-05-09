@@ -10,7 +10,34 @@ components:
       type: apiKey
       in: header
       name: x-sdc-demo-key
+  headers:
+    CorrelationId:
+      description: Correlation ID for request tracing and typed error reporting.
+      schema:
+        type: string
   schemas:
+    TypedError:
+      type: object
+      required: [code, message]
+      properties:
+        code: {type: string}
+        message: {type: string}
+        detail: {type: string, nullable: true}
+        correlation_id: {type: string, nullable: true}
+    HealthResponse:
+      type: object
+      required: [status]
+      properties:
+        status: {type: string}
+        correlation_id: {type: string, nullable: true}
+    ReadyResponse:
+      type: object
+      required: [status]
+      properties:
+        status: {type: string}
+        pack_root: {type: string, nullable: true}
+        config_ready: {type: boolean}
+        correlation_id: {type: string, nullable: true}
     ProductAnswerRequest:
       type: object
       required: [question]
@@ -30,6 +57,53 @@ components:
         space_id: {type: string}
         role: {type: string}
 paths:
+  /healthz:
+    get:
+      summary: Report process health
+      x-safety: transport only
+      responses:
+        "200":
+          description: Health response
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+  /readyz:
+    get:
+      summary: Report readiness and explicit errors
+      x-safety: explicit typed errors, no silent fallback
+      responses:
+        "200":
+          description: Readiness response
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadyResponse"
+        "503":
+          description: Typed readiness failure
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TypedError"
+  /openapi.json:
+    get:
+      summary: Return the route inventory
+      x-safety: no production SQL execution
+      responses:
+        "200":
+          description: OpenAPI-like inventory
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/CorrelationId"
   /api/onboarding/run:
     post:
       summary: Record onboarding request
