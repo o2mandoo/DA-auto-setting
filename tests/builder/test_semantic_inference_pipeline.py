@@ -459,7 +459,7 @@ class SemanticInferencePipelineTests(unittest.TestCase):
             "SDC_LLM_ENDPOINT": "http://localhost:11434/v1",
             "SDC_LLM_BASE_URL": "http://localhost:11434",
             "SDC_LLM_MODEL": "qwen2.5:7b",
-            "SDC_LLM_API_KEY": "secret-placeholder",
+            "SDC_LLM_API_KEY": "redacted-test-key",
             "SDC_LLM_TIMEOUT": "30",
             "SDC_LLM_MAX_TOKENS": "512",
             "SDC_LLM_TEMPERATURE": "0.2",
@@ -472,7 +472,7 @@ class SemanticInferencePipelineTests(unittest.TestCase):
         self.assertEqual("http://localhost:11434/v1", config.endpoint)
         self.assertEqual("http://localhost:11434", config.base_url)
         self.assertEqual("qwen2.5:7b", config.model)
-        self.assertEqual("secret-placeholder", config.api_key)
+        self.assertEqual("redacted-test-key", config.api_key)
         self.assertEqual(30, config.timeout)
         self.assertEqual(512, config.max_tokens)
         self.assertAlmostEqual(0.2, config.temperature)
