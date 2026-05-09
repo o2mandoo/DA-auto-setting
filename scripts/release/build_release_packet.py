@@ -703,18 +703,6 @@ def build_release_summary(
     lines.extend(
         [
             "",
-            "## Baseline vs system SQL comparison evidence",
-            "",
-        ]
-    )
-    if baseline_sql_lines:
-        for item in baseline_sql_lines:
-            lines.append(f"- {item['path']}: {item['status']}")
-    else:
-        lines.append("- unavailable (no current baseline/system SQL comparison evidence files found)")
-    lines.extend(
-        [
-            "",
             "## Redaction summary",
             "",
         ]
