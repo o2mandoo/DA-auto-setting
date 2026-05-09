@@ -47,7 +47,7 @@ def test_fixture_modes_distinguish_no_real_and_synthetic_comments() -> None:
     synthetic = build_fixture_table_plan(dataset_id="d", schema_name="semantic_fixture_demo", table_name="orders", columns=["status"], mode=FixtureCommentMode.SYNTHETIC_COMMENTS)
     assert no_comments.table_comment is None
     assert real_comments.table_comment == "Real orders"
-    assert TEST_ONLY_MARKER in synthetic.table_comment
+    assert TEST_ONLY_MARKER in (synthetic.table_comment or "")
     assert synthetic.column_comments
     assert all(TEST_ONLY_MARKER in comment for comment in synthetic.column_comments.values())
     assert synthetic.is_test_only is True
