@@ -30,6 +30,15 @@ class SearchIndexTest(unittest.TestCase):
         self.assertEqual(results[0].card_id, "term.new_customer")
         self.assertEqual(results[0].card_type, "business_term")
 
+    def test_search_finds_korean_business_term_alias_without_generic_overmatch(self) -> None:
+        alias_results = self.index.search_cards("첫 결제 고객", card_types=["business_terms"], limit=5)
+
+        self.assertEqual(alias_results[0].card_id, "term.new_customer")
+        self.assertEqual(
+            self.index.search_cards("휴면 고객", card_types=["business_terms"], limit=5),
+            [],
+        )
+
     def test_search_can_filter_tables_columns_policies_and_queries(self) -> None:
         self.assertEqual(
             self.index.search_cards("Payments", card_types=["table"], limit=1)[0].card_id,

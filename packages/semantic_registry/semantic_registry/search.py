@@ -13,6 +13,7 @@ from .cards import CardDocument, CardRegistry, iter_pack_card_documents
 from .store import PackStore
 
 DEFAULT_PACK_ROOT = Path("semantic_packs")
+_GENERIC_KOREAN_DOMAIN_TOKENS = {"고객", "매출", "금액", "날짜", "지역", "상품", "건수", "수량"}
 
 
 @dataclass(frozen=True)
@@ -217,9 +218,15 @@ def _score(normalized_query: str, terms: list[str], haystack: str) -> int:
     if not normalized_query:
         return 0
     score = 0
-    if normalized_query in haystack:
+    exact_phrase = normalized_query in haystack
+    if exact_phrase:
         score += 10 + len(normalized_query)
-    for term in terms:
-        if term in haystack:
-            score += 3 + len(term)
+    matched_terms = [term for term in terms if term in haystack]
+    meaningful_terms = [term for term in matched_terms if term not in _GENERIC_KOREAN_DOMAIN_TOKENS]
+    if not exact_phrase and matched_terms and not meaningful_terms:
+        # Do not let broad Korean domain words such as "고객" turn an unknown
+        # phrase like "휴면 고객" into a confident hit for "신규 고객".
+        return 0
+    for term in matched_terms:
+        score += 3 + len(term)
     return score

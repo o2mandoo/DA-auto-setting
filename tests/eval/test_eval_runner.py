@@ -219,6 +219,12 @@ class EvalRunnerTest(unittest.TestCase):
         self.assertIn("metric.net_revenue", retrieved_ids)
         self.assertIn("verified_query.monthly_new_customer_revenue", retrieved_ids)
         self.assertIn("rq.net_revenue.refund_timing", retrieved_ids)
+        metrics = retrieval_map["retrieval.term_metric_and_ambiguity"].evidence["metrics"]
+        self.assertEqual(metrics["expected_count"], 4)
+        self.assertEqual(metrics["recall_at_k"], 1.0)
+        self.assertGreater(metrics["mrr"], 0)
+        understanding = retrieval_map["retrieval.term_metric_and_ambiguity"].evidence["query_understanding"]
+        self.assertIn("metric.net_revenue", [item["card_id"] for item in understanding["matched_metrics"]])
 
         policy_results = retrieval_map["retrieval.policy_marketing_analyst"].evidence["results"]
         policy_ids = [item["card_id"] for item in policy_results]

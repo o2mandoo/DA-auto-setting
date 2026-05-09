@@ -20,6 +20,8 @@ from semantic_registry.cards import CardDocument, iter_pack_card_documents
 
 _EMAIL_RE = re.compile(r"[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}", re.IGNORECASE)
 _PHONE_RE = re.compile(r"(?<!\d)(?:\+?\d[\d\-\s().]{7,}\d)(?!\d)")
+_GENERIC_KOREAN_DOMAIN_TOKENS = {"고객", "매출", "금액", "날짜", "지역", "상품", "건수", "수량"}
+
 _RAW_VALUE_KEYS = {
     "raw_value",
     "raw_values",
@@ -423,9 +425,15 @@ def _normalize_card_type(value: str) -> str:
 
 def _score(normalized_query: str, terms: list[str], haystack: str) -> int:
     score = 0
-    if normalized_query in haystack:
+    exact_phrase = normalized_query in haystack
+    if exact_phrase:
         score += 10 + len(normalized_query)
-    for term in terms:
-        if term in haystack:
-            score += 3 + len(term)
+    matched_terms = [term for term in terms if term in haystack]
+    meaningful_terms = [term for term in matched_terms if term not in _GENERIC_KOREAN_DOMAIN_TOKENS]
+    if not exact_phrase and matched_terms and not meaningful_terms:
+        # Do not let broad Korean domain words such as "고객" turn an unknown
+        # phrase like "휴면 고객" into a confident hit for "신규 고객".
+        return 0
+    for term in matched_terms:
+        score += 3 + len(term)
     return score

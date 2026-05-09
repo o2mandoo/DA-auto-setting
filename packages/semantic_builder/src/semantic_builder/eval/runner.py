@@ -23,8 +23,11 @@ from semantic_registry.query_planner import load_space_packs, plan_data_query
 from semantic_registry.runtime.ambiguity import evaluate_ambiguity_gate_dict
 from semantic_registry.runtime.query_planner import generate_sql_draft, plan_domain_query
 from semantic_registry.runtime.verifiers import verify_policy, verify_semantics
+from semantic_registry.retrieval import analyze_semantic_query
 from semantic_registry.search import SearchIndex, resolve_terms
 from semantic_registry.store import DEFAULT_PACK_ROOT
+
+from .retrieval_metrics import compute_retrieval_metrics
 
 
 @dataclass(frozen=True)
@@ -451,8 +454,10 @@ def run_retrieval_cases(
         resolved = resolve_terms(case.term_inputs, pack=pack_obj)
         found_ids = [item.card_id for item in found_cards]
         found_types = [item.card_type for item in found_cards]
+        query_understanding = analyze_semantic_query([pack_obj], case.query)
+        metrics = compute_retrieval_metrics(found_ids, case.expected_card_ids, k=10)
         reasons: list[str] = []
-        missing_ids = [value for value in case.expected_card_ids if value not in found_ids]
+        missing_ids = list(metrics.missing_ids)
         if missing_ids:
             reasons.append(f"missing card ids: {', '.join(missing_ids)}")
         missing_types = [value for value in case.expected_card_types if value not in found_types]
@@ -476,6 +481,8 @@ def run_retrieval_cases(
                     "query": case.query,
                     "results": [item.as_dict() for item in found_cards],
                     "resolved_terms": _json_safe(resolved),
+                    "query_understanding": query_understanding.as_dict(),
+                    "metrics": metrics.as_dict(),
                 },
                 observations=tuple(reasons),
             )

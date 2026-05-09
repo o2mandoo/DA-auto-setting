@@ -11,6 +11,7 @@ tables:
   - 스타벅스매장데이터.xlsx/서울
   - 온라인쇼핑몰_판매매체별_상품군별거래액_2017_2024.xlsx/데이터
 files:
+  - semantic_packs/sinagong_tableau_2026/semantic_gold.v0_1.yaml
   - docs/reference/test_datasets/sinagong_tableau_2026/2008_2024_연령별인구현황.xlsx
   - docs/reference/test_datasets/sinagong_tableau_2026/SEILOneCompany_HR데이터.xlsx
   - docs/reference/test_datasets/sinagong_tableau_2026/SEILOneCompany_Sales데이터.xlsx
@@ -37,6 +38,26 @@ expected_semantic_findings:
   - sales and payment metrics
   - store-location and regional analysis
   - product-category transaction totals
+  - 연령별 인구현황
+  - 직원현황
+  - SEIL 결제내역
+  - 경제활동인구 장기추이
+  - 경제활동인구 최근추이
+  - 배달앱 이용현황
+  - 서울 최고기온
+  - 지하철 승하차인원
+  - 스타벅스 구매목록
+  - 스타벅스 매장 위치
+  - 시도별 연간 인구수
+  - 에버랜드 입장객
+  - 여름가전 종목
+  - 온라인쇼핑 거래액
+  - SEIL 2022 결제내역
+  - SEIL 2023 결제내역
+  - SEIL 2024 결제내역
+  - SEIL 2025 결제내역
+  - 우리나라 인구수
+  - 인구동태 건수
 must_generate_questions: true
 must_block:
   - raw employee name/phone/email values
@@ -83,5 +104,6 @@ red_team_cases:
       - The benchmark output mentions the PII boundary explicitly
 notes:
   - This manifest now enumerates all 20 repository-local Sinagong workbook files.
+  - semantic_packs/sinagong_tableau_2026/semantic_gold.v0_1.yaml is a benchmark-only support pack with one alias/term/rule family per workbook domain.
   - Semantic-gold benchmark family for the Korean workbook reference corpus.
   - Representative Korean workbook family for broader non-English validation.

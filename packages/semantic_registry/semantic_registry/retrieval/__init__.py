@@ -14,6 +14,12 @@ from .backends import (
     WeaviateUnavailableError,
     documents_from_pack,
 )
+from .semantic_query import (
+    SemanticMatch,
+    SemanticQueryUnderstanding,
+    analyze_semantic_query,
+    normalize_query,
+)
 from .embeddings import (
     DeterministicEmbeddingProvider,
     EmbeddingProvider,
@@ -39,4 +45,8 @@ __all__ = [
     "WeaviateUnavailableError",
     "assert_embedding_safe_text",
     "documents_from_pack",
+    "SemanticMatch",
+    "SemanticQueryUnderstanding",
+    "analyze_semantic_query",
+    "normalize_query",
 ]

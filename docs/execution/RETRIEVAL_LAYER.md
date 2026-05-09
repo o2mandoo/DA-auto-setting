@@ -64,6 +64,24 @@ recovery path for a failed explicit Weaviate request.
 - `packages/semantic_registry/semantic_registry/retrieval/**` owns backend seams and PII-safe document validation.
 - `packages/semantic_mcp` can expose retrieval results, but does not own backend selection policy.
 
+## Semantic query understanding
+
+Before backend search, the MCP retrieval path now performs a deterministic
+Semantic Pack understanding pass.  This is not an LLM call and does not read a
+database.  It uses only approved local pack metadata to expose:
+
+- matched business terms and metrics;
+- aliases/synonyms that were used for the match;
+- verified-query question-pattern matches;
+- reverse-question and ambiguity-rule candidates;
+- unknown or low-confidence domain phrases such as a customer segment that is
+  not defined in the current pack.
+
+The search backend still returns real backend hits only; semantic understanding
+is used to explain and rank those hits, not to fabricate unavailable context.
+If the domain phrase is unknown, retrieval returns explicit warnings instead of
+quietly matching broad generic tokens like `고객`.
+
 ## Verification reference
 
 The retrieval boundary is verified in Phase 7 with local tests and the phase report:
@@ -71,6 +89,7 @@ The retrieval boundary is verified in Phase 7 with local tests and the phase rep
 - `reports/phases/phase7_vdb_card_index_retrieval.md`
 - `reports/benchmarks/weaviate_mode_comparison_report.md`
 - `tests/registry/test_card_flattening.py`
+- `tests/registry/test_semantic_query.py`
 - `tests/registry/test_vdb_backend.py`
 - `tests/integration/test_weaviate_live_optional.py`
 - `tests/mcp/test_search_context.py`

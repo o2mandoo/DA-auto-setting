@@ -145,6 +145,13 @@ python -m pytest -q tests/registry/test_vdb_backend.py tests/mcp/test_search_con
 
 **Exit criteria:** live Weaviate is optional, but selected Weaviate cannot degrade silently to keyword.
 
+**Current evidence:** PASS as of `reports/productization/PR5_SEMANTIC_RETRIEVAL_EVIDENCE.md`.
+The run also verified the PostgreSQL/MySQL 20-dataset fixture precondition in
+`reports/reality/sinagong_20_live_db_fixture_evidence.json` and added
+deterministic Semantic Pack query-understanding evidence for aliases,
+question-patterns, reverse questions, ambiguity rules, unknown terms, and
+semantic-gold retrieval metrics.
+
 ### PR-6 — n8n/local workflow smoke
 
 **Goal:** prove n8n is only an orchestration/demo wrapper over product APIs.  

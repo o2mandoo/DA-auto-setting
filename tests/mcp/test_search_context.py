@@ -54,6 +54,42 @@ class SearchContextToolTests(unittest.TestCase):
         self.assertNotIn("draft_card", result["warnings"])
         self.assertLessEqual(result["score"], 1.0)
         self.assertIsNone(response["error"])
+        self.assertIn("query_understanding", response)
+
+    def test_keyword_backend_returns_semantic_query_understanding_and_ranks_terms(self) -> None:
+        response = search_semantic_context(
+            "demo_company.revenue",
+            "첫 결제 고객의 net revenue",
+            filters={"backend": "keyword", "limit": 8},
+            root=ROOT / "semantic_packs",
+        )
+
+        self.assertFalse(response["fallback_used"])
+        self.assertIsNone(response["error"])
+        understanding = response["query_understanding"]
+        self.assertIn("term.new_customer", [item["card_id"] for item in understanding["matched_terms"]])
+        self.assertIn("term.net_revenue", [item["card_id"] for item in understanding["matched_terms"]])
+        self.assertIn("metric.net_revenue", [item["card_id"] for item in understanding["matched_metrics"]])
+        self.assertIn(
+            "verified_query.monthly_new_customer_revenue",
+            [item["card_id"] for item in understanding["verified_query_matches"]],
+        )
+        self.assertIn("rq.new_customer.date_basis", [item["card_id"] for item in understanding["reverse_question_candidates"]])
+        self.assertEqual(response["results"][0]["card_id"], "term.new_customer")
+
+    def test_unknown_domain_term_reports_miss_without_generic_customer_overmatch(self) -> None:
+        response = search_semantic_context(
+            "demo_company.revenue",
+            "휴면 고객",
+            filters={"backend": "keyword", "limit": 5},
+            root=ROOT / "semantic_packs",
+        )
+
+        self.assertFalse(response["fallback_used"])
+        self.assertEqual(response["results"], [])
+        self.assertEqual(response["query_understanding"]["unknown_terms"], ["휴면 고객"])
+        self.assertIn("unknown_or_low_confidence_domain_term", response["warnings"])
+        self.assertIn("no_semantic_pack_match", response["warnings"])
 
     def test_weaviate_backend_without_config_is_explicit_error_not_keyword_fallback(self) -> None:
         response = search_semantic_context(
@@ -74,6 +110,7 @@ class SearchContextToolTests(unittest.TestCase):
         self.assertEqual(response["error"]["filters_applied"], {})
         self.assertTrue(any("no keyword fallback" in warning for warning in response["warnings"]))
         self.assertFalse(response["fallback_used"])
+        self.assertIn("query_understanding", response)
 
     def test_keyword_backend_without_adapter_fails_closed_instead_of_falling_back(self) -> None:
         with patch("semantic_mcp.tools.search_context._optional_keyword_backend", return_value=None):
@@ -229,6 +266,7 @@ class SearchContextToolTests(unittest.TestCase):
         self.assertIsNone(response["error"])
         self.assertEqual(seen["collection_name"], "SemanticCardsTest")
         self.assertEqual(seen["query_mode"], "bm25")
+        self.assertEqual(seen["query"], "순매출")
         self.assertEqual(
             seen["filters"],
             {
@@ -303,6 +341,7 @@ class SearchContextToolTests(unittest.TestCase):
         self.assertFalse(response["fallback_used"])
         self.assertEqual(seen["collection_name"], "SemanticCardsTest")
         self.assertEqual(seen["query_mode"], "hybrid")
+        self.assertEqual(seen["query"], "순매출")
         self.assertEqual(seen["filters"], {"domain": "sales"})
         self.assertEqual(seen["limit"], 1)
         self.assertIsNone(seen["query_vector"])

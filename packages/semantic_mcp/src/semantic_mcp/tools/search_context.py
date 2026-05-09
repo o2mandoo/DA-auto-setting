@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping
 
 from semantic_registry.store import DEFAULT_PACK_ROOT, PackStore
+from semantic_registry.retrieval import analyze_semantic_query
 
 _CARD_TYPE_ALIASES = {
     "business_terms": "business_term",
@@ -88,13 +89,15 @@ def search_semantic_context(
 
     status_by_id = _status_lookup(packs)
     source_by_id = _source_uri_lookup(packs)
+    query_understanding = analyze_semantic_query(packs, query)
+    backend_limit = min(100, max(limit * 3, limit + 10)) if selected_backend == "keyword" else limit
     try:
         raw_results, backend_warnings = _run_backend(
             selected_backend,
             packs,
             query=query,
             card_types=card_types,
-            limit=limit,
+            limit=backend_limit,
             filters=applied_filters,
             backend_config=backend_config,
             query_mode=query_mode,
@@ -107,7 +110,8 @@ def search_semantic_context(
             "filters_applied": applied_filters,
             "fallback_used": False,
             "results": [],
-            "warnings": [str(exc)],
+            "warnings": _unique([*query_understanding.warnings, str(exc)]),
+            "query_understanding": query_understanding.as_dict(),
             "error": {
                 "code": "backend_configuration_error",
                 "message": str(exc),
@@ -117,10 +121,11 @@ def search_semantic_context(
             },
         }
 
-    max_score = max((_raw_score(result) for result in raw_results), default=1.0) or 1.0
+    ranked_results = _apply_semantic_ranking(raw_results, query_understanding)
+    max_score = max((_raw_score(result) for result in ranked_results), default=1.0) or 1.0
     normalized_results = [
         _structured_result(result, max_score=max_score, status_by_id=status_by_id, source_by_id=source_by_id)
-        for result in raw_results
+        for result in ranked_results[:limit]
     ]
     return {
         "backend": selected_backend,
@@ -128,7 +133,8 @@ def search_semantic_context(
         "filters_applied": applied_filters,
         "fallback_used": bool(backend_warnings),
         "results": normalized_results,
-        "warnings": backend_warnings,
+        "warnings": _unique([*query_understanding.warnings, *backend_warnings]),
+        "query_understanding": query_understanding.as_dict(),
         "error": None,
     }
 
@@ -286,6 +292,45 @@ def _structured_result(
         "snippet": summary,
         "source_pack": source_pack,
     }
+
+
+def _apply_semantic_ranking(results: Iterable[Any], query_understanding: Any) -> list[Any]:
+    """Promote exact semantic-pack matches without fabricating backend hits."""
+
+    materialized = list(results)
+    semantic_priority = _semantic_priority_by_card_id(query_understanding)
+    if not semantic_priority:
+        return materialized
+    return sorted(
+        materialized,
+        key=lambda result: (
+            -semantic_priority.get(str(_get(result, "card_id", "doc_id", "id")), 0),
+            -_raw_score(result),
+            str(_get(result, "card_type", "type", default="")),
+            str(_get(result, "card_id", "doc_id", "id", default="")),
+        ),
+    )
+
+
+def _semantic_priority_by_card_id(query_understanding: Any) -> dict[str, int]:
+    payload = query_understanding.as_dict() if hasattr(query_understanding, "as_dict") else {}
+    priorities: dict[str, int] = {}
+    for group_name, priority in (
+        ("matched_terms", 1000),
+        ("matched_metrics", 950),
+        ("verified_query_matches", 850),
+        ("reverse_question_candidates", 650),
+        ("ambiguity_candidates", 625),
+    ):
+        for item in payload.get(group_name, []) or []:
+            card_id = str(item.get("card_id", ""))
+            if not card_id:
+                continue
+            item_priority = priority
+            if group_name == "verified_query_matches" and item.get("match_kind") == "question_pattern":
+                item_priority = 1100
+            priorities[card_id] = max(priorities.get(card_id, 0), item_priority)
+    return priorities
 
 
 def _search_documents_from_packs(packs: Iterable[Any]) -> list[Any]:
