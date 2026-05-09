@@ -16,14 +16,13 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
 import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Any, Sequence, cast
 
 from semantic_registry.product.api import API_ENDPOINTS, handle_product_api
 from semantic_registry.store import DEFAULT_PACK_ROOT, PackStore
@@ -145,7 +144,7 @@ def build_readyz_response(
 def build_openapi_response(*, correlation_id: str | None = None) -> AdapterResponse:
     """Return a stable OpenAPI-like document from the current route inventory."""
 
-    routes = [
+    routes: list[dict[str, Any]] = [
         {
             "method": "GET",
             "path": "/healthz",
@@ -165,8 +164,8 @@ def build_openapi_response(*, correlation_id: str | None = None) -> AdapterRespo
             "execution_allowed": False,
         },
     ]
-    for route, handler in sorted(API_ENDPOINTS.items()):
-        method, path = route.split(" ", 1)
+    for endpoint, handler in sorted(API_ENDPOINTS.items()):
+        method, path = endpoint.split(" ", 1)
         routes.append(
             {
                 "method": method,
@@ -179,9 +178,9 @@ def build_openapi_response(*, correlation_id: str | None = None) -> AdapterRespo
 
     paths: dict[str, dict[str, Any]] = {}
     for route in routes:
-        path = route["path"]
-        method = route["method"].lower()
-        paths.setdefault(path, {})[method] = {
+        route_path = route["path"]
+        http_method = route["method"].lower()
+        paths.setdefault(route_path, {})[http_method] = {
             "summary": route["summary"],
             "operationId": route.get("operation_id", route["summary"].lower().replace(" ", "_")),
             "responses": {
@@ -319,8 +318,9 @@ def inspect_readiness(pack_root: str | Path = DEFAULT_PACK_ROOT) -> dict[str, An
             f"pack root {root} is not a directory",
             details={"pack_root": str(root)},
         )
-    summary = PackStore(root).inspect_all()
-    if int(summary.get("pack_count", 0)) <= 0:
+    summary = cast(dict[str, Any], PackStore(root).inspect_all())
+    pack_count = int(cast(int | str, summary.get("pack_count", 0)))
+    if pack_count <= 0:
         raise AdapterDependencyError(
             "no_semantic_packs_found",
             f"no Semantic Packs were discovered under {root}",
@@ -328,9 +328,9 @@ def inspect_readiness(pack_root: str | Path = DEFAULT_PACK_ROOT) -> dict[str, An
         )
     return {
         "pack_root": str(root),
-        "pack_count": summary["pack_count"],
-        "pack_ids": summary["pack_ids"],
-        "card_counts": summary["card_counts"],
+        "pack_count": pack_count,
+        "pack_ids": cast(list[str], summary["pack_ids"]),
+        "card_counts": cast(dict[str, int], summary["card_counts"]),
     }
 
 

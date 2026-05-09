@@ -5,16 +5,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/2008_2024_연령별인구현황.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     },
     {
@@ -22,16 +17,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/SEILOneCompany_HR데이터.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     },
     {
@@ -39,16 +29,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/SEILOneCompany_Sales데이터.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     },
     {
@@ -56,16 +41,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/경제활동인구_2013_2024.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     },
     {
@@ -73,16 +53,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/경제활동인구_2019_2024.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     },
     {
@@ -90,16 +65,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/배달앱이용현황.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     },
     {
@@ -107,16 +77,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/서울날씨_최고기온.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     },
     {
@@ -124,16 +89,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/서울지하철승하차인원.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     },
     {
@@ -141,16 +101,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/스타벅스_구매목록.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     },
     {
@@ -158,16 +113,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/스타벅스매장데이터.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     },
     {
@@ -175,16 +125,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/시도별연간인구수.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     },
     {
@@ -192,16 +137,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/에버랜드입장객데이터.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     },
     {
@@ -209,16 +149,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/여름가전종목.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     },
     {
@@ -226,16 +161,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/온라인쇼핑몰_판매매체별_상품군별거래액_2017_2024.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     },
     {
@@ -243,16 +173,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/와일드카드유니온실습/SEILOneCompany_2022.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     },
     {
@@ -260,16 +185,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/와일드카드유니온실습/SEILOneCompany_2023.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     },
     {
@@ -277,16 +197,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/와일드카드유니온실습/SEILOneCompany_2024.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     },
     {
@@ -294,16 +209,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/와일드카드유니온실습/SEILOneCompany_2025.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     },
     {
@@ -311,16 +221,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/우리나라인구수_2021_2024.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     },
     {
@@ -328,16 +233,11 @@
       "dataset_id": "sinagong_tableau_2026",
       "source_file": "docs/reference/test_datasets/sinagong_tableau_2026/인구동태건수_2019_2023.xlsx",
       "file_exists": true,
-      "benchmark_artifact": "runtime/benchmarks/sinagong_tableau_2026/benchmark.json",
-      "benchmark_summary": {
-        "failed": 0,
-        "passed": 52,
-        "skipped": 21,
-        "total": 73
-      },
-      "status": "covered_by_aggregate_benchmark",
+      "benchmark_artifact": null,
+      "benchmark_summary": {},
+      "status": "missing_evidence",
       "notes": [
-        "aggregate benchmark artifact exists; per-file score is not invented"
+        "benchmark artifact missing"
       ]
     }
   ],
@@ -345,7 +245,7 @@
     "capabilities": {
       "sinagong_domain_01_2008_2024_연령별인구현황": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -353,7 +253,7 @@
       },
       "sinagong_domain_02_SEILOneCompany_HR데이터": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -361,7 +261,7 @@
       },
       "sinagong_domain_03_SEILOneCompany_Sales데이터": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -369,7 +269,7 @@
       },
       "sinagong_domain_04_경제활동인구_2013_2024": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -377,7 +277,7 @@
       },
       "sinagong_domain_05_경제활동인구_2019_2024": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -385,7 +285,7 @@
       },
       "sinagong_domain_06_배달앱이용현황": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -393,7 +293,7 @@
       },
       "sinagong_domain_07_서울날씨_최고기온": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -401,7 +301,7 @@
       },
       "sinagong_domain_08_서울지하철승하차인원": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -409,7 +309,7 @@
       },
       "sinagong_domain_09_스타벅스_구매목록": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -417,7 +317,7 @@
       },
       "sinagong_domain_10_스타벅스매장데이터": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -425,7 +325,7 @@
       },
       "sinagong_domain_11_시도별연간인구수": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -433,7 +333,7 @@
       },
       "sinagong_domain_12_에버랜드입장객데이터": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -441,7 +341,7 @@
       },
       "sinagong_domain_13_여름가전종목": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -449,7 +349,7 @@
       },
       "sinagong_domain_14_온라인쇼핑몰_판매매체별_상품군별거래액_2017_2024": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -457,7 +357,7 @@
       },
       "sinagong_domain_15_SEILOneCompany_2022": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -465,7 +365,7 @@
       },
       "sinagong_domain_16_SEILOneCompany_2023": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -473,7 +373,7 @@
       },
       "sinagong_domain_17_SEILOneCompany_2024": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -481,7 +381,7 @@
       },
       "sinagong_domain_18_SEILOneCompany_2025": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -489,7 +389,7 @@
       },
       "sinagong_domain_19_우리나라인구수_2021_2024": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -497,7 +397,7 @@
       },
       "sinagong_domain_20_인구동태건수_2019_2023": {
         "file_present": "pass",
-        "aggregate_benchmark": "pass",
+        "aggregate_benchmark": "missing",
         "semantic_findings_declared": "pass",
         "gold_questions_declared": "pass",
         "red_team_declared": "pass",
@@ -505,36 +405,7 @@
       }
     }
   },
-  "failure_patterns": [
-    {
-      "pattern": "per_file_scores_not_available",
-      "affected_domains": [
-        "sinagong_domain_01_2008_2024_연령별인구현황",
-        "sinagong_domain_02_SEILOneCompany_HR데이터",
-        "sinagong_domain_03_SEILOneCompany_Sales데이터",
-        "sinagong_domain_04_경제활동인구_2013_2024",
-        "sinagong_domain_05_경제활동인구_2019_2024",
-        "sinagong_domain_06_배달앱이용현황",
-        "sinagong_domain_07_서울날씨_최고기온",
-        "sinagong_domain_08_서울지하철승하차인원",
-        "sinagong_domain_09_스타벅스_구매목록",
-        "sinagong_domain_10_스타벅스매장데이터",
-        "sinagong_domain_11_시도별연간인구수",
-        "sinagong_domain_12_에버랜드입장객데이터",
-        "sinagong_domain_13_여름가전종목",
-        "sinagong_domain_14_온라인쇼핑몰_판매매체별_상품군별거래액_2017_2024",
-        "sinagong_domain_15_SEILOneCompany_2022",
-        "sinagong_domain_16_SEILOneCompany_2023",
-        "sinagong_domain_17_SEILOneCompany_2024",
-        "sinagong_domain_18_SEILOneCompany_2025",
-        "sinagong_domain_19_우리나라인구수_2021_2024",
-        "sinagong_domain_20_인구동태건수_2019_2023"
-      ],
-      "evidence": [
-        "aggregate benchmark exists; per-file domain scores must be generated before claiming exact per-domain pass rates"
-      ]
-    }
-  ],
+  "failure_patterns": [],
   "examples": [
     {
       "question": "월별 신규 고객 순매출을 보여줘",
@@ -549,5 +420,26 @@
       "dataset_id": "tableau_superstore"
     }
   ],
-  "missing_evidence": []
+  "missing_evidence": [
+    "sinagong_domain_01_2008_2024_연령별인구현황",
+    "sinagong_domain_02_SEILOneCompany_HR데이터",
+    "sinagong_domain_03_SEILOneCompany_Sales데이터",
+    "sinagong_domain_04_경제활동인구_2013_2024",
+    "sinagong_domain_05_경제활동인구_2019_2024",
+    "sinagong_domain_06_배달앱이용현황",
+    "sinagong_domain_07_서울날씨_최고기온",
+    "sinagong_domain_08_서울지하철승하차인원",
+    "sinagong_domain_09_스타벅스_구매목록",
+    "sinagong_domain_10_스타벅스매장데이터",
+    "sinagong_domain_11_시도별연간인구수",
+    "sinagong_domain_12_에버랜드입장객데이터",
+    "sinagong_domain_13_여름가전종목",
+    "sinagong_domain_14_온라인쇼핑몰_판매매체별_상품군별거래액_2017_2024",
+    "sinagong_domain_15_SEILOneCompany_2022",
+    "sinagong_domain_16_SEILOneCompany_2023",
+    "sinagong_domain_17_SEILOneCompany_2024",
+    "sinagong_domain_18_SEILOneCompany_2025",
+    "sinagong_domain_19_우리나라인구수_2021_2024",
+    "sinagong_domain_20_인구동태건수_2019_2023"
+  ]
 }
