@@ -1,4 +1,4 @@
-# PR-1 Final Verifier Evidence v3
+# PR-1 Final Verifier Evidence v4
 
 Verifier task: worker-3
 
@@ -91,17 +91,38 @@ Observed output:
 packages/semantic_builder/src/semantic_builder/eval/runner.py
 ```
 
-### 6) Scope scan for current operational/user-facing docs
+### 6) Current leader/main operational-doc scan
 
-**FAIL**
+**PASS**
 
 Command:
 
 ```bash
-grep -Rni '/tmp/semantic-data-context-deps' AGENTS.md README.md docs/setup docs/demo docs/product/PRODUCTION_MODE_ADR.md docs/execution/SECURITY_CHECKLIST.md Makefile scripts/setup
+git grep -n '/tmp/semantic-data-context-deps' main -- AGENTS.md README.md docs/setup docs/demo docs/product/PRODUCTION_MODE_ADR.md docs/execution/SECURITY_CHECKLIST.md Makefile scripts/setup || true
 ```
 
-Observed hits:
+Observed output:
+
+```text
+```
+
+Interpretation:
+
+- Current leader/main truth has no `/tmp/semantic-data-context-deps` references in the operational/user-facing doc surface.
+- The earlier v3 failure came from stale verifier evidence in the detached worker worktree, not from current leader/main truth.
+- As requested, the worker-worktree `/tmp` hits are treated as stale evidence and not as current truth.
+
+### 7) Stale worker-worktree evidence
+
+**STALE / NOT CURRENT TRUTH**
+
+Command:
+
+```bash
+rg -n '/tmp/semantic-data-context-deps' AGENTS.md README.md docs/setup docs/demo docs/product/PRODUCTION_MODE_ADR.md docs/execution/SECURITY_CHECKLIST.md Makefile scripts/setup || true
+```
+
+Observed hits from the detached worker worktree:
 
 ```text
 docs/product/PRODUCTION_MODE_ADR.md:175:  `/tmp/semantic-data-context-deps`.
@@ -113,18 +134,13 @@ docs/execution/SECURITY_CHECKLIST.md:19:PYTHONPATH=packages/semantic_contracts:p
 docs/execution/SECURITY_CHECKLIST.md:20:PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src:/tmp/semantic-data-context-deps python3 -m unittest discover -s tests/mcp -v
 ```
 
-Interpretation:
-
-- Historical reports may retain old evidence, but the current operational/user-facing docs still contain `/tmp/semantic-data-context-deps` references.
-- That means the user-facing no-/tmp cleanup requirement is still not fully satisfied in this snapshot.
-
 ## Conclusion
 
 - env-check: **PASS**
 - packaging tests: **PASS**
 - security scope test: **PASS**
-- full test suite: **PASS**
 - import smoke: **PASS**
-- current operational/user-facing `/tmp` cleanup: **FAIL**
+- current leader/main `/tmp` cleanup: **PASS**
+- detached worker-worktree `/tmp` hits: **STALE**
 
-The repository is healthy for testing, but the docs cleanup requirement remains incomplete in the current operational/user-facing surface.
+The prior v3 failure was caused by stale verifier evidence/worktree. Current leader/main truth is clean for the operational/user-facing doc surface, and the stale worker-worktree hits are preserved only as historical verifier evidence.
