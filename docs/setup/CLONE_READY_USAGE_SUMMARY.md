@@ -25,20 +25,16 @@ python -m pip install -e packages/semantic_contracts \
   -e packages/semantic_builder
 cp .env.example .env
 bash scripts/setup/env_check.sh
-PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src \
 python3 scripts/demo/run_local_demo.py
 ```
 
 ## Recommended verification
 
 ```bash
-PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src \
 python3 -m unittest discover -s tests/security -v
 
-PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src \
 python3 -m unittest discover -s tests/registry -v
 
-PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src \
 python3 -m unittest discover -s tests/mcp -v
 ```
 
@@ -52,4 +48,4 @@ python3 -m unittest discover -s tests/mcp -v
 - No production `execute_query`
 - No silent fallback after explicit backend selection
 - No raw PII in prompts, logs, or generated artifacts
-- Keep repo package roots in `PYTHONPATH`; no temporary dependency cache is required
+- The editable install path is repo-native; no temporary dependency cache is required

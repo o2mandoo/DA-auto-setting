@@ -28,11 +28,8 @@ def main() -> int:
     print(f"- found {setup_doc.relative_to(ROOT)}")
     print()
     print("canonical local setup commands:")
+    print("  python3 -m pip install -e packages/semantic_contracts -e packages/semantic_registry -e packages/semantic_mcp -e packages/semantic_builder")
     print("  cp .env.example .env")
-    print(
-        "  export PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:"
-        "packages/semantic_registry:packages/semantic_mcp/src"
-    )
     print("  python3 scripts/demo/run_local_demo.py")
     print("  python3 -m unittest tests.builder.test_semantic_inference_pipeline -v")
     print("  python3 -m unittest discover -s tests/security -v")

@@ -33,9 +33,10 @@ class SetupScriptsPackagingTests(unittest.TestCase):
         self.assertIn("clone-ready setup checks: PASS", stdout)
         self.assertIn("cp .env.example .env", stdout)
         self.assertIn("python3 scripts/demo/run_local_demo.py", stdout)
-        self.assertIn(
-            "packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src",
-            stdout,
+        self.assertIn("packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src", stdout)
+        self.assertLess(
+            stdout.index("packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src"),
+            stdout.index("python3 scripts/demo/run_local_demo.py"),
         )
         self.assertNotIn("/tmp/semantic-data-context-deps", stdout)
 

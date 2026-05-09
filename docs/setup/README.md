@@ -31,7 +31,6 @@ The top-level `Makefile` keeps the common flows short:
 If you prefer manual commands, the same demo path is available through the builder CLI:
 
 ```bash
-PYTHONPATH=packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src \
 python3 -m semantic_builder.cli scan --source examples/demo_data --out runtime/phase12_demo/scan_report.json
 ```
 
