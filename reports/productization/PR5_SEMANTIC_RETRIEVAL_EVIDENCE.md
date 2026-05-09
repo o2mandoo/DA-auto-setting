@@ -127,7 +127,9 @@ This recheck makes the explicit no-silent-fallback boundary visible in both test
 ## No-silent-fallback log
 
 - Live DB corpus precheck was rerun successfully. The earlier PostgreSQL/MySQL fixture issues were fixed before PR-5 and did not recur.
-- A team-mode attempt for PR-5 drifted into a generic decomposition. It was explicitly stopped, and only aligned no-silent-fallback/team changes already merged in the repo were kept. Retrieval hardening was completed under direct leader control.
+- Team decomposition drift was corrected by lane-specific inbox instructions, and the missing context snapshot was copied into the worker worktrees. When the worktree `.venv` was missing, verification used the absolute repo venv as instructed.
+- Team-state/process failures in tasks 1 and 11 remain terminal fallbacks and are acknowledged as non-product issues rather than product behavior regressions.
+- PR-5 was completed through team workers plus leader verification, with the final reporting and bookkeeping carried in the worker lane.
 - Full test execution regenerated final benchmark summary artifacts as a side effect; those unrelated generated reports were restored to avoid silently broadening PR-5 scope.
 
 ## Remaining risks
