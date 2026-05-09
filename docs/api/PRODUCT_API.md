@@ -5,6 +5,18 @@ orchestration flows. The current implementation is pure Python handlers in
 `semantic_registry.product.api`; a thin web adapter can mount the same route
 names later without changing the product logic.
 
+The adapter surface is transport-only: it exposes health, readiness, OpenAPI
+inventory, and product route forwarding, but it does not add production SQL
+execution, `execute_query`, or SaaS/UI runtime behavior.
+
+## Local adapter modes
+
+- Check mode: `python -m semantic_registry.product.http_adapter --check`
+- Local server mode: `python -m semantic_registry.product.http_adapter`
+
+The check path must be deterministic and non-networked. The server path should
+serve the same route inventory locally.
+
 ## Contract scope
 
 - The API is local/demo only.
@@ -14,6 +26,10 @@ names later without changing the product logic.
 - Raw PII-like text is redacted before audit writes.
 - Missing providers/backends are reported explicitly; workflow templates must
   not hide failures behind unlabeled fallbacks.
+- There is no `execute_query` route or handler.
+- Typed failures carry a correlation ID for traceability.
+- Docs and examples must remain credential-free and avoid production connection
+  strings.
 
 ## Demo auth/header strategy
 
@@ -37,6 +53,20 @@ or mismatched.
   verification panel, a failure state panel, and suggested next actions.
 - Missing or unsupported inputs fail fast with explicit errors instead of
   silently selecting a substitute route.
+
+## Adapter routes
+
+Literal route names for adapter-facing docs:
+
+- `GET /healthz`
+- `GET /readyz`
+- `GET /openapi.json`
+
+| Method | Path | Purpose | Key response notes |
+|---|---|---|---|
+| GET | `/healthz` | Report process health JSON. | Returns a process-health view and a correlation ID. |
+| GET | `/readyz` | Report pack-root/config readiness. | Returns explicit typed errors when config or dependencies are missing. |
+| GET | `/openapi.json` | Return the route inventory in OpenAPI-like JSON. | Describes the same adapter and product routes listed below. |
 
 ## Routes
 
