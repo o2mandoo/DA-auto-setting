@@ -128,8 +128,15 @@ def inspect_registration_surface() -> dict[str, Any]:
         "tools": list(REGISTERED_TOOLS),
         "resources": list(REGISTERED_RESOURCES),
         "prompts": list(REGISTERED_PROMPTS),
+        "registered_tools": list(REGISTERED_TOOLS),
+        "registered_resources": list(REGISTERED_RESOURCES),
+        "registered_prompts": list(REGISTERED_PROMPTS),
         "execution_allowed": False,
+        "production_execution_allowed": False,
         "mcp_sdk_required_for_stdio": True,
+        "stdio_requires_official_mcp_sdk": True,
+        "no_execute_query_tool": True,
+        "preview_scope": "local/demo/test",
     }
 
 

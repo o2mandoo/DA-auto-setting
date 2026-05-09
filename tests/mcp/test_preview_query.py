@@ -3,35 +3,12 @@ from __future__ import annotations
 import sys
 import unittest
 from pathlib import Path
-from types import ModuleType
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "packages" / "semantic_contracts"))
 sys.path.insert(0, str(ROOT / "packages" / "semantic_registry"))
 sys.path.insert(0, str(ROOT / "packages" / "semantic_mcp" / "src"))
-
-if "semantic_registry.runtime" not in sys.modules:
-    runtime_stub = ModuleType("semantic_registry.runtime")
-
-    class _RuntimeGateStub:
-        def __init__(self, *args, **kwargs) -> None:  # pragma: no cover - collection shim only
-            pass
-
-        @classmethod
-        def from_packs(cls, *args, **kwargs):  # pragma: no cover - collection shim only
-            return cls()
-
-        def assess(self, *args, **kwargs):  # pragma: no cover - collection shim only
-            return {"valid": False, "execution_allowed": False}
-
-        def verify_sql(self, *args, **kwargs):  # pragma: no cover - collection shim only
-            return {"valid": False, "execution_allowed": False}
-
-    runtime_stub.AmbiguityGate = _RuntimeGateStub
-    runtime_stub.PolicyVerifier = _RuntimeGateStub
-    runtime_stub.SemanticVerifier = _RuntimeGateStub
-    sys.modules["semantic_registry.runtime"] = runtime_stub
 
 from semantic_mcp import inspect_registration_surface, preview_query  # noqa: E402
 from semantic_mcp.tools.preview_query import PreviewRuntimeUnavailable  # noqa: E402
@@ -43,6 +20,33 @@ class PreviewQueryMcpToolTests(unittest.TestCase):
 
         self.assertIn("preview_query", surface["tools"])
         self.assertNotIn("execute_query", surface["tools"])
+        self.assertEqual(
+            surface["tools"],
+            [
+                "list_semantic_spaces",
+                "search_semantic_context",
+                "resolve_business_terms",
+                "plan_data_query",
+                "validate_sql",
+                "preview_query",
+                "record_feedback",
+                "compare_baseline_vs_system_sql",
+            ],
+        )
+        self.assertEqual(
+            surface["resources"],
+            [
+                "semantic://packs",
+                "semantic://packs/{pack_id}",
+                "semantic://packs/{pack_id}/terms",
+                "semantic://packs/{pack_id}/metrics",
+                "semantic://packs/{pack_id}/policies",
+                "semantic://packs/{pack_id}/verified-queries",
+            ],
+        )
+        self.assertEqual(surface["prompts"], ["answer_with_semantic_pack"])
+        self.assertFalse(surface["execution_allowed"])
+        self.assertTrue(surface["mcp_sdk_required_for_stdio"])
 
     def test_preview_query_requires_space_role_and_sql(self) -> None:
         for kwargs in (
