@@ -13,7 +13,41 @@
 - `reports/release/2026-05-09-kst-6dc9efa72348/known_limitations.md`
 - `reports/release/2026-05-09-kst-6dc9efa72348/support_matrix.md`
 
+## Canonical command check
+
+**PASS**
+
+The Makefile exposes the canonical release command:
+
+```bash
+make release-pack
+```
+
+It routes to:
+
+```bash
+$(PYTHON) scripts/release/build_release_packet.py --release-id $(RELEASE_ID) --out $(RELEASE_OUT)
+```
+
+This is the canonical packer path verified in this lane.
+
 ## Verification performed
+
+### Environment check
+
+**PASS**
+
+Command:
+
+```bash
+make env-check
+```
+
+Observed result:
+
+```text
+environment ok: 3.14.4
+```
 
 ### Release packer dry-run
 
@@ -22,24 +56,13 @@
 Command:
 
 ```bash
-python3 scripts/release/build_release_packet.py --release-id verifier-check --out /tmp/release-packet-check
+make release-pack RELEASE_ID=verifier-check RELEASE_OUT=/tmp/release-pack-verifier-check
 ```
 
-Observed output:
+Observed result:
 
-```json
-{
-  "missing_evidence": [],
-  "release_id": "verifier-check",
-  "status": "dry-run",
-  "safety_checks": {
-    "no_production_execute_query_claim": true,
-    "no_raw_pii_claim": true,
-    "no_silent_fallback_claim": true,
-    "secrets_redacted": true,
-    "sensitive_content_redacted": true
-  }
-}
+```text
+release_manifest.json generated; missing_evidence=[]; safety_checks true
 ```
 
 ### Release packet structure check
@@ -76,20 +99,26 @@ The packet and its source evidence explicitly preserve:
 Command:
 
 ```bash
-python3 -m unittest discover -s tests/release -v
+.venv/bin/python -m pytest -q tests/release
 ```
 
 Observed output:
 
 ```text
-Ran 0 tests in 0.000s
-NO TESTS RAN
+5 passed in 0.21s
 ```
 
 Interpretation:
 
-- The release-specific tests are not discoverable via the default `discover -s` path in this checkout.
-- The actual release packer verification was therefore performed by direct script execution instead.
+- The release-specific tests pass when run through the repository venv with pytest.
+- A prior `unittest discover -s` probe returned no tests; the pytest path is the supported release verification path for this checkout.
+
+## Correction lane status
+
+- Task 17 is terminal completed.
+- Task 19 is terminal completed.
+- Task 20 is terminal completed.
+- Task 3 remains a superseded OMX task-state failure, not a current product/release-packet failure; replacement manifest and safety-proof work is covered by Tasks 17 and 19.
 
 ## Missing evidence
 
