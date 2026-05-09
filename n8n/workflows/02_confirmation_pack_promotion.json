@@ -1,5 +1,5 @@
 {
-  "name": "02 Confirmation Pack Promotion",
+  "name": "02 Comment-aware Reverse Question Demo",
   "active": false,
   "nodes": [
     {
@@ -15,7 +15,7 @@
     },
     {
       "parameters": {
-        "content": "Start confirmation session first. Human approval is required before pack promotion. Do not mutate approved packs in place."
+        "content": "Open a confirmation session to surface comment-aware reverse questions. No-comment gaps, real-comment draft context, and synthetic fixture-only comments must remain visible; do not mutate approved packs in place."
       },
       "id": "02 Confirmation Pack Promotion-safety-note",
       "name": "Safety Gate Note",
@@ -41,7 +41,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "{\"space_id\": \"demo_company.revenue\"}",
+        "jsonBody": "{\"space_id\": \"demo_company.revenue\", \"selected_comment_mode\": \"no_comments\", \"review_focus\": \"comment-aware reverse questions\", \"provenance_warnings\": [\"real_comments only when manifest-provided\", \"synthetic_comments remain fixture-only\", \"no silent fallback to DuckDB, SQLite, or unapproved DBs\"]}",
         "options": {
           "response": {
             "response": {

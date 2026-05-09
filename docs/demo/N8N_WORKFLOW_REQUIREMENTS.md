@@ -9,7 +9,7 @@ n8n workflows are demo/orchestration wrappers around the Product API. They must 
 - Shows scan/profile/build-pack commands as next actions.
 - Does not connect to production data sources.
 
-## Workflow 02 — Confirmation + Pack Promotion
+## Workflow 02 — Comment-aware Reverse Question Demo + Pack Promotion
 
 - Calls `POST /api/confirmation/session`.
 - Presents reverse questions to a human reviewer.
