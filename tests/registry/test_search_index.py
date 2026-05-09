@@ -38,6 +38,7 @@ class SearchIndexTest(unittest.TestCase):
             self.index.search_cards("휴면 고객", card_types=["business_terms"], limit=5),
             [],
         )
+        self.assertEqual(self.index.search_cards("휴면 고객", limit=5), [])
 
     def test_search_can_filter_tables_columns_policies_and_queries(self) -> None:
         self.assertEqual(
@@ -68,6 +69,18 @@ class SearchIndexTest(unittest.TestCase):
 
         resolved_ids = [term.term_id for term in response.resolved_terms]
         self.assertEqual(resolved_ids, ["term.new_customer", "term.net_revenue"])
+        self.assertEqual(
+            [term.input for term in response.resolved_terms],
+            ["신규 고객", "net revenue"],
+        )
+        self.assertEqual(
+            [term.definition for term in response.resolved_terms],
+            [
+                "A user whose first successful payment timestamp falls within the analysis period.",
+                "Paid amount minus refund and discount amounts.",
+            ],
+        )
+        self.assertEqual([term.status for term in response.resolved_terms], ["draft", "draft"])
         self.assertEqual(response.resolved_terms[0].sql_condition, "users.first_paid_at >= {start_date} AND users.first_paid_at < {end_date}")
         self.assertEqual(response.unresolved_terms, ["missing term"])
 

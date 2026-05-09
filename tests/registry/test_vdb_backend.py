@@ -165,6 +165,66 @@ class SearchBackendTest(unittest.TestCase):
         self.assertEqual(results[0].doc_id, "metric.net_revenue")
         self.assertEqual(results[0].metadata["card_type"], "metric")
 
+    def test_weaviate_backend_rejects_missing_insert_surface_explicitly(self) -> None:
+        class NoInsertCollection:
+            def __init__(self) -> None:
+                self.data = object()
+
+        backend = WeaviateSearchBackend(collection=NoInsertCollection())
+
+        with self.assertRaisesRegex(WeaviateUnavailableError, "data.insert"):
+            backend.index_documents([
+                SearchDocument(
+                    doc_id="metric.net_revenue",
+                    title="순매출",
+                    text="Gross payment amount minus refunds.",
+                    metadata={"card_type": "metric"},
+                )
+            ])
+
+    def test_weaviate_backend_rejects_missing_query_modes_explicitly(self) -> None:
+        class NoHybridCollection:
+            def __init__(self) -> None:
+                self.query = type("Query", (), {"bm25": lambda self, **kwargs: object()})()
+
+        class NoBm25Collection:
+            def __init__(self) -> None:
+                self.query = type("Query", (), {"hybrid": lambda self, **kwargs: object()})()
+
+        class NoNearVectorCollection:
+            def __init__(self) -> None:
+                self.query = type(
+                    "Query",
+                    (),
+                    {
+                        "hybrid": lambda self, **kwargs: object(),
+                        "bm25": lambda self, **kwargs: object(),
+                    },
+                )()
+
+        with self.assertRaisesRegex(WeaviateUnavailableError, "query.hybrid"):
+            WeaviateSearchBackend(collection=NoHybridCollection()).search("refunds")
+
+        with self.assertRaisesRegex(WeaviateUnavailableError, "query.bm25"):
+            WeaviateSearchBackend(collection=NoBm25Collection()).search("refunds", query_mode="bm25")
+
+        with self.assertRaisesRegex(WeaviateUnavailableError, "query.near_vector"):
+            WeaviateSearchBackend(collection=NoNearVectorCollection()).search(
+                "refunds",
+                query_mode="near_vector",
+                query_vector=[0.1, 0.2, 0.3],
+            )
+
+        with self.assertRaisesRegex(WeaviateUnavailableError, "near_vector search requires an explicit query_vector"):
+            WeaviateSearchBackend(collection=NoNearVectorCollection()).search("refunds", query_mode="near_vector")
+
+    def test_weaviate_backend_rejects_unsupported_query_mode_explicitly(self) -> None:
+        collection = FakeCollection()
+        backend = WeaviateSearchBackend(collection=collection)
+
+        with self.assertRaisesRegex(WeaviateUnavailableError, "Unsupported Weaviate query mode"):
+            backend.search("refunds", query_mode="vector_search")
+
     def test_weaviate_backend_supports_all_query_modes_and_metadata_filters(self) -> None:
         cases = (
             ("hybrid", {}, None),
