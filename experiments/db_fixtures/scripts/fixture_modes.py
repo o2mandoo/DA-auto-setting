@@ -57,6 +57,8 @@ def build_fixture_table_plan(
     comment_mode = FixtureCommentMode(mode)
     if not schema_name.startswith("semantic_fixture_"):
         raise ValueError("fixture schemas must use semantic_fixture_* prefix")
+    if not columns:
+        raise ValueError("fixture table plan requires at least one column")
     if comment_mode == FixtureCommentMode.NO_COMMENTS:
         return FixtureTablePlan(schema_name=schema_name, table_name=table_name, columns=columns, mode=comment_mode)
     if comment_mode == FixtureCommentMode.REAL_COMMENTS:
