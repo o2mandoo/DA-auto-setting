@@ -752,7 +752,7 @@ def build_manifest(
     evidence_coverage: list[dict[str, object]],
     redaction_summary: RedactionSummary,
     dependency_snapshot_present: bool,
-    baseline_system_sql_evidence: list[dict[str, str]],
+    n8n_status: dict[str, object],
 ) -> dict[str, object]:
     coverage_counts = {
         status: sum(1 for item in evidence_coverage if item["status"] == status)
