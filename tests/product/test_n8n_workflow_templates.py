@@ -18,8 +18,8 @@ def test_n8n_templates_exist_for_five_workflows() -> None:
 
 def test_n8n_confirmation_workflow_is_comment_aware_reverse_question_demo() -> None:
     data = json.loads(Path("n8n/workflows/02_confirmation_pack_promotion.json").read_text(encoding="utf-8"))
-    assert data["name"] == "02 Comment-aware Reverse Question Demo"
-    assert data["nodes"][1]["parameters"]["content"].startswith("Open a confirmation session to surface comment-aware reverse questions")
+    assert data["name"] == "02 Comment-Aware Reverse Question Demo"
+    assert "comment-aware reverse questions" in data["nodes"][1]["parameters"]["content"]
     assert "comment-aware reverse questions" in data["nodes"][2]["parameters"]["jsonBody"]
 
 

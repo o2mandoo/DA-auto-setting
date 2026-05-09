@@ -15,7 +15,7 @@ import json
 from pathlib import Path
 from typing import Any, Iterable, Protocol
 
-from semantic_contracts import SemanticPack
+from semantic_contracts import SemanticPack  # type: ignore[import-untyped]
 from semantic_registry.query_planner import load_space_packs
 from semantic_registry.store import DEFAULT_PACK_ROOT
 
@@ -260,7 +260,7 @@ def _utc_now() -> str:
 
 
 def _jsonable(value: Any) -> Any:
-    if is_dataclass(value):
+    if is_dataclass(value) and not isinstance(value, type):
         return asdict(value)
     if isinstance(value, dict):
         return {key: _jsonable(child) for key, child in value.items()}
