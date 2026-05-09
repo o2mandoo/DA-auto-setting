@@ -1,10 +1,10 @@
-# PR-1 Final Verifier Evidence v2
+# PR-1 Final Verifier Evidence v3
 
 Verifier task: worker-3
 
 ## Environment
 
-- Fresh venv: `/tmp/worker3-pr1-v2-venv`
+- Fresh venv: `/tmp/worker3-pr1-v3-venv`
 - Installed from: `requirements-dev.txt` plus editable local packages
 - Dependency snapshot: `reports/productization/PR1_PIP_FREEZE.txt`
 
@@ -42,7 +42,24 @@ Observed output:
 8 passed in 0.13s
 ```
 
-### 3) Full test suite
+### 3) Security scope test
+
+**PASS**
+
+Command:
+
+```bash
+python -m unittest tests.security.test_phase12_scope -v
+```
+
+Observed output:
+
+```text
+Ran 5 tests in 0.009s
+OK
+```
+
+### 4) Full test suite
 
 **PASS**
 
@@ -58,7 +75,7 @@ Observed output:
 337 passed, 2 skipped in 58.87s
 ```
 
-### 4) Import smoke
+### 5) Import smoke
 
 **PASS**
 
@@ -74,7 +91,7 @@ Observed output:
 packages/semantic_builder/src/semantic_builder/eval/runner.py
 ```
 
-### 5) Scope scan for current operational/user-facing docs
+### 6) Scope scan for current operational/user-facing docs
 
 **FAIL**
 
@@ -105,6 +122,7 @@ Interpretation:
 
 - env-check: **PASS**
 - packaging tests: **PASS**
+- security scope test: **PASS**
 - full test suite: **PASS**
 - import smoke: **PASS**
 - current operational/user-facing `/tmp` cleanup: **FAIL**
