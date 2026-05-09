@@ -10,10 +10,12 @@ from __future__ import annotations
 
 import json
 import re
-import os
+import urllib.error
+import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping, Protocol, Sequence
+from urllib.parse import urlparse
 
 ProfileRecord = Mapping[str, Any]
 JsonObject = dict[str, Any]
@@ -47,72 +49,8 @@ class LocalProviderConfig:
     enabled: bool = False
     provider: str | None = None
     endpoint: str | None = None
-    base_url: str | None = None
-    model: str | None = None
     api_key: str | None = None
-    timeout: float | int | None = None
-    max_tokens: int | None = None
-    temperature: float | None = None
-
-    def __post_init__(self) -> None:
-        endpoint = self.endpoint or self.base_url
-        object.__setattr__(self, "endpoint", endpoint)
-        object.__setattr__(self, "base_url", endpoint)
-        if self.provider is not None and not str(self.provider).strip():
-            raise ValueError("provider must not be empty when configured")
-        if self.model is not None and not str(self.model).strip():
-            raise ValueError("model must not be empty when configured")
-        if self.api_key is not None and not str(self.api_key).strip():
-            raise ValueError("api_key must not be empty when configured")
-        if self.timeout is not None and float(self.timeout) <= 0:
-            raise ValueError("timeout must be greater than zero when configured")
-        if self.max_tokens is not None and int(self.max_tokens) <= 0:
-            raise ValueError("max_tokens must be greater than zero when configured")
-        if self.temperature is not None and not 0.0 <= float(self.temperature) <= 2.0:
-            raise ValueError("temperature must be between 0.0 and 2.0 when configured")
-
-    @classmethod
-    def from_mapping(cls, payload: Mapping[str, Any]) -> "LocalProviderConfig":
-        """Build a local provider config from env/config mappings."""
-
-        endpoint = payload.get("endpoint") or payload.get("base_url")
-        timeout_value = payload.get("timeout")
-        if timeout_value is None:
-            timeout_value = payload.get("timeout_ms")
-        timeout = _coerce_float_or_none(timeout_value)
-        max_tokens = _coerce_int_or_none(payload.get("max_tokens"))
-        temperature = _coerce_float_or_none(payload.get("temperature"))
-        return cls(
-            enabled=_to_bool(payload.get("enabled")),
-            provider=_clean_text(payload.get("provider")),
-            endpoint=_clean_text(endpoint),
-            base_url=_clean_text(endpoint),
-            model=_clean_text(payload.get("model")),
-            api_key=_clean_text(payload.get("api_key")),
-            timeout=timeout,
-            max_tokens=max_tokens,
-            temperature=temperature,
-        )
-
-    @classmethod
-    def from_env(cls, environ: Mapping[str, str] | None = None) -> "LocalProviderConfig":
-        """Build a provider config from SDC_LLM_* environment variables."""
-
-        env = environ or os.environ
-        return cls.from_mapping(
-            {
-                "enabled": env.get("SDC_LLM_ENABLED"),
-                "provider": env.get("SDC_LLM_PROVIDER"),
-                "endpoint": env.get("SDC_LLM_ENDPOINT"),
-                "base_url": env.get("SDC_LLM_BASE_URL"),
-                "model": env.get("SDC_LLM_MODEL"),
-                "api_key": env.get("SDC_LLM_API_KEY"),
-                "timeout": env.get("SDC_LLM_TIMEOUT"),
-                "timeout_ms": env.get("SDC_LLM_TIMEOUT_MS"),
-                "max_tokens": env.get("SDC_LLM_MAX_TOKENS"),
-                "temperature": env.get("SDC_LLM_TEMPERATURE"),
-            }
-        )
+    timeout_s: float = 30.0
 
 
 class LocalSemanticInferenceProvider:
@@ -135,37 +73,39 @@ class LocalSemanticInferenceProvider:
         self._client = client
         if not self.config.enabled:
             raise ValueError("local semantic inference provider requires explicit enabled=True config")
+        if not str(self.config.model or "").strip():
+            raise ValueError("local semantic inference provider requires a model")
+        if not str(self.config.endpoint or "").strip():
+            raise ValueError("local semantic inference provider requires an endpoint")
 
     def infer(self, profile_records: Sequence[ProfileRecord]) -> dict[str, list[JsonObject]]:
-        sanitized_records = [_sanitize_profile_record(record) for record in profile_records]
-        request_payload = self.build_request_payload(sanitized_records)
-        if self._client is None:
-            raise NotImplementedError("local semantic inference provider seam is configured but not implemented")
-        response = self._client(request_payload, self.config)
-        return self.parse_response(response)
+        payload = self._build_request_payload(profile_records)
+        response = self._post_json(payload)
+        return self._parse_response(response)
 
-    def build_request_payload(self, profile_records: Sequence[ProfileRecord]) -> JsonObject:
+    def _build_request_payload(self, profile_records: Sequence[ProfileRecord]) -> JsonObject:
         return {
-            "provider": self.config.provider or "local",
             "model": self.config.model,
-            "endpoint": self.config.endpoint,
-            "api_key": self.config.api_key,
-            "timeout": self.config.timeout,
-            "max_tokens": self.config.max_tokens,
-            "temperature": self.config.temperature,
-            "response_format": {"type": "json_object", "strict": True},
+            "temperature": 0,
             "messages": [
                 {
                     "role": "system",
                     "content": (
-                        "Return only strict JSON with top-level keys 'hypotheses' and "
-                        "'onboarding_questions'. Do not emit markdown, prose, or code fences."
+                        "You are a local semantic inference service. "
+                        "Return only valid JSON with keys hypotheses and onboarding_questions."
                     ),
                 },
                 {
                     "role": "user",
                     "content": json.dumps(
-                        {"profile_records": list(profile_records)},
+                        {
+                            "task": "Generate draft semantic hypotheses and onboarding questions from profile records.",
+                            "profiles": list(profile_records),
+                            "output_schema": {
+                                "hypotheses": "array of objects",
+                                "onboarding_questions": "array of objects",
+                            },
+                        },
                         ensure_ascii=False,
                         sort_keys=True,
                     ),
@@ -173,18 +113,41 @@ class LocalSemanticInferenceProvider:
             ],
         }
 
-    def parse_response(self, response: Any) -> dict[str, list[JsonObject]]:
-        payload = json.loads(response) if isinstance(response, str) else response
-        if not isinstance(payload, Mapping):
+    def _post_json(self, payload: JsonObject) -> JsonObject:
+        endpoint = str(self.config.endpoint or "").strip()
+        request = urllib.request.Request(
+            _openai_compat_url(endpoint),
+            data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+            headers=_openai_compat_headers(self.config.api_key),
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=float(self.config.timeout_s)) as response:
+                body = response.read().decode("utf-8")
+        except urllib.error.HTTPError as exc:
+            message = exc.read().decode("utf-8", errors="replace") if exc.fp else str(exc)
+            raise ValueError(f"local semantic inference provider HTTP {exc.code}: {message}") from exc
+        except urllib.error.URLError as exc:
+            raise ValueError(f"local semantic inference provider request failed: {exc.reason}") from exc
+
+        parsed = json.loads(body)
+        if not isinstance(parsed, dict):
+            raise ValueError("local semantic inference provider returned a non-object response")
+        return parsed
+
+    def _parse_response(self, response: JsonObject) -> dict[str, list[JsonObject]]:
+        content = _extract_openai_content(response)
+        try:
+            parsed = json.loads(content)
+        except json.JSONDecodeError as exc:
+            raise ValueError("local semantic inference provider returned non-JSON content") from exc
+        if not isinstance(parsed, dict):
             raise ValueError("local semantic inference provider response must be a JSON object")
-        hypotheses = payload.get("hypotheses", [])
-        questions = payload.get("onboarding_questions", [])
+        hypotheses = parsed.get("hypotheses", [])
+        questions = parsed.get("onboarding_questions", [])
         if not isinstance(hypotheses, list) or not isinstance(questions, list):
-            raise ValueError("local semantic inference provider response must contain hypothesis/question lists")
-        return {
-            "hypotheses": _dedupe_by_id(hypotheses),
-            "onboarding_questions": _dedupe_by_id(questions),
-        }
+            raise ValueError("local semantic inference provider response must contain list values")
+        return {"hypotheses": hypotheses, "onboarding_questions": questions}
 
 
 class DeterministicMockInferenceProvider:
@@ -595,6 +558,42 @@ def _join_hypotheses(records: Sequence[ProfileRecord]) -> list[JsonObject]:
             )
         )
     return hypotheses
+
+
+def _openai_compat_url(endpoint: str) -> str:
+    parsed = urlparse(endpoint)
+    if not parsed.scheme:
+        raise ValueError("local semantic inference provider endpoint must include a URL scheme")
+    normalized = endpoint.rstrip("/")
+    if normalized.endswith("/v1/chat/completions"):
+        return normalized
+    if normalized.endswith("/v1"):
+        return f"{normalized}/chat/completions"
+    return f"{normalized}/v1/chat/completions"
+
+
+def _openai_compat_headers(api_key: str | None) -> dict[str, str]:
+    headers = {"Content-Type": "application/json"}
+    token = str(api_key or "").strip()
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    return headers
+
+
+def _extract_openai_content(response: Mapping[str, Any]) -> str:
+    if "output_text" in response and response["output_text"] is not None:
+        return str(response["output_text"])
+    choices = response.get("choices")
+    if isinstance(choices, list) and choices:
+        first = choices[0]
+        if isinstance(first, Mapping):
+            message = first.get("message")
+            if isinstance(message, Mapping) and message.get("content") is not None:
+                return str(message["content"])
+            text = first.get("text")
+            if text is not None:
+                return str(text)
+    raise ValueError("local semantic inference provider response did not include assistant content")
 
 
 def _dedupe_by_id(records: Sequence[Mapping[str, Any]]) -> list[JsonObject]:
