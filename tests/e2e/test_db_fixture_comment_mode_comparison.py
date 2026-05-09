@@ -29,16 +29,19 @@ def test_comment_mode_comparison_shows_no_real_and_synthetic_differences(backend
     synthetic_comments = comparisons["synthetic_comments"]
 
     assert no_comments.available is True
+    assert no_comments.sql_comment_statements == 0
     assert no_comments.reverse_question_count > real_comments.reverse_question_count
     assert no_comments.text2sql_context_available is False
     assert "metadata_gap_not_context_truth" in no_comments.runtime_warnings
 
     assert real_comments.available is True
+    assert real_comments.sql_comment_statements == 3
     assert real_comments.text2sql_context_available is True
     assert real_comments.useful_metadata_coverage > 0
     assert "comment_only_draft_context" in real_comments.runtime_warnings
 
     assert synthetic_comments.available is True
+    assert synthetic_comments.sql_comment_statements == 7
     assert synthetic_comments.text2sql_context_available is False
     assert synthetic_comments.useful_metadata_coverage == 0
     assert "test_only_synthetic_metadata_excluded" in synthetic_comments.runtime_warnings
@@ -62,4 +65,18 @@ def test_real_comment_mode_missing_manifest_is_explicit_not_synthetic_fallback(b
     assert real_comments.available is False
     assert real_comments.text2sql_context_available is False
     assert "real_comments_manifest_missing" in real_comments.runtime_warnings
-    assert "no synthetic fallback was used" in real_comments.notes
+    assert real_comments.notes == [
+        "source manifest did not provide real comments/descriptions",
+        "no synthetic fallback was used",
+    ]
+
+
+def test_comment_mode_comparison_rejects_unsupported_backend() -> None:
+    with pytest.raises(ValueError, match="unsupported fixture backend"):
+        compare_comment_modes(
+            dataset_id="sales",
+            schema_name="semantic_fixture_sales",
+            table_name="orders",
+            columns=["status"],
+            backend="oracle",
+        )
