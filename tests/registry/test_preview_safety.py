@@ -3,12 +3,15 @@ from __future__ import annotations
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "packages" / "semantic_contracts"))
 sys.path.insert(0, str(ROOT / "packages" / "semantic_registry"))
+sys.path.insert(0, str(ROOT / "packages" / "semantic_mcp" / "src"))
 
 from semantic_registry.execution import InMemoryPreviewAuditLog, PreviewRequest, SafePreviewEngine  # noqa: E402
+from semantic_mcp.tools.preview_query import preview_query  # noqa: E402
 
 
 class PreviewSafetyTests(unittest.TestCase):
@@ -120,6 +123,38 @@ class PreviewSafetyTests(unittest.TestCase):
         self.assertIn("Blocked columns referenced: users.email", record.failure_reason or "")
         self.assertEqual(0, record.row_count)
         self.assertIn("users.email", record.referenced_columns)
+
+    def test_mcp_preview_normalization_forces_non_production_flags(self) -> None:
+        calls = []
+
+        def fake_runner(**kwargs):
+            calls.append(kwargs)
+            return {
+                "status": "ok",
+                "valid": True,
+                "preview_allowed": True,
+                "execution_allowed": True,
+                "production_execution_allowed": True,
+                "columns": ["payment_id"],
+                "rows": [{"payment_id": "p001"}],
+                "row_count": 1,
+            }
+
+        with patch("semantic_mcp.tools.preview_query._load_registry_preview_query", return_value=(fake_runner, None)):
+            response = preview_query(
+                "demo_company.revenue",
+                "SELECT payment_id FROM payments ORDER BY payment_id",
+                role="marketing_analyst",
+                root=ROOT / "semantic_packs",
+                fixture_root=ROOT / "examples" / "demo_data",
+                max_rows=1,
+            )
+
+        self.assertTrue(response["preview_allowed"])
+        self.assertFalse(response["execution_allowed"])
+        self.assertFalse(response["production_execution_allowed"])
+        self.assertEqual("local_fixture_only", response["execution_target"])
+        self.assertEqual(calls[0]["max_rows"], 1)
 
 
 if __name__ == "__main__":

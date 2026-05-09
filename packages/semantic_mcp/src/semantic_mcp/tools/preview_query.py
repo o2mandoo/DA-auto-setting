@@ -78,8 +78,8 @@ def preview_query(
     if "ok" in response and "valid" not in response:
         response["valid"] = bool(response["ok"])
     response.setdefault("preview_allowed", bool(response.get("valid", False)))
-    response.setdefault("execution_allowed", False)
-    response.setdefault("execution_target", "local_fixture_only")
+    response["execution_allowed"] = False
+    response["execution_target"] = "local_fixture_only"
     # Normalize the reported row cap to the policy-derived effective limit so
     # compatibility layers cannot leak a higher default from deeper layers.
     response["limit"] = effective_max_rows
@@ -88,7 +88,7 @@ def preview_query(
         response["errors"] = [response["error"]]
     response.setdefault("errors", [])
     response.setdefault("warnings", [])
-    response.setdefault("production_execution_allowed", False)
+    response["production_execution_allowed"] = False
     if adapter_warning:
         response["warnings"] = _unique([*response.get("warnings", []), adapter_warning])
     return response
