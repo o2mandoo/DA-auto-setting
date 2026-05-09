@@ -1,0 +1,2 @@
+{"correlation_id":"sample-correlation-success","created_at":"2026-05-09T15:32:06Z","execution_allowed":false,"pack_root":"semantic_packs","payload":{"question":"월별 신규 고객 순매출을 보여줘","role":"marketing_analyst"},"route":"POST /api/product/answer","status_code":200}
+{"correlation_id":"sample-correlation-validation-error","created_at":"2026-05-09T15:32:07Z","execution_allowed":false,"pack_root":"semantic_packs","payload":{"role":"marketing_analyst"},"route":"POST /api/product/answer","status_code":400}
