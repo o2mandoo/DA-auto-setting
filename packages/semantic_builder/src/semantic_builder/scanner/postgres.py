@@ -15,6 +15,8 @@ class PostgresScanner:
 
     connector: DBConnector
     config: SafeScanConfig | None = None
+    connector_name: str = "postgres"
+    source_detail_prefix: str = "postgres"
 
     def scan(self) -> dict[str, Any]:
         config = self.config or SafeScanConfig()
@@ -37,7 +39,7 @@ class PostgresScanner:
                 "metadata_provenance": [
                     provenance_for_comment(
                         table.comment,
-                        source_detail=f"postgres.table_comment:{table.schema_name}.{table.table_name}",
+                        source_detail=f"{self.source_detail_prefix}.table_comment:{table.schema_name}.{table.table_name}",
                         confidence=0.8 if table.comment else None,
                     )
                 ],
@@ -45,7 +47,7 @@ class PostgresScanner:
             }
             report_tables.append(attach_metadata_gaps(table_payload))
         return {
-            "connector": "postgres",
+            "connector": self.connector_name,
             "config": config.to_dict(),
             "tables": report_tables,
         }
@@ -96,14 +98,31 @@ class PostgresScanner:
         profile["metadata_provenance"] = [
             provenance_for_comment(
                 column.comment,
-                source_detail=f"postgres.column_comment:{table.schema_name}.{table.table_name}.{column.column_name}",
+                source_detail=f"{self.source_detail_prefix}.column_comment:{table.schema_name}.{table.table_name}.{column.column_name}",
                 confidence=0.8 if column.comment else None,
             )
         ]
         return attach_metadata_gaps({"table_name": table.table_name, "columns": [profile]})["columns"][0]
 
 
+class MySQLScanner(PostgresScanner):
+    """Bounded read-only scanner for MySQL-backed semantic packs.
+
+    The connector is responsible for reading MySQL catalog comments; this class
+    preserves the same provenance semantics while labeling evidence as MySQL.
+    """
+
+    connector_name = "mysql"
+    source_detail_prefix = "mysql"
+
+
 def scan_postgres_database(connector: DBConnector, *, config: SafeScanConfig | None = None) -> dict[str, Any]:
     """Convenience wrapper for callers that prefer a functional API."""
 
     return PostgresScanner(connector=connector, config=config).scan()
+
+
+def scan_mysql_database(connector: DBConnector, *, config: SafeScanConfig | None = None) -> dict[str, Any]:
+    """Convenience wrapper for MySQL connectors that implement DBConnector."""
+
+    return MySQLScanner(connector=connector, config=config).scan()
