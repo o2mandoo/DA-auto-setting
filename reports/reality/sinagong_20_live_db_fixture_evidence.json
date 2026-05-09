@@ -1,0 +1,733 @@
+{
+  "fixture_only": true,
+  "metadata_mode": "test_only_synthetic_comments",
+  "synthetic_truth_blocked": true,
+  "source_dataset_count": 20,
+  "source_sheet_count": 89,
+  "source_row_count": 103980,
+  "postgres": {
+    "backend": "postgres",
+    "attempted": true,
+    "status": "loaded",
+    "fallback_used": false,
+    "reasons": [],
+    "dataset_count": 20,
+    "table_count": 89,
+    "row_count": 103980,
+    "metadata_verified": true,
+    "manifest_rows": 89,
+    "table_comments_verified": 89,
+    "column_comments_verified": 1519
+  },
+  "mysql": {
+    "backend": "mysql",
+    "attempted": true,
+    "status": "loaded",
+    "fallback_used": false,
+    "reasons": [],
+    "dataset_count": 20,
+    "table_count": 89,
+    "row_count": 103980,
+    "metadata_verified": true,
+    "manifest_rows": 89,
+    "table_comments_verified": 89,
+    "column_comments_verified": 1519
+  },
+  "datasets": [
+    {
+      "dataset_index": 1,
+      "source_path": "2008_2024_연령별인구현황.xlsx",
+      "source_checksum": "04cbbc85cb3f4b46",
+      "sheet_count": 17,
+      "tables": [
+        {
+          "sheet_name": "2008",
+          "table_name": "ds01_s01_08960365",
+          "row_count": 279,
+          "column_count": 48
+        },
+        {
+          "sheet_name": "2009",
+          "table_name": "ds01_s02_8bf867d6",
+          "row_count": 279,
+          "column_count": 48
+        },
+        {
+          "sheet_name": "2010",
+          "table_name": "ds01_s03_91c44446",
+          "row_count": 282,
+          "column_count": 48
+        },
+        {
+          "sheet_name": "2011",
+          "table_name": "ds01_s04_d4d8a837",
+          "row_count": 282,
+          "column_count": 48
+        },
+        {
+          "sheet_name": "2012",
+          "table_name": "ds01_s05_7cbd8d7a",
+          "row_count": 283,
+          "column_count": 48
+        },
+        {
+          "sheet_name": "2013",
+          "table_name": "ds01_s06_78a7cb03",
+          "row_count": 283,
+          "column_count": 48
+        },
+        {
+          "sheet_name": "2014",
+          "table_name": "ds01_s07_2badc332",
+          "row_count": 284,
+          "column_count": 48
+        },
+        {
+          "sheet_name": "2015",
+          "table_name": "ds01_s08_4571387a",
+          "row_count": 284,
+          "column_count": 48
+        },
+        {
+          "sheet_name": "2016",
+          "table_name": "ds01_s09_27fe4630",
+          "row_count": 281,
+          "column_count": 48
+        },
+        {
+          "sheet_name": "2017",
+          "table_name": "ds01_s10_3b27536b",
+          "row_count": 281,
+          "column_count": 48
+        },
+        {
+          "sheet_name": "2018",
+          "table_name": "ds01_s11_4ec4f2d0",
+          "row_count": 281,
+          "column_count": 48
+        },
+        {
+          "sheet_name": "2019",
+          "table_name": "ds01_s12_499033bf",
+          "row_count": 281,
+          "column_count": 48
+        },
+        {
+          "sheet_name": "2020",
+          "table_name": "ds01_s13_90de1091",
+          "row_count": 295,
+          "column_count": 48
+        },
+        {
+          "sheet_name": "2021",
+          "table_name": "ds01_s14_4a61053d",
+          "row_count": 295,
+          "column_count": 48
+        },
+        {
+          "sheet_name": "2022",
+          "table_name": "ds01_s15_a71d7a8f",
+          "row_count": 294,
+          "column_count": 48
+        },
+        {
+          "sheet_name": "2023",
+          "table_name": "ds01_s16_96238e79",
+          "row_count": 294,
+          "column_count": 48
+        },
+        {
+          "sheet_name": "2024",
+          "table_name": "ds01_s17_7d75db6c",
+          "row_count": 297,
+          "column_count": 48
+        }
+      ]
+    },
+    {
+      "dataset_index": 2,
+      "source_path": "SEILOneCompany_HR데이터.xlsx",
+      "source_checksum": "f7474ae23585454e",
+      "sheet_count": 1,
+      "tables": [
+        {
+          "sheet_name": "직원현황",
+          "table_name": "ds02_s01_5c8cb22c",
+          "row_count": 1382,
+          "column_count": 8
+        }
+      ]
+    },
+    {
+      "dataset_index": 3,
+      "source_path": "SEILOneCompany_Sales데이터.xlsx",
+      "source_checksum": "fdee0e9b2757f1da",
+      "sheet_count": 2,
+      "tables": [
+        {
+          "sheet_name": "결제내역",
+          "table_name": "ds03_s01_a374a3a4",
+          "row_count": 11000,
+          "column_count": 17
+        },
+        {
+          "sheet_name": "고객정보",
+          "table_name": "ds03_s02_85a71ac2",
+          "row_count": 794,
+          "column_count": 4
+        }
+      ]
+    },
+    {
+      "dataset_index": 4,
+      "source_path": "경제활동인구_2013_2024.xlsx",
+      "source_checksum": "2181c0097ac47bd7",
+      "sheet_count": 6,
+      "tables": [
+        {
+          "sheet_name": "2013_2019",
+          "table_name": "ds04_s01_e5b565fc",
+          "row_count": 84,
+          "column_count": 3
+        },
+        {
+          "sheet_name": "2020",
+          "table_name": "ds04_s02_a48b1e8b",
+          "row_count": 108,
+          "column_count": 3
+        },
+        {
+          "sheet_name": "2021",
+          "table_name": "ds04_s03_49ee6e1b",
+          "row_count": 108,
+          "column_count": 3
+        },
+        {
+          "sheet_name": "2022",
+          "table_name": "ds04_s04_b914dd1a",
+          "row_count": 108,
+          "column_count": 3
+        },
+        {
+          "sheet_name": "2023",
+          "table_name": "ds04_s05_89c95891",
+          "row_count": 108,
+          "column_count": 3
+        },
+        {
+          "sheet_name": "2024",
+          "table_name": "ds04_s06_2cfe3931",
+          "row_count": 108,
+          "column_count": 3
+        }
+      ]
+    },
+    {
+      "dataset_index": 5,
+      "source_path": "경제활동인구_2019_2024.xlsx",
+      "source_checksum": "a4ad6ceeb0e784d3",
+      "sheet_count": 1,
+      "tables": [
+        {
+          "sheet_name": "데이터",
+          "table_name": "ds05_s01_103b8e31",
+          "row_count": 648,
+          "column_count": 3
+        }
+      ]
+    },
+    {
+      "dataset_index": 6,
+      "source_path": "배달앱이용현황.xlsx",
+      "source_checksum": "0534d1d6010d1de0",
+      "sheet_count": 6,
+      "tables": [
+        {
+          "sheet_name": "2019",
+          "table_name": "ds06_s01_fb84cdd5",
+          "row_count": 6,
+          "column_count": 7
+        },
+        {
+          "sheet_name": "2020",
+          "table_name": "ds06_s02_19ce2d91",
+          "row_count": 6,
+          "column_count": 8
+        },
+        {
+          "sheet_name": "2021",
+          "table_name": "ds06_s03_aa1dfb37",
+          "row_count": 6,
+          "column_count": 7
+        },
+        {
+          "sheet_name": "2022",
+          "table_name": "ds06_s04_2923759a",
+          "row_count": 6,
+          "column_count": 7
+        },
+        {
+          "sheet_name": "2023",
+          "table_name": "ds06_s05_b408172d",
+          "row_count": 6,
+          "column_count": 7
+        },
+        {
+          "sheet_name": "2024",
+          "table_name": "ds06_s06_ff44c008",
+          "row_count": 6,
+          "column_count": 8
+        }
+      ]
+    },
+    {
+      "dataset_index": 7,
+      "source_path": "서울날씨_최고기온.xlsx",
+      "source_checksum": "1e8bfb3ec78e41a8",
+      "sheet_count": 25,
+      "tables": [
+        {
+          "sheet_name": "2024",
+          "table_name": "ds07_s01_25e4f6e7",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2023",
+          "table_name": "ds07_s02_36f2d0b7",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2022",
+          "table_name": "ds07_s03_a0319d93",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2021",
+          "table_name": "ds07_s04_2acd7e10",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2020",
+          "table_name": "ds07_s05_ae59d036",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2019",
+          "table_name": "ds07_s06_debe3219",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2018",
+          "table_name": "ds07_s07_d77f84c7",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2017",
+          "table_name": "ds07_s08_c8e30b8c",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2016",
+          "table_name": "ds07_s09_8934e650",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2015",
+          "table_name": "ds07_s10_0d983e8a",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2014",
+          "table_name": "ds07_s11_5e834578",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2013",
+          "table_name": "ds07_s12_cd180d52",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2012",
+          "table_name": "ds07_s13_17758c27",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2011",
+          "table_name": "ds07_s14_7e087a51",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2010",
+          "table_name": "ds07_s15_37512378",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2009",
+          "table_name": "ds07_s16_3b9c7420",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2008",
+          "table_name": "ds07_s17_33dff524",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2007",
+          "table_name": "ds07_s18_71624261",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2006",
+          "table_name": "ds07_s19_07e9bfa0",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2005",
+          "table_name": "ds07_s20_d4abad88",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2004",
+          "table_name": "ds07_s21_5475fde2",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2003",
+          "table_name": "ds07_s22_43788dba",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2002",
+          "table_name": "ds07_s23_5dd24ba6",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2001",
+          "table_name": "ds07_s24_fb55125e",
+          "row_count": 32,
+          "column_count": 13
+        },
+        {
+          "sheet_name": "2000",
+          "table_name": "ds07_s25_1735fb73",
+          "row_count": 32,
+          "column_count": 13
+        }
+      ]
+    },
+    {
+      "dataset_index": 8,
+      "source_path": "서울지하철승하차인원.xlsx",
+      "source_checksum": "7f19c3b9f155732b",
+      "sheet_count": 1,
+      "tables": [
+        {
+          "sheet_name": "지하철",
+          "table_name": "ds08_s01_7dca282a",
+          "row_count": 28825,
+          "column_count": 5
+        }
+      ]
+    },
+    {
+      "dataset_index": 9,
+      "source_path": "스타벅스_구매목록.xlsx",
+      "source_checksum": "56fa570fe9bc83f3",
+      "sheet_count": 2,
+      "tables": [
+        {
+          "sheet_name": "결제",
+          "table_name": "ds09_s01_3def8c7c",
+          "row_count": 396,
+          "column_count": 6
+        },
+        {
+          "sheet_name": "구매목록",
+          "table_name": "ds09_s02_077a9442",
+          "row_count": 500,
+          "column_count": 6
+        }
+      ]
+    },
+    {
+      "dataset_index": 10,
+      "source_path": "스타벅스매장데이터.xlsx",
+      "source_checksum": "8da05fbe89b58fee",
+      "sheet_count": 17,
+      "tables": [
+        {
+          "sheet_name": "서울",
+          "table_name": "ds10_s01_97f0a685",
+          "row_count": 644,
+          "column_count": 4
+        },
+        {
+          "sheet_name": "경기",
+          "table_name": "ds10_s02_4aa2fd69",
+          "row_count": 501,
+          "column_count": 4
+        },
+        {
+          "sheet_name": "광주",
+          "table_name": "ds10_s03_4669b935",
+          "row_count": 67,
+          "column_count": 4
+        },
+        {
+          "sheet_name": "대구",
+          "table_name": "ds10_s04_0973e9ce",
+          "row_count": 93,
+          "column_count": 4
+        },
+        {
+          "sheet_name": "대전",
+          "table_name": "ds10_s05_bc5b2479",
+          "row_count": 71,
+          "column_count": 4
+        },
+        {
+          "sheet_name": "부산",
+          "table_name": "ds10_s06_7f38c33f",
+          "row_count": 146,
+          "column_count": 4
+        },
+        {
+          "sheet_name": "울산",
+          "table_name": "ds10_s07_df7ad76d",
+          "row_count": 34,
+          "column_count": 4
+        },
+        {
+          "sheet_name": "인천",
+          "table_name": "ds10_s08_ea03282c",
+          "row_count": 82,
+          "column_count": 4
+        },
+        {
+          "sheet_name": "강원",
+          "table_name": "ds10_s09_3a266f8b",
+          "row_count": 43,
+          "column_count": 4
+        },
+        {
+          "sheet_name": "경남",
+          "table_name": "ds10_s10_2e77cc1e",
+          "row_count": 80,
+          "column_count": 4
+        },
+        {
+          "sheet_name": "경북",
+          "table_name": "ds10_s11_ccbd2cd3",
+          "row_count": 62,
+          "column_count": 4
+        },
+        {
+          "sheet_name": "전남",
+          "table_name": "ds10_s12_480735a7",
+          "row_count": 35,
+          "column_count": 4
+        },
+        {
+          "sheet_name": "전북",
+          "table_name": "ds10_s13_8aac5eb8",
+          "row_count": 40,
+          "column_count": 4
+        },
+        {
+          "sheet_name": "충남",
+          "table_name": "ds10_s14_fcbdb37f",
+          "row_count": 54,
+          "column_count": 4
+        },
+        {
+          "sheet_name": "충북",
+          "table_name": "ds10_s15_a55be70a",
+          "row_count": 40,
+          "column_count": 4
+        },
+        {
+          "sheet_name": "제주",
+          "table_name": "ds10_s16_64da4c84",
+          "row_count": 33,
+          "column_count": 4
+        },
+        {
+          "sheet_name": "세종",
+          "table_name": "ds10_s17_fc37ef52",
+          "row_count": 14,
+          "column_count": 4
+        }
+      ]
+    },
+    {
+      "dataset_index": 11,
+      "source_path": "시도별연간인구수.xlsx",
+      "source_checksum": "bc1dd17e378a5ced",
+      "sheet_count": 1,
+      "tables": [
+        {
+          "sheet_name": "인구수",
+          "table_name": "ds11_s01_ec6f3a37",
+          "row_count": 17,
+          "column_count": 6
+        }
+      ]
+    },
+    {
+      "dataset_index": 12,
+      "source_path": "에버랜드입장객데이터.xlsx",
+      "source_checksum": "9ca804590091ee43",
+      "sheet_count": 1,
+      "tables": [
+        {
+          "sheet_name": "입장객수",
+          "table_name": "ds12_s01_c9844512",
+          "row_count": 48,
+          "column_count": 6
+        }
+      ]
+    },
+    {
+      "dataset_index": 13,
+      "source_path": "여름가전종목.xlsx",
+      "source_checksum": "80046717585ec052",
+      "sheet_count": 2,
+      "tables": [
+        {
+          "sheet_name": "A종목",
+          "table_name": "ds13_s01_ae0c0323",
+          "row_count": 1227,
+          "column_count": 2
+        },
+        {
+          "sheet_name": "B종목",
+          "table_name": "ds13_s02_667b3239",
+          "row_count": 1223,
+          "column_count": 2
+        }
+      ]
+    },
+    {
+      "dataset_index": 14,
+      "source_path": "온라인쇼핑몰_판매매체별_상품군별거래액_2017_2024.xlsx",
+      "source_checksum": "b52176154891497b",
+      "sheet_count": 1,
+      "tables": [
+        {
+          "sheet_name": "데이터",
+          "table_name": "ds14_s01_f4c13091",
+          "row_count": 78,
+          "column_count": 99
+        }
+      ]
+    },
+    {
+      "dataset_index": 15,
+      "source_path": "와일드카드유니온실습/SEILOneCompany_2022.xlsx",
+      "source_checksum": "b6b38af133ff1472",
+      "sheet_count": 1,
+      "tables": [
+        {
+          "sheet_name": "결제내역",
+          "table_name": "ds15_s01_48bec37d",
+          "row_count": 1940,
+          "column_count": 18
+        }
+      ]
+    },
+    {
+      "dataset_index": 16,
+      "source_path": "와일드카드유니온실습/SEILOneCompany_2023.xlsx",
+      "source_checksum": "540418fdcf7d73db",
+      "sheet_count": 1,
+      "tables": [
+        {
+          "sheet_name": "결제내역",
+          "table_name": "ds16_s01_7cc0db90",
+          "row_count": 2369,
+          "column_count": 18
+        }
+      ]
+    },
+    {
+      "dataset_index": 17,
+      "source_path": "와일드카드유니온실습/SEILOneCompany_2024.xlsx",
+      "source_checksum": "535b112d4a547aa5",
+      "sheet_count": 1,
+      "tables": [
+        {
+          "sheet_name": "결제내역",
+          "table_name": "ds17_s01_f08d24b1",
+          "row_count": 2893,
+          "column_count": 18
+        }
+      ]
+    },
+    {
+      "dataset_index": 18,
+      "source_path": "와일드카드유니온실습/SEILOneCompany_2025.xlsx",
+      "source_checksum": "eaf98506b3b3efec",
+      "sheet_count": 1,
+      "tables": [
+        {
+          "sheet_name": "결제내역",
+          "table_name": "ds18_s01_d03aa5bb",
+          "row_count": 3798,
+          "column_count": 18
+        }
+      ]
+    },
+    {
+      "dataset_index": 19,
+      "source_path": "우리나라인구수_2021_2024.xlsx",
+      "source_checksum": "f4e4f706ec99469f",
+      "sheet_count": 1,
+      "tables": [
+        {
+          "sheet_name": "인구",
+          "table_name": "ds19_s01_c62d64d6",
+          "row_count": 38472,
+          "column_count": 6
+        }
+      ]
+    },
+    {
+      "dataset_index": 20,
+      "source_path": "인구동태건수_2019_2023.xlsx",
+      "source_checksum": "45b27cf51829f250",
+      "sheet_count": 1,
+      "tables": [
+        {
+          "sheet_name": "데이터",
+          "table_name": "ds20_s01_a4e3d192",
+          "row_count": 16,
+          "column_count": 6
+        }
+      ]
+    }
+  ],
+  "generated_at": "2026-05-09T12:23:21.729129+00:00"
+}
