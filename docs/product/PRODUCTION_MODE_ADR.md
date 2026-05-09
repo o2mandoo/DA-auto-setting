@@ -46,6 +46,9 @@ The package remains the source of product behavior, MCP remains the agent-facing
 interface, and any HTTP adapter is a thin transport layer with
 health/readiness/OpenAPI/error/correlation-ID behavior only. The adapter must
 not add `execute_query`, BI/SaaS behavior, or hidden fallback behavior.
+The core product packages also must not introduce production web-framework or
+dashboard runtime imports such as FastAPI, Flask, Django, Streamlit, Gradio, or
+similar SaaS-style UI shells.
 
 The system remains validation-first:
 
@@ -107,6 +110,9 @@ Any deployment-like use of this repo must preserve these invariants:
   workflow JSON, tests, or runtime artifacts.
 - Dashboard UI, BI/SaaS ownership, SaaS multi-tenancy, billing, seats, and
   production auth are outside this repository's current product scope.
+- Core product packages must stay free of production web-framework runtime
+  dependencies unless a separate ADR explicitly approves them for a thin local
+  adapter surface.
 
 ## Production-mode gate
 
@@ -203,3 +209,13 @@ python3 -m unittest discover -s tests/mcp -v
 
 Docs-only changes may additionally run `make env-check` to prove local package
 imports still resolve with the documented path order.
+
+When the optional HTTP adapter is available, a deterministic local smoke check
+should also be used:
+
+```bash
+python -m semantic_registry.product.http_adapter --check
+```
+
+That check must remain local, non-networked, and fail closed if required
+contracts or imports are missing.
