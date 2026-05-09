@@ -34,6 +34,13 @@ class SemanticQueryUnderstandingTest(unittest.TestCase):
         )
         self.assertIn("rq.new_customer.date_basis", [item["card_id"] for item in payload["reverse_question_candidates"]])
         self.assertIn("ambiguity.new_customer.date_basis", [item["card_id"] for item in payload["ambiguity_candidates"]])
+        self.assertEqual(
+            payload["recommended_card_types"],
+            ["verified_query", "business_term", "metric", "reverse_question", "ambiguity_rule"],
+        )
+        self.assertIn("첫 결제 고객", payload["expanded_query"])
+        self.assertIn("term.new_customer", payload["expanded_query"])
+        self.assertIn("metric.net_revenue", payload["expanded_query"])
         self.assertEqual(payload["warnings"], [])
 
     def test_unknown_domain_phrase_is_not_overmatched_to_generic_customer_token(self) -> None:
@@ -43,6 +50,8 @@ class SemanticQueryUnderstandingTest(unittest.TestCase):
         self.assertEqual(payload["matched_terms"], [])
         self.assertEqual(payload["matched_metrics"], [])
         self.assertEqual(payload["unknown_terms"], ["휴면 고객"])
+        self.assertEqual(payload["recommended_card_types"], ["reverse_question", "business_term"])
+        self.assertEqual(payload["expanded_query"], "휴면 고객")
         self.assertIn("unknown_or_low_confidence_domain_term", payload["warnings"])
         self.assertIn("no_semantic_pack_match", payload["warnings"])
 

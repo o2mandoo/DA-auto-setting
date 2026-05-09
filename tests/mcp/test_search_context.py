@@ -75,6 +75,12 @@ class SearchContextToolTests(unittest.TestCase):
             [item["card_id"] for item in understanding["verified_query_matches"]],
         )
         self.assertIn("rq.new_customer.date_basis", [item["card_id"] for item in understanding["reverse_question_candidates"]])
+        self.assertEqual(
+            understanding["recommended_card_types"],
+            ["verified_query", "business_term", "metric", "reverse_question", "ambiguity_rule"],
+        )
+        self.assertIn("첫 결제 고객", understanding["expanded_query"])
+        self.assertIn("metric.net_revenue", understanding["expanded_query"])
         self.assertEqual(response["results"][0]["card_id"], "term.new_customer")
 
     def test_unknown_domain_term_reports_miss_without_generic_customer_overmatch(self) -> None:
@@ -88,6 +94,8 @@ class SearchContextToolTests(unittest.TestCase):
         self.assertFalse(response["fallback_used"])
         self.assertEqual(response["results"], [])
         self.assertEqual(response["query_understanding"]["unknown_terms"], ["휴면 고객"])
+        self.assertEqual(response["query_understanding"]["recommended_card_types"], ["reverse_question", "business_term"])
+        self.assertEqual(response["query_understanding"]["expanded_query"], "휴면 고객")
         self.assertIn("unknown_or_low_confidence_domain_term", response["warnings"])
         self.assertIn("no_semantic_pack_match", response["warnings"])
 
