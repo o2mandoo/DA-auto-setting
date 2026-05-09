@@ -5,6 +5,26 @@ import unittest
 
 
 class Phase12ScopeTests(unittest.TestCase):
+    def test_env_example_is_placeholder_only_and_env_is_ignored(self) -> None:
+        gitignore = Path(".gitignore").read_text(encoding="utf-8")
+        self.assertIn(".env", gitignore)
+        self.assertIn(".env.*", gitignore)
+        self.assertIn("!.env.example", gitignore)
+
+        example = Path(".env.example").read_text(encoding="utf-8")
+        self.assertNotIn("localhost", example)
+        self.assertNotIn("SemanticCardsTest", example)
+
+        for line in example.splitlines():
+            stripped = line.strip()
+            if not stripped or stripped.startswith("#"):
+                continue
+            key, value = stripped.split("=", 1)
+            self.assertTrue(
+                value.startswith("<") and value.endswith(">"),
+                f"{key} must use placeholder-only values, got {value!r}",
+            )
+
     def test_no_production_execute_query_surface(self) -> None:
         token = "execute" + "_query"
         offenders: list[str] = []
