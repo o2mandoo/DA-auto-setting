@@ -1,0 +1,162 @@
+{
+  "artifact_dir": "reports/release/release-test",
+  "artifact_paths": {
+    "known_limitations": "reports/release/release-test/known_limitations.md",
+    "manifest": "reports/release/release-test/release_manifest.json",
+    "summary": "reports/release/release-test/release_summary.md",
+    "support_matrix": "reports/release/release-test/support_matrix.md"
+  },
+  "dependency_snapshot": {
+    "captured": true,
+    "freeze_path": null,
+    "freeze_text": "annotated-types==0.7.0\nanyio==4.13.0\nattrs==26.1.0\ncertifi==2026.4.22\ncffi==2.0.0\nclick==8.3.3\ncryptography==48.0.0\net_xmlfile==2.0.0\nh11==0.16.0\nhttpcore==1.0.9\nhttpx==0.28.1\nhttpx-sse==0.4.3\nidna==3.13\niniconfig==2.3.0\njsonschema==4.26.0\njsonschema-specifications==2025.9.1\nlibrt==0.10.0\nmcp==1.27.1\nmypy==1.20.2\nmypy_extensions==1.1.0\nopenpyxl==3.1.5\npackaging==26.2\npathspec==1.1.1\npluggy==1.6.0\npycparser==3.0\npydantic==2.13.4\npydantic-settings==2.14.1\npydantic_core==2.46.4\nPygments==2.20.0\nPyJWT==2.12.1\npytest==8.4.2\npython-dotenv==1.2.2\npython-multipart==0.0.27\nPyYAML==6.0.3\nreferencing==0.37.0\nrpds-py==0.30.0\nruff==0.15.12\n-e git+ssh://git@github.com/o2mandoo/DA-auto-setting.git@e05e788f0c4cbfbcc97958702c368ef0fd489c6f#egg=semantic_builder&subdirectory=../../.omx/team/execute-release-packe-63d0350b/worktrees/worker-3/packages/semantic_builder\n-e git+ssh://git@github.com/o2mandoo/DA-auto-setting.git@e05e788f0c4cbfbcc97958702c368ef0fd489c6f#egg=semantic_contracts&subdirectory=../../.omx/team/execute-release-packe-63d0350b/worktrees/worker-3/packages/semantic_contracts\n-e git+ssh://git@github.com/o2mandoo/DA-auto-setting.git@e05e788f0c4cbfbcc97958702c368ef0fd489c6f#egg=semantic_mcp&subdirectory=../../.omx/team/execute-release-packe-63d0350b/worktrees/worker-3/packages/semantic_mcp\n-e git+ssh://git@github.com/o2mandoo/DA-auto-setting.git@e05e788f0c4cbfbcc97958702c368ef0fd489c6f#egg=semantic_registry&subdirectory=../../.omx/team/execute-release-packe-63d0350b/worktrees/worker-3/packages/semantic_registry\nsse-starlette==3.4.2\nstarlette==1.0.0\ntyping-inspection==0.4.2\ntyping_extensions==4.15.0\nuvicorn==0.46.0\nxlrd==2.0.2\n",
+    "reason": "",
+    "status": "available"
+  },
+  "generated_at": "2026-05-09T13:53:02.329888Z",
+  "git_commit": "e05e788f0c4cbfbcc97958702c368ef0fd489c6f",
+  "git_short_sha": "e05e788f0c4c",
+  "missing_evidence": [
+    {
+      "evidence_needed": "Clean-venv install log, make env-check output, make test output, dependency snapshot.",
+      "gate": "PR-1 clean clone package baseline",
+      "status": "missing"
+    },
+    {
+      "evidence_needed": "Adapter smoke output, /healthz and /readyz proof, OpenAPI, typed error payloads.",
+      "gate": "PR-2 optional local HTTP adapter",
+      "status": "missing"
+    },
+    {
+      "evidence_needed": "Registration-surface proof and SQL red-team blocking outputs.",
+      "gate": "PR-3 MCP + safe query runtime hardening",
+      "status": "missing"
+    },
+    {
+      "evidence_needed": "Read-only fixture evidence and explicit live-service unavailable artifacts where relevant.",
+      "gate": "PR-4 DB fixture/read-only evidence",
+      "status": "missing"
+    },
+    {
+      "evidence_needed": "Explicit live/skip/failure evidence for selected Weaviate backend.",
+      "gate": "PR-5 retrieval/Weaviate optional evidence",
+      "status": "missing"
+    },
+    {
+      "evidence_needed": "Workflow smoke against local APIs and visible backend/comment warnings.",
+      "gate": "PR-6 n8n workflow smoke",
+      "status": "missing"
+    },
+    {
+      "evidence_needed": "CI logs, release candidate identifier, dependency snapshot, and signed release packet.",
+      "gate": "PR-7 CI, observability, release packet",
+      "status": "missing"
+    }
+  ],
+  "release_id": "release-test",
+  "release_status": "draft",
+  "safety_proof": {
+    "no_production_execute_query": {
+      "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md and .omx/context/release-packer-20260509T134905Z.md",
+      "status": "explicitly_prohibited"
+    },
+    "no_raw_pii_artifacts": {
+      "evidence": "release packet source texts scanned by release_pack.py",
+      "status": "checked"
+    },
+    "no_silent_fallback": {
+      "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md and reports/productization/PRODUCTION_RISK_REGISTER.md",
+      "status": "explicitly_prohibited"
+    },
+    "no_synthetic_metadata_as_product_truth": {
+      "evidence": "release context preserves test-only synthetic metadata boundaries.",
+      "status": "checked"
+    },
+    "no_unsupported_db_claim": {
+      "evidence": "support_matrix lists Oracle as unsupported and MySQL as fixture/demo pending live evidence.",
+      "status": "checked"
+    }
+  },
+  "schema_version": "1.0",
+  "source_evidence": {
+    "readiness_matrix": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
+    "release_context": ".omx/context/release-packer-20260509T134905Z.md",
+    "risk_register": "reports/productization/PRODUCTION_RISK_REGISTER.md"
+  },
+  "support_matrix": [
+    {
+      "current_evidence": "Editable local packages and Makefile setup/test targets.",
+      "production_caveat": "Needs clean-venv proof and dependency snapshot for release promotion.",
+      "support_level": "Supported for local validation",
+      "surface": "Packages (semantic_contracts, semantic_builder, semantic_registry, semantic_mcp)"
+    },
+    {
+      "current_evidence": "semantic_mcp registration surface and tests.",
+      "production_caveat": "SDK/runtime absence must fail explicitly; no fake stdio runtime.",
+      "support_level": "Supported with official SDK installed",
+      "surface": "MCP stdio"
+    },
+    {
+      "current_evidence": "Pure Python handlers and API docs only.",
+      "production_caveat": "Not production server ready until the adapter PR lands.",
+      "support_level": "Planned optional local adapter",
+      "surface": "HTTP adapter"
+    },
+    {
+      "current_evidence": "Backend seam and deterministic tests.",
+      "production_caveat": "Selected Weaviate must fail explicitly if unavailable; no silent fallback.",
+      "support_level": "Optional explicit backend",
+      "surface": "Weaviate"
+    },
+    {
+      "current_evidence": "Scanner/docs/tests only.",
+      "production_caveat": "No production execution; fixture/environment gated.",
+      "support_level": "Read-only fixture/demo metadata validation",
+      "surface": "PostgreSQL"
+    },
+    {
+      "current_evidence": "Connector/docs/tests and explicit n8n requirements.",
+      "production_caveat": "No fallback to other DBs; production MySQL is not supported by default.",
+      "support_level": "Fixture/demo validation; live evidence pending",
+      "surface": "MySQL"
+    },
+    {
+      "current_evidence": "Docs state unsupported/no fake behavior.",
+      "production_caveat": "Must fail explicitly until a real connector and tests exist.",
+      "support_level": "Unsupported",
+      "surface": "Oracle"
+    },
+    {
+      "current_evidence": "Requirements/templates/product tests.",
+      "production_caveat": "Not source of truth; must not execute SQL or hide failures.",
+      "support_level": "Demo orchestration only",
+      "surface": "n8n"
+    },
+    {
+      "current_evidence": "Local commands defined.",
+      "production_caveat": "CI logs must be attached before a production release claim.",
+      "support_level": "Required for release, not proven here",
+      "surface": "CI"
+    },
+    {
+      "current_evidence": "Product API audit paths and safety reports.",
+      "production_caveat": "Needs correlation ID/error taxonomy evidence in PR-2/PR-7.",
+      "support_level": "Local audit artifacts only",
+      "surface": "Observability"
+    },
+    {
+      "current_evidence": "Clone-ready docs and final integration report.",
+      "production_caveat": "Needs signed release packet and support-level sign-off.",
+      "support_level": "Not production release ready",
+      "surface": "Release"
+    }
+  ],
+  "test_evidence": {
+    "reason": "release packer does not invent command output; actual verification must be attached by the worker run.",
+    "required_commands": [
+      "make env-check",
+      "make test"
+    ],
+    "status": "missing"
+  }
+}

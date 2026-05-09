@@ -18,7 +18,7 @@ import subprocess
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, cast
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_RELEASE_ROOT = ROOT / "reports" / "release"
@@ -186,7 +186,7 @@ def git_commit() -> str:
     return result.stdout.strip() or "unknown"
 
 
-def collect_dependency_snapshot() -> dict[str, str | bool]:
+def collect_dependency_snapshot() -> dict[str, object]:
     try:
         result = subprocess.run(
             [os.environ.get("PYTHON", "python3"), "-m", "pip", "freeze"],
@@ -319,8 +319,9 @@ def build_release_packet(
 
 
 def render_summary(manifest: dict[str, object]) -> str:
-    missing = manifest["missing_evidence"]  # type: ignore[index]
-    support_matrix = manifest["support_matrix"]  # type: ignore[index]
+    missing = cast(list[dict[str, str]], manifest["missing_evidence"])
+    support_matrix = cast(list[dict[str, str]], manifest["support_matrix"])
+    source_evidence = cast(dict[str, str], manifest["source_evidence"])
     return "\n".join(
         [
             f"# Release packet {manifest['release_id']}",  # type: ignore[index]
@@ -331,9 +332,9 @@ def render_summary(manifest: dict[str, object]) -> str:
             f"- Missing evidence items: {len(missing)}",  # type: ignore[arg-type]
             "",
             "## Evidence sources",
-            f"- {manifest['source_evidence']['readiness_matrix']}",
-            f"- {manifest['source_evidence']['risk_register']}",
-            f"- {manifest['source_evidence']['release_context']}",
+            f"- {source_evidence['readiness_matrix']}",
+            f"- {source_evidence['risk_register']}",
+            f"- {source_evidence['release_context']}",
             "",
             "## Safety posture",
             "- No production execute_query is allowed.",
@@ -349,8 +350,8 @@ def render_summary(manifest: dict[str, object]) -> str:
 
 def render_known_limitations(manifest: dict[str, object]) -> str:
     lines = ["# Known limitations", ""]
-    for item in manifest["missing_evidence"]:  # type: ignore[index]
-        lines.append(f"- {item['gate']}: {item['evidence_needed']}")  # type: ignore[index]
+    for item in cast(list[dict[str, str]], manifest["missing_evidence"]):
+        lines.append(f"- {item['gate']}: {item['evidence_needed']}")
     lines.extend(
         [
             "",
@@ -365,7 +366,7 @@ def render_known_limitations(manifest: dict[str, object]) -> str:
 
 def render_support_matrix(manifest: dict[str, object]) -> str:
     lines = ["# Support matrix", "", "| Surface | Support level | Current evidence | Production caveat |", "|---|---|---|---|"]
-    for item in manifest["support_matrix"]:  # type: ignore[index]
+    for item in cast(list[dict[str, str]], manifest["support_matrix"]):
         lines.append(
             f"| {item['surface']} | {item['support_level']} | {item['current_evidence']} | {item['production_caveat']} |"
         )
