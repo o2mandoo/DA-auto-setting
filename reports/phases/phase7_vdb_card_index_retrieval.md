@@ -14,7 +14,7 @@ Phase 7 retrieval is now verified: card flattening, deterministic embeddings, ke
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 \
-PYTHONPATH=/tmp/semantic-data-context-deps:packages/semantic_contracts:packages/semantic_registry:packages/semantic_mcp/src:packages/semantic_builder/src
+PYTHONPATH=packages/semantic_contracts:packages/semantic_registry:packages/semantic_mcp/src:packages/semantic_builder/src:/tmp/semantic-data-context-deps
 ```
 
 No dependencies were vendored into the repo. The `/tmp/semantic-data-context-deps` path follows the repository verification convention.
