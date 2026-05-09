@@ -358,9 +358,9 @@ def run_check(*, pack_root: str | Path = DEFAULT_PACK_ROOT, audit_root: str | Pa
     return {
         "status": "ok",
         "checks": {
-            "healthz": health.body["status"] == "healthy",
-            "readyz": bool(ready.body.get("ready")),
-            "openapi_route_count": len(openapi.body["paths"]),
+            "healthz": health.body["data"]["status"] == "healthy",
+            "readyz": bool(ready.body["data"].get("ready")),
+            "openapi_route_count": len(openapi.body["data"]["paths"]),
             "product_route": sample.status_code == HTTPStatus.OK,
             "unknown_route": unknown.status_code == HTTPStatus.NOT_FOUND,
             "validation_error": validation.status_code == HTTPStatus.BAD_REQUEST,
