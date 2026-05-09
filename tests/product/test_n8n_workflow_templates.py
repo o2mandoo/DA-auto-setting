@@ -109,6 +109,20 @@ def test_n8n_templates_do_not_include_direct_sql_connector_nodes() -> None:
         assert node_types.isdisjoint(forbidden_node_types)
 
 
+def test_query_runtime_comparison_workflow_stays_on_product_api() -> None:
+    data = json.loads(Path("n8n/workflows/03_query_runtime_comparison_demo.json").read_text(encoding="utf-8"))
+    safety_note = next(
+        node["parameters"]["content"]
+        for node in data["nodes"]
+        if node["type"] == "n8n-nodes-base.stickyNote"
+    )
+    assert "baseline not_executed" in safety_note
+    assert "failure state" in safety_note
+    assert "Do not run SQL directly" in safety_note
+    assert data["meta"]["semanticDataContext"]["route"] == "/api/product/answer"
+    assert data["meta"]["semanticDataContext"]["noSqlRun"] is True
+
+
 def test_n8n_readme_documents_safety_boundary() -> None:
     text = Path("n8n/README.md").read_text(encoding="utf-8")
     assert "no credentials" in text
