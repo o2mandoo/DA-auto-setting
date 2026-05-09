@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "packages" / "semantic_contracts"))
 sys.path.insert(0, str(ROOT / "packages" / "semantic_registry"))
 sys.path.insert(0, str(ROOT / "packages" / "semantic_mcp" / "src"))
 
+from semantic_registry.retrieval import WeaviateUnavailableError  # noqa: E402
 from semantic_mcp import search_semantic_context  # noqa: E402
 
 
@@ -89,6 +90,25 @@ class SearchContextToolTests(unittest.TestCase):
         self.assertEqual(response["results"], [])
         self.assertEqual(response["error"]["code"], "backend_configuration_error")
         self.assertTrue(any("no keyword fallback" in warning for warning in response["warnings"]))
+
+    def test_weaviate_backend_init_failure_is_reported_as_typed_configuration_error(self) -> None:
+        class FailingWeaviateBackend:
+            def __init__(self, client: object | None = None, **kwargs: object) -> None:
+                raise WeaviateUnavailableError("Weaviate collection is unavailable; keyword fallback is not performed.")
+
+        with patch("semantic_mcp.tools.search_context._optional_weaviate_backend", return_value=FailingWeaviateBackend):
+            response = search_semantic_context(
+                "demo_company.revenue",
+                "순매출",
+                filters={"backend": "weaviate", "backend_config": {"client": object()}, "limit": 3},
+                root=ROOT / "semantic_packs",
+            )
+
+        self.assertEqual(response["backend"], "weaviate")
+        self.assertFalse(response["fallback_used"])
+        self.assertEqual(response["results"], [])
+        self.assertEqual(response["error"]["code"], "backend_configuration_error")
+        self.assertTrue(any("keyword fallback is not performed" in warning for warning in response["warnings"]))
 
     def test_email_query_does_not_expose_raw_email_values(self) -> None:
         response = search_semantic_context(
