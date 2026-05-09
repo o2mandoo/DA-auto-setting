@@ -1,0 +1,10 @@
+# Development environment for semantic-data-context
+
+-e packages/semantic_contracts
+-e packages/semantic_registry
+-e packages/semantic_builder
+-e packages/semantic_mcp
+
+pytest>=8,<9
+ruff>=0.9,<1
+mypy>=1.10,<2
