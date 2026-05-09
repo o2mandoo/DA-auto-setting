@@ -248,7 +248,11 @@ def _select_inference_provider(
     if provider_key == "mock":
         return None
     if provider_key == "local":
-        config = LocalProviderConfig(enabled=local_enabled, model=local_model, endpoint=local_endpoint)
+        config_kwargs = {"enabled": local_enabled, "endpoint": local_endpoint}
+        model_key = "provider" if "provider" in LocalProviderConfig.__annotations__ else "model"
+        if local_model is not None:
+            config_kwargs[model_key] = local_model
+        config = LocalProviderConfig(**config_kwargs)
         return LocalSemanticInferenceProvider(config)
     raise ValueError(f"Unsupported inference provider: {provider_name}")
 

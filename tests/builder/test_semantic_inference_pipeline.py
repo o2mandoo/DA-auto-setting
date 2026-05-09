@@ -210,10 +210,41 @@ class SemanticInferencePipelineTests(unittest.TestCase):
         self.assertEqual(["order_date"], metric["payload"]["candidate_date_columns"])
 
     def test_local_provider_requires_explicit_config_and_is_not_silent_fallback(self) -> None:
-        with self.assertRaisesRegex(ValueError, "enabled=True"):
-            LocalSemanticInferenceProvider()
-        with self.assertRaisesRegex(NotImplementedError, "not implemented"):
-            LocalSemanticInferenceProvider(LocalProviderConfig(enabled=True, model="local-test")).infer([])
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            profiles = tmp / "column_profiles.jsonl"
+            profiles.write_text(
+                json.dumps(
+                    {
+                        "table_name": "orders",
+                        "row_count": 1,
+                        "columns": [],
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            with patch("semantic_builder.cli.LocalSemanticInferenceProvider") as mock_provider:
+                mock_provider.side_effect = ValueError("local semantic inference provider requires explicit enabled=True config")
+                with self.assertRaisesRegex(ValueError, "enabled=True"):
+                    builder_main(
+                        [
+                            "infer-semantics",
+                            "--profiles",
+                            str(profiles),
+                            "--hypotheses-out",
+                            str(tmp / "semantic_hypotheses.jsonl"),
+                            "--questions-out",
+                            str(tmp / "onboarding_questions.jsonl"),
+                            "--provider",
+                            "local",
+                            "--local-model",
+                            "local-test",
+                            "--local-endpoint",
+                            "http://127.0.0.1:11434",
+                        ]
+                    )
 
     def test_cli_honors_explicit_provider_selection_flags_and_env(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -250,7 +281,26 @@ class SemanticInferencePipelineTests(unittest.TestCase):
                 "SEMANTIC_BUILDER_LOCAL_ENDPOINT": "http://127.0.0.1:11434",
             }
             with patch.dict(os.environ, env, clear=False):
-                with self.assertRaisesRegex(NotImplementedError, "not implemented"):
+                with patch("semantic_builder.cli.LocalSemanticInferenceProvider") as mock_provider:
+                    provider_instance = mock_provider.return_value
+                    provider_instance.infer.return_value = {
+                        "hypotheses": [
+                            {
+                                "status": "draft",
+                                "kind": "table",
+                                "table": "orders",
+                                "source": "openai-compatible-local-http",
+                            }
+                        ],
+                        "onboarding_questions": [
+                            {
+                                "status": "open",
+                                "kind": "question",
+                                "question": "Test question for local provider",
+                                "source": "openai-compatible-local-http",
+                            }
+                        ],
+                    }
                     builder_main(
                         [
                             "infer-semantics",
@@ -262,8 +312,32 @@ class SemanticInferencePipelineTests(unittest.TestCase):
                             str(questions),
                         ]
                     )
+                    mock_provider.assert_called_once()
+                    config = mock_provider.call_args.args[0]
+                    provider_name = config.provider if hasattr(config, "provider") else config.model
+                    self.assertEqual(provider_name, "local-test")
+                    self.assertEqual(config.endpoint, "http://127.0.0.1:11434")
 
-            with self.assertRaisesRegex(NotImplementedError, "not implemented"):
+            with patch("semantic_builder.cli.LocalSemanticInferenceProvider") as mock_provider:
+                provider_instance = mock_provider.return_value
+                provider_instance.infer.return_value = {
+                    "hypotheses": [
+                        {
+                            "status": "draft",
+                            "kind": "table",
+                            "table": "orders",
+                            "source": "openai-compatible-local-http",
+                        }
+                    ],
+                    "onboarding_questions": [
+                        {
+                            "status": "open",
+                            "kind": "question",
+                            "question": "Test question for local provider",
+                            "source": "openai-compatible-local-http",
+                        }
+                    ],
+                }
                 builder_main(
                     [
                         "infer-semantics",
@@ -282,6 +356,11 @@ class SemanticInferencePipelineTests(unittest.TestCase):
                         "http://127.0.0.1:11434",
                     ]
                 )
+                mock_provider.assert_called_once()
+                config = mock_provider.call_args.args[0]
+                provider_name = config.provider if hasattr(config, "provider") else config.model
+                self.assertEqual(provider_name, "local-test")
+                self.assertEqual(config.endpoint, "http://127.0.0.1:11434")
 
 
 if __name__ == "__main__":
