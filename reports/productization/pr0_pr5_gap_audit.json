@@ -1,0 +1,274 @@
+{
+  "generated_at": "2026-05-09T14:34:22.374333+00:00",
+  "team": "audit-pr-0-through-pr-63d0350b",
+  "worker": "worker-6",
+  "scope": "PR-0..PR-5 consolidation plus PR-6 start gate context after Tasks 1-15 reached terminal/completed state",
+  "source_tasks": {
+    "1": {
+      "status": "completed",
+      "owner": "worker-1",
+      "subject": "real DB comments are product-usable context."
+    },
+    "2": {
+      "status": "completed",
+      "owner": "worker-2",
+      "subject": "no-comment DBs produce metadata gaps/reverse questions."
+    },
+    "3": {
+      "status": "completed",
+      "owner": "worker-1",
+      "subject": "synthetic comments are fixture-only."
+    },
+    "4": {
+      "status": "completed",
+      "owner": "worker-3",
+      "subject": "provenance/status is preserved into cards/retrieval/runtime/API."
+    },
+    "5": {
+      "status": "completed",
+      "owner": "worker-4",
+      "subject": "baseline SQL is never executed."
+    },
+    "6": {
+      "status": "completed",
+      "owner": "worker-4",
+      "subject": "system SQL uses Semantic Pack context."
+    },
+    "7": {
+      "status": "completed",
+      "owner": "worker-5",
+      "subject": "SQL comparison explains differences."
+    },
+    "8": {
+      "status": "completed",
+      "owner": "worker-6",
+      "subject": "PR claims match evidence."
+    },
+    "9": {
+      "status": "completed",
+      "owner": "worker-2",
+      "subject": "MySQL/Weaviate optional support is not faked."
+    },
+    "10": {
+      "status": "completed",
+      "owner": "worker-3",
+      "subject": "Oracle unsupported."
+    },
+    "11": {
+      "status": "completed",
+      "owner": "worker-2",
+      "subject": "raw PII is not stored/indexed/logged."
+    },
+    "12": {
+      "status": "completed",
+      "owner": "worker-5",
+      "subject": "no silent fallback."
+    },
+    "13": {
+      "status": "completed",
+      "owner": "worker-6",
+      "subject": "no production execute_query."
+    },
+    "14": {
+      "status": "completed",
+      "owner": "worker-2",
+      "subject": "n8n has not become source of truth."
+    },
+    "15": {
+      "status": "completed",
+      "owner": "worker-1",
+      "subject": "failure-safe states are visible.\n\nFinal report:\n- audit summary\n- per-PR status\n"
+    }
+  },
+  "overall_verdict": "PR-0 through PR-5 are audit-supported PASS for local/productization evidence; PR-6 may start only as a constrained imported-workflow smoke/evidence lane and must not claim production readiness.",
+  "pr6_may_start": {
+    "decision": "yes_with_gates",
+    "allowed_scope": "n8n/local workflow smoke and missing-evidence collection only",
+    "must_not_claim": [
+      "production readiness",
+      "n8n source-of-truth ownership",
+      "production execute_query",
+      "silent fallback support"
+    ],
+    "blocking_before_promotion": [
+      "live imported n8n workflow smoke output",
+      "visible failure-state evidence",
+      "CI/release approval for PR-7 claims"
+    ]
+  },
+  "per_pr": [
+    {
+      "pr": "PR-0",
+      "status": "pass",
+      "evidence": [
+        "docs/product/PRODUCTION_MODE_ADR.md",
+        "reports/productization/PRODUCTION_READINESS_MATRIX.md",
+        "reports/productization/PRODUCTION_RISK_REGISTER.md",
+        "reports/phases/productization_phase0.md",
+        "Task 8 PR-claims audit"
+      ],
+      "missing_tests": [],
+      "missing_evidence": [],
+      "risky_claims": [],
+      "repair_prompt": "Keep production-boundary language conservative; do not convert dry-run/local validation evidence into production-readiness claims."
+    },
+    {
+      "pr": "PR-1",
+      "status": "pass",
+      "evidence": [
+        "reports/productization/PR1_CLEAN_CLONE_EVIDENCE.md",
+        "reports/productization/PR1_FINAL_VERIFIER_EVIDENCE.md",
+        "reports/productization/PR1_PIP_FREEZE.txt"
+      ],
+      "missing_tests": [],
+      "missing_evidence": [],
+      "risky_claims": [],
+      "repair_prompt": "Keep clean-clone evidence attached to exact command output and dependency snapshot rather than implied setup success."
+    },
+    {
+      "pr": "PR-2",
+      "status": "pass",
+      "evidence": [
+        "reports/productization/PR2_HTTP_ADAPTER_EVIDENCE.md",
+        "docs/api/PRODUCT_API.md",
+        "docs/api/OPENAPI_LIKE.yaml",
+        "tests/product/test_pr2_http_adapter.py",
+        "tests/product/test_pr2_http_docs.py"
+      ],
+      "missing_tests": [],
+      "missing_evidence": [],
+      "risky_claims": [
+        "HTTP adapter evidence must stay local-adapter only; no production server claim is supported."
+      ],
+      "repair_prompt": "When adding adapter evidence, prove no execute_query route/handler and keep correlation/audit evidence local unless live service logs are attached."
+    },
+    {
+      "pr": "PR-3",
+      "status": "pass",
+      "evidence": [
+        "reports/productization/PR3_MCP_SAFE_RUNTIME_EVIDENCE.md",
+        "packages/semantic_mcp/src/semantic_mcp/server.py",
+        "tests/mcp/test_preview_query.py",
+        "tests/eval/test_mcp_eval_integration.py",
+        "tests/security/test_phase12_scope.py"
+      ],
+      "missing_tests": [],
+      "missing_evidence": [],
+      "risky_claims": [
+        "Safe preview is local/demo scoped and must not be renamed or marketed as production execution."
+      ],
+      "repair_prompt": "Keep MCP registration evidence explicit: metadata/planning/validation/preview only, no execute_query tool."
+    },
+    {
+      "pr": "PR-4",
+      "status": "pass",
+      "evidence": [
+        "reports/productization/PR4_DB_FIXTURE_READONLY_EVIDENCE.md",
+        "reports/reality/postgres_live_fixture_evidence.json",
+        "reports/reality/mysql_live_fixture_evidence.json",
+        "tests/fixtures/test_db_fixture_comment_modes.py",
+        "tests/builder/test_db_comment_metadata_gaps.py",
+        "tests/contracts/test_metadata_provenance.py"
+      ],
+      "missing_tests": [],
+      "missing_evidence": [],
+      "risky_claims": [
+        "Live fixture DB evidence is fixture/read-only only and does not support production query execution.",
+        "Oracle remains unsupported; do not infer Oracle readiness from generic SQL connector names."
+      ],
+      "repair_prompt": "Keep real_db_comment/no_comment/synthetic_comment provenance visible through cards/retrieval/runtime/API; never promote synthetic comments as approved truth."
+    },
+    {
+      "pr": "PR-5",
+      "status": "pass",
+      "evidence": [
+        "reports/productization/PR5_PRECHECK_DB_CORPUS_EVIDENCE.md",
+        "reports/productization/PR5_SEMANTIC_RETRIEVAL_EVIDENCE.md",
+        "tests/registry/test_vdb_backend.py",
+        "tests/mcp/test_search_context.py",
+        "reports/reality/sinagong_20_live_db_fixture_evidence.json"
+      ],
+      "missing_tests": [],
+      "missing_evidence": [],
+      "risky_claims": [
+        "Weaviate is optional and explicit; selected Weaviate failure must never silently fall back to keyword search.",
+        "Raw PII must not be stored, indexed, or logged."
+      ],
+      "repair_prompt": "Preserve explicit backend status, fallback_used=false evidence, and raw-PII blocking in any retrieval claim."
+    },
+    {
+      "pr": "PR-6",
+      "status": "partial",
+      "evidence": [
+        "reports/productization/phase20_n8n_readiness_report.md",
+        "reports/productization/final_n8n_readiness_evaluate_after_comment_rules.md",
+        "reports/productization/n8n_workflow_templates.md",
+        "tests/product/test_n8n_workflow_templates.py",
+        "Task 14 n8n source-of-truth audit",
+        "Task 15 failure-safe visibility audit"
+      ],
+      "missing_tests": [
+        "Imported n8n workflow runtime smoke against the local HTTP/product API adapter.",
+        "Failure-path smoke showing visible backend/comment/warning fields in a live imported workflow run."
+      ],
+      "missing_evidence": [
+        "Live imported n8n workflow smoke output."
+      ],
+      "risky_claims": [
+        "Evidence supports n8n template/readiness behavior, not live imported workflow success.",
+        "PR-6 start wording conflicts across PASS-for-template, PARTIAL-gated-demo, and live-Postgres-first language."
+      ],
+      "repair_prompt": "Before promoting PR-6, run/import the n8n templates against the local adapter and attach visible failure-state output; do not make n8n source of truth."
+    }
+  ],
+  "missing_tests": [
+    "PR-6 imported n8n workflow smoke against the local adapter/API.",
+    "PR-6 live failure-path evidence that backend/comment-mode/source-status/warnings remain visible in the imported workflow UI/output.",
+    "PR-7 live CI logs and signed/promoted release-candidate approval are outside PR-0..PR-5 but still gate release claims."
+  ],
+  "missing_evidence": [
+    "Live imported n8n workflow smoke output remains absent.",
+    "Live CI run log remains absent for release claims.",
+    "Signed/promoted release-candidate approval remains absent."
+  ],
+  "risky_claims": [
+    "Release summaries can say missing evidence is none while missing gate evidence still lists PR-6/PR-7 external evidence; this must stay explicit.",
+    "PR-6 may start only as an evidence-collection/smoke lane, not as a production-readiness or source-of-truth promotion.",
+    "No production execute_query is a hard product boundary, not a temporary missing feature.",
+    "Optional DB/VDB support must stay explicit and no-fallback; unsupported Oracle must not be faked."
+  ],
+  "product_rule_inconsistencies": [
+    {
+      "rule": "PR evidence claims must match current repo evidence.",
+      "finding": "Task 8 found stale PR-7 wording after a tracked dry-run release packet existed; release summaries still need careful distinction between missing source files and missing external/live gate evidence.",
+      "repair": "Use missing_gate_evidence wording whenever external/live evidence is absent, even if source files exist."
+    },
+    {
+      "rule": "n8n is orchestration/demo only, not source of truth.",
+      "finding": "Task 14 confirms source-of-truth remains Registry/Product API; Task 15 notes imported runtime smoke is still missing.",
+      "repair": "Keep n8n claims at template/readiness level until imported workflow smoke evidence exists."
+    },
+    {
+      "rule": "No production execute_query.",
+      "finding": "Task 13 confirms code/docs/tests preserve no production execute_query; comparison and preview surfaces are non-executing/local.",
+      "repair": "Block any future route/tool/handler named execute_query unless it is explicitly test-only proof that production execution remains absent."
+    },
+    {
+      "rule": "No unauthorized product-code repairs in audit-only lanes.",
+      "finding": "Leader correction records tmux pane fallback launch context, worker-1/worker-3 unauthorized product-code edits, worker-3 native subagents, and worker-6 premature Task 16 completion without durable artifacts as process deviations. These are audit findings, not product fixes.",
+      "repair": "Treat these as audit/process findings, not implemented fixes; merge only scoped report artifacts from this lane."
+    }
+  ],
+  "recommended_repair_prompts": [
+    "PR-6 smoke: Import the n8n templates against the local adapter, capture success and failure outputs, and verify backend/comment/source-status/warnings are visible without duplicating Registry logic.",
+    "Release claim hygiene: Update generated release summaries so missing source files and missing external/live gate evidence cannot be read as contradictory.",
+    "Process hygiene: Exclude unauthorized product-code edits from audit-only worker lanes; require report-only commits for consolidation tasks.",
+    "Evidence hygiene: Attach exact command output for release-test, n8n workflow smoke, and CI logs before upgrading any PARTIAL gate to PASS."
+  ],
+  "process_deviations": [
+    "Leader correction: tmux pane fallback launch occurred during team orchestration and should be treated as process context, not product evidence.",
+    "Leader correction: worker-1 and worker-3 unauthorized product-code edits must not be merged from audit-only lanes; treat them as audit/process issues, not implemented fixes.",
+    "Leader correction: worker-3 native subagents are process-deviation evidence for the audit lane and should not expand the product-code scope.",
+    "Worker-6 process correction: premature Task 16 completion happened before artifacts were present after Task 15 terminal; this Task 17 repair writes only the two requested report files."
+  ]
+}
