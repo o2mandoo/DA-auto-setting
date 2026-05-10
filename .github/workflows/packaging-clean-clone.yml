@@ -145,11 +145,41 @@ jobs:
           set -o pipefail
           PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/e2e 2>&1 | tee reports/ci/e2e.log
 
-      - name: Run eval tests
+      - name: Run eval dataset-manifests
         run: |
           mkdir -p reports/ci
           set -o pipefail
-          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/eval 2>&1 | tee reports/ci/eval.log
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/eval/test_dataset_manifests.py 2>&1 | tee reports/ci/eval-dataset-manifests.log
+
+      - name: Run eval eval-contracts
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/eval/test_eval_contracts.py 2>&1 | tee reports/ci/eval-eval-contracts.log
+
+      - name: Run eval eval-runner
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/eval/test_eval_runner.py 2>&1 | tee reports/ci/eval-eval-runner.log
+
+      - name: Run eval eval-surface-guardrails
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/eval/test_eval_surface_guardrails.py 2>&1 | tee reports/ci/eval-eval-surface-guardrails.log
+
+      - name: Run eval file-corpus-benchmarks
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/eval/test_file_corpus_benchmarks.py 2>&1 | tee reports/ci/eval-file-corpus-benchmarks.log
+
+      - name: Run eval mcp-eval-integration
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/eval/test_mcp_eval_integration.py 2>&1 | tee reports/ci/eval-mcp-eval-integration.log
 
       - name: Run fixtures tests
         run: |
