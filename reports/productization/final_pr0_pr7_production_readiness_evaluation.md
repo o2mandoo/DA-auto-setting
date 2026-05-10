@@ -115,7 +115,7 @@ baseline/system SQL evidence entries: 8
 | Hosted CI `test_phase18_evidence_console` failed from untracked local benchmark artifact dependency | RESOLVED | Evidence console now marks missing benchmark artifacts with `per-file score is not invented`; regression test covers missing benchmark root |
 | Hosted CI eval-suite step failed but exact eval file was not identified | RESOLVED | Workflow now splits `tests/eval` into file-level pytest steps while preserving fail-fast semantics |
 | Hosted CI `test_dataset_manifests` failed from macOS-only decomposed Korean path normalization | RESOLVED | Sinagong eval manifest and eval path assertions are normalized to NFC to match git-index filenames on Linux |
-| Hosted CI pass logs absent | RESOLVED | Public GitHub Actions run `25621898578` on commit `3a3a3774b7671c1d29b629746c5b655939791951` is attached in `reports/productization/hosted_ci_evidence.*` |
+| Hosted CI pass logs absent | RESOLVED | Public GitHub Actions run `25622121704` on commit `65e3614a331d0677944719af59e37050f7203dcb` is attached in `reports/productization/hosted_ci_evidence.*` |
 | Signed/promoted release-candidate approval absent | OPEN BLOCKER | Requires release governance action; not safe to fake locally |
 
 ## New issues found in this final evaluation
@@ -151,4 +151,4 @@ The system has hosted CI pass evidence and is ready for release-candidate approv
 
 ## Next recommended milestone
 
-Create a signed/promoted release-candidate approval artifact, regenerate the release packet, and rerun this final evaluation. Hosted CI pass evidence is already attached via run 25621898578.
+Create a signed/promoted release-candidate approval artifact, regenerate the release packet, and rerun this final evaluation. Hosted CI pass evidence is already attached via run 25622121704.

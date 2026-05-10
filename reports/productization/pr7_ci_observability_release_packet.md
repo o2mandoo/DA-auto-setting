@@ -156,7 +156,7 @@ A sixth hosted CI run after commit `641886a` narrowed the failure to `tests/prod
 
 A seventh hosted CI run after commit `279f6b2` passed product tests and narrowed the next failure to the `tests/eval` suite. The workflow now splits eval tests by file so the next hosted run identifies the exact eval contract if the failure persists.
 
-An eighth hosted CI run after commit `491f4db` narrowed the failure to `tests/eval/test_dataset_manifests.py`. Root cause: the Sinagong manifest and eval assertions contained decomposed Korean path strings that passed on the local macOS filesystem but did not match the NFC filenames committed to git on Linux. Fix: normalize the Sinagong eval manifest and eval path assertions to NFC, and verify manifest paths against the git index. This is a cross-platform path correction, not a silent file fallback. The rerun passed as hosted CI run `25621898578`, and the release manifest now treats hosted CI as attached evidence rather than a missing gate.
+An eighth hosted CI run after commit `491f4db` narrowed the failure to `tests/eval/test_dataset_manifests.py`. Root cause: the Sinagong manifest and eval assertions contained decomposed Korean path strings that passed on the local macOS filesystem but did not match the NFC filenames committed to git on Linux. Fix: normalize the Sinagong eval manifest and eval path assertions to NFC, and verify manifest paths against the git index. This is a cross-platform path correction, not a silent file fallback. The rerun passed as hosted CI run `25622121704`, and the release manifest now treats hosted CI as attached evidence rather than a missing gate.
 
 ## Observability samples
 

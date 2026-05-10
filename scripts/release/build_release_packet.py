@@ -695,10 +695,21 @@ def build_release_summary(
     redaction_summary: RedactionSummary,
     n8n_status: dict[str, object] | None = None,
     baseline_system_sql_evidence: Iterable[dict[str, str]] = (),
+    evidence_coverage: Iterable[dict[str, object]] = (),
 ) -> str:
     missing_lines = list(missing_evidence)
     gate_lines = list(missing_gates)
     baseline_sql_lines = list(baseline_system_sql_evidence)
+    external_present_lines: list[str] = []
+    for item in evidence_coverage:
+        external_present = item.get("external_present", {})
+        if not isinstance(external_present, dict):
+            continue
+        for label, paths in external_present.items():
+            if not paths:
+                continue
+            rendered_paths = ", ".join(str(path) for path in paths)
+            external_present_lines.append(f"- {item['gate']}: {label} -> {rendered_paths}")
     lines = [
         f"# Release Packet: {release_id}",
         "",
@@ -730,6 +741,17 @@ def build_release_summary(
     )
     if gate_lines:
         lines.extend(f"- {item['gate']}: {item['evidence_needed']}" for item in gate_lines)
+    else:
+        lines.append("- none")
+    lines.extend(
+        [
+            "",
+            "## Attached external/live evidence",
+            "",
+        ]
+    )
+    if external_present_lines:
+        lines.extend(external_present_lines)
     else:
         lines.append("- none")
     if n8n_status is not None:
@@ -868,6 +890,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         redaction_summary=RedactionSummary(counts={}, had_findings=False),
         n8n_status=n8n_status,
         baseline_system_sql_evidence=baseline_system_sql_evidence,
+        evidence_coverage=evidence_coverage,
     )
     risk_register_text, risk_redactions = redact_text(risk_text)
     known_limitations_source = "\n".join(
@@ -900,6 +923,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         redaction_summary=redaction_summary,
         n8n_status=n8n_status,
         baseline_system_sql_evidence=baseline_system_sql_evidence,
+        evidence_coverage=evidence_coverage,
     )
     readiness_matrix_raw = read_text(repo / READINESS_MATRIX_SOURCE)
     readiness_matrix_text, readiness_redactions = redact_text(readiness_matrix_raw)
@@ -928,6 +952,7 @@ def build_packet(repo: Path, release_id: str, out_dir: Path) -> dict[str, object
         redaction_summary=redaction_summary,
         n8n_status=n8n_status,
         baseline_system_sql_evidence=baseline_system_sql_evidence,
+        evidence_coverage=evidence_coverage,
     )
 
     out_dir.mkdir(parents=True, exist_ok=True)
