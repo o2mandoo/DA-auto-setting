@@ -83,7 +83,7 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     }
     assert manifest["evidence_coverage"]
     assert any(item["gate"].startswith("PR-4") and item["status"] == "present" for item in manifest["evidence_coverage"])
-    assert any(item["gate"].startswith("PR-7") and item["status"] == "partial" for item in manifest["evidence_coverage"])
+    assert any(item["gate"].startswith("PR-7") and item["status"] == "present" for item in manifest["evidence_coverage"])
     assert manifest["support_levels"]
     assert manifest["known_limitations"]
     assert manifest["n8n_status"]["status"] == "pr6_completed_live_runtime_smoke_present"
@@ -129,7 +129,8 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     assert "Missing source evidence" in summary
     assert "all tracked source files exist; external/live gate gaps are listed separately" in summary
     assert "Missing gate evidence" in summary
-    assert "PR-7" in summary
+    assert "Attached external/live evidence" in summary
+    assert "docs/release/RELEASE_APPROVAL.md" in summary
     assert "## n8n status" in summary
     assert "pr6_completed_live_runtime_smoke_present" in summary
     assert "Production Readiness Matrix" in readiness_matrix
@@ -147,8 +148,9 @@ def test_build_packet_writes_release_artifacts(tmp_path: Path) -> None:
     loaded = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert loaded["release_id"] == "unit-test-release"
     assert loaded["missing_evidence"] == []
-    assert loaded["missing_gate_evidence"]
-    assert any(item["gate"].startswith("PR-7") for item in loaded["missing_gate_evidence"])
+    assert loaded["missing_gate_evidence"] == []
+    pr7_coverage = next(item for item in loaded["evidence_coverage"] if item["gate"].startswith("PR-7"))
+    assert "signed or promoted release candidate approval" in pr7_coverage["external_present"]
     assert loaded["baseline_system_sql_comparison_evidence"]
     assert loaded["artifacts"]["risk_register"] == "risk_register.md"
     assert loaded["artifacts"]["known_limitations"] == "known_limitations.md"

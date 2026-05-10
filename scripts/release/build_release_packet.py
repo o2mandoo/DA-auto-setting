@@ -327,7 +327,10 @@ EVIDENCE_GATES: tuple[dict[str, object], ...] = (
             "live CI run log": (
                 "reports/productization/hosted_ci_evidence.md",
                 "reports/productization/hosted_ci_evidence.json",
-            )
+            ),
+            "signed or promoted release candidate approval": (
+                "docs/release/RELEASE_APPROVAL.md",
+            ),
         },
     },
 )

@@ -21,7 +21,6 @@
 ## Current known limitations
 
 - This is an internal release-candidate state, not a production release approval.
-- Signed or promoted release-candidate approval is still missing.
 - PostgreSQL/MySQL support remains fixture/read-only metadata validation only.
 - Weaviate remains optional and evidence-gated.
 - n8n remains orchestration/demo wrapper only.

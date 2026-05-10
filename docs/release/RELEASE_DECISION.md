@@ -8,8 +8,8 @@ Production release status: **not approved**
 
 ## Decision
 
-- [ ] Approve as internal release candidate
-- [x] Hold production release
+- [x] Approve as internal release candidate
+- [ ] Hold production release
 
 ## Evidence snapshot
 
@@ -22,23 +22,19 @@ Production release status: **not approved**
 | Production `execute_query` | FORBIDDEN | Product boundary docs and release scan |
 | Raw PII / secrets in release packet | BLOCKED/REDACTED | Release scan and redaction report |
 | Test datasets in git | BLOCKED | `make dataset-guard` |
-| Signed/promoted release approval | MISSING | Must be created by release owner |
+| Signed/promoted release approval | PRESENT for internal RC | `docs/release/RELEASE_APPROVAL.md` |
 
 ## Current known limitations
 
 - This is an internal release-candidate state, not a production release approval.
-- Signed or promoted release-candidate approval is still missing.
 - PostgreSQL/MySQL support remains fixture/read-only metadata validation only.
 - Weaviate remains optional and evidence-gated.
 - n8n remains orchestration/demo wrapper only.
 - Oracle remains unsupported.
 - Production SQL execution remains forbidden.
 
-## Required next decision
+## Current control decision
 
-A release owner must explicitly choose one of the following:
+Internal RC is approved. Production release remains not approved.
 
-1. **Approve internal RC**: create signed/promoted approval evidence and regenerate the release packet.
-2. **Hold**: record the reason and open a scoped blocker milestone.
-
-No new product feature work should start until this decision is recorded.
+Next work should be limited to the first-user onboarding blocker milestone, and direct product code changes should use team mode with narrow worker lanes.

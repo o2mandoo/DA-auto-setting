@@ -156,13 +156,14 @@
       "status": "present"
     },
     {
-      "external_missing": [
-        "signed or promoted release candidate approval"
-      ],
+      "external_missing": [],
       "external_present": {
         "live CI run log": [
           "reports/productization/hosted_ci_evidence.md",
           "reports/productization/hosted_ci_evidence.json"
+        ],
+        "signed or promoted release candidate approval": [
+          "docs/release/RELEASE_APPROVAL.md"
         ]
       },
       "gate": "PR-7 CI, observability, release packet",
@@ -177,16 +178,16 @@
         "tests/product/test_observability_samples.py",
         "tests/release/test_build_release_packet.py"
       ],
-      "status": "partial"
+      "status": "present"
     }
   ],
   "evidence_coverage_summary": {
     "missing": 0,
-    "partial": 1,
-    "present": 7
+    "partial": 0,
+    "present": 8
   },
-  "generated_at": "2026-05-10T07:19:04.824893+00:00",
-  "git_commit": "0eb4ad8efa0dc7652fd666a9fba5185ccf6e9516",
+  "generated_at": "2026-05-10T08:04:11.771437+00:00",
+  "git_commit": "9c923f63f0591d5af5062bde3278f6371e60d604",
   "known_limitations": [
     {
       "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
@@ -263,13 +264,7 @@
     }
   ],
   "missing_evidence": [],
-  "missing_gate_evidence": [
-    {
-      "evidence_needed": "missing external/live evidence: signed or promoted release candidate approval",
-      "gate": "PR-7 CI, observability, release packet",
-      "status": "partial"
-    }
-  ],
+  "missing_gate_evidence": [],
   "n8n_status": {
     "evidence": [
       "reports/productization/pr6_n8n_live_runtime_smoke.md",
