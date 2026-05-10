@@ -11,6 +11,13 @@ For a first-time clone, start with:
 4. `make env-check`
 5. `make demo`
 
+
+## Verified Python baseline
+
+Current release-readiness evidence is verified on Python 3.14. Use another
+Python version only after running the full test suite and recording the result;
+do not treat unverified interpreter fallback as release evidence.
+
 ## Quick start
 
 ```bash

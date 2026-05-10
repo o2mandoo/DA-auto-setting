@@ -142,7 +142,9 @@ CI-equivalent local command exists and passed:
 make ci
 ```
 
-The CI-equivalent command now includes release packet generation and the fail-closed release scan through `release-verify`. The GitHub Actions workflow also generates `ci-smoke`, scans it, and uploads it as an artifact. A first hosted CI run was triggered after pushing commit `05c6e93`; it failed at `make env-check` because the GitHub runner uses `python` while the repo Makefile defaults to `.venv/bin/python`. This was a real workflow bug, not hidden as a warning. The workflow now sets `PYTHON=python` at workflow scope so hosted CI uses the runner-installed interpreter while local development can keep the `.venv` default. Until the rerun passes and logs are attached, the release manifest still lists hosted CI evidence as a missing gate instead of treating it as a pass.
+The CI-equivalent command now includes release packet generation and the fail-closed release scan through `release-verify`. The GitHub Actions workflow also generates `ci-smoke`, scans it, and uploads it as an artifact. A first hosted CI run was triggered after pushing commit `05c6e93`; it failed at `make env-check` because the GitHub runner uses `python` while the repo Makefile defaults to `.venv/bin/python`. This was a real workflow bug, not hidden as a warning. The workflow now sets `PYTHON=python` at workflow scope so hosted CI uses the runner-installed interpreter while local development can keep the `.venv` default.
+
+A second hosted CI run was triggered after pushing commit `8f1f3fa`; it passed `make env-check` and then failed in the full test step. Because the current verified local evidence is Python 3.14 and there is no attached passing Python 3.11 evidence, the workflow and setup docs now use Python 3.14 as the explicit verified baseline instead of silently treating Python 3.11 as supported release evidence. Until the rerun passes and logs are attached, the release manifest still lists hosted CI evidence as a missing gate instead of treating it as a pass.
 
 ## Observability samples
 

@@ -3,6 +3,13 @@
 This repo is designed to run locally from a fresh clone with no production
 credentials.
 
+
+## Verified Python baseline
+
+Current release-readiness evidence is verified on Python 3.14. Use another
+Python version only after running the full test suite and recording the result;
+do not treat unverified interpreter fallback as release evidence.
+
 ## 1) Install dependencies
 
 Use the project’s preferred Python environment and install the repo’s local
