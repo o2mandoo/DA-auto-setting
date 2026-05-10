@@ -110,6 +110,7 @@ baseline/system SQL evidence entries: 8
 | Manual release safety scans were not codified | RESOLVED | Added `scripts/release/scan_release_artifacts.py`, `make release-scan`, `make release-verify`, release tests, and GitHub Actions release packet scan/upload steps |
 | Hosted CI initially failed at `make env-check` | RESOLVED / RERUN REQUIRED | Root cause: workflow used Makefile default `.venv/bin/python` on GitHub runner. Fix: workflow-level `PYTHON=python` |
 | Hosted CI then failed in full test step on unverified Python 3.11 baseline | RESOLVED / RERUN REQUIRED | Current release evidence is Python 3.14. Fix: GitHub Actions and setup docs now use Python 3.14 as the verified baseline; unverified interpreter fallback is not release evidence |
+| Hosted CI full-test step may inherit optional live integration env | RESOLVED / RERUN REQUIRED | Workflow now forces clone-only/offline gates: `SDC_LLM_ENABLED=0`, `SEMANTIC_WEAVIATE_ENABLED=0`, `SEMANTIC_POSTGRES_ENABLED=0`, `SEMANTIC_MYSQL_ENABLED=0`, `SEMANTIC_CONTEXT_FIXTURE_DB=0` |
 | External CI pass logs absent | OPEN BLOCKER | Must be produced by hosted CI rerun; not safe to fake locally |
 | Signed/promoted release-candidate approval absent | OPEN BLOCKER | Requires release governance action; not safe to fake locally |
 
@@ -119,14 +120,14 @@ A locally fixable gap was found and resolved: release artifact/n8n/execute-query
 
 The only remaining issues after this fallback hardening are the external production-release blockers:
 
-1. hosted CI pass log/URL still pending after workflow/interpreter-baseline fixes;
+1. hosted CI pass log/URL still pending after workflow/interpreter/offline-env fixes;
 2. signed or promoted release candidate approval missing.
 
 ## Blocking issues
 
 For production release readiness:
 
-1. **Hosted CI pass evidence pending** — local `make ci` passed, hosted runs exposed/fixed workflow interpreter issues, and a passing hosted CI log/URL still must be attached.
+1. **Hosted CI pass evidence pending** — local `make ci` passed, hosted runs exposed/fixed workflow interpreter/offline-env issues, and a passing hosted CI log/URL still must be attached.
 2. **Signed/promoted release-candidate approval missing** — the release packet is dry-run/local validation only.
 
 ## Non-blocking limitations
@@ -148,4 +149,4 @@ The system is ready for an external release-candidate verification pass, but not
 
 ## Next recommended milestone
 
-Run the GitHub/hosted CI pipeline against the workflow/interpreter-baseline fixes, attach the passing CI run URL/logs to the release packet, then create a signed/promoted release-candidate approval artifact. After that, regenerate the release packet and rerun this final evaluation.
+Run the GitHub/hosted CI pipeline against the workflow/interpreter/offline-env fixes, attach the passing CI run URL/logs to the release packet, then create a signed/promoted release-candidate approval artifact. After that, regenerate the release packet and rerun this final evaluation.
