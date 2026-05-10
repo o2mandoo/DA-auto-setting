@@ -37,11 +37,71 @@ jobs:
       - name: Run make env-check
         run: make env-check
 
-      - name: Run full test suite
+      - name: Run contracts tests
         run: |
           mkdir -p reports/ci
           set -o pipefail
-          PYTHONDONTWRITEBYTECODE=1 make test 2>&1 | tee reports/ci/full-test.log
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/contracts 2>&1 | tee reports/ci/contracts.log
+
+      - name: Run builder tests
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/builder 2>&1 | tee reports/ci/builder.log
+
+      - name: Run registry tests
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/registry 2>&1 | tee reports/ci/registry.log
+
+      - name: Run mcp tests
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/mcp 2>&1 | tee reports/ci/mcp.log
+
+      - name: Run product tests
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/product 2>&1 | tee reports/ci/product.log
+
+      - name: Run security tests
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/security 2>&1 | tee reports/ci/security.log
+
+      - name: Run e2e tests
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/e2e 2>&1 | tee reports/ci/e2e.log
+
+      - name: Run eval tests
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/eval 2>&1 | tee reports/ci/eval.log
+
+      - name: Run fixtures tests
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/fixtures 2>&1 | tee reports/ci/fixtures.log
+
+      - name: Run integration tests
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/integration 2>&1 | tee reports/ci/integration.log
+
+      - name: Run packaging tests
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/packaging 2>&1 | tee reports/ci/packaging.log
 
       - name: Run release tests
         run: make release-test
