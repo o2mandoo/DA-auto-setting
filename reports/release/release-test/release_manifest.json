@@ -75,6 +75,7 @@
   "evidence_coverage": [
     {
       "external_missing": [],
+      "external_present": {},
       "gate": "PR-0 production boundary and readiness baseline",
       "missing_paths": [],
       "present_paths": [
@@ -86,6 +87,7 @@
     },
     {
       "external_missing": [],
+      "external_present": {},
       "gate": "PR-1 clean clone package baseline",
       "missing_paths": [],
       "present_paths": [
@@ -97,6 +99,7 @@
     },
     {
       "external_missing": [],
+      "external_present": {},
       "gate": "PR-2 optional local HTTP adapter",
       "missing_paths": [],
       "present_paths": [
@@ -108,6 +111,7 @@
     },
     {
       "external_missing": [],
+      "external_present": {},
       "gate": "PR-3 MCP + safe query runtime hardening",
       "missing_paths": [],
       "present_paths": [
@@ -118,6 +122,7 @@
     },
     {
       "external_missing": [],
+      "external_present": {},
       "gate": "PR-4 DB fixture/read-only evidence",
       "missing_paths": [],
       "present_paths": [
@@ -129,6 +134,7 @@
     },
     {
       "external_missing": [],
+      "external_present": {},
       "gate": "PR-5 retrieval/Weaviate optional evidence",
       "missing_paths": [],
       "present_paths": [
@@ -139,6 +145,7 @@
     },
     {
       "external_missing": [],
+      "external_present": {},
       "gate": "PR-6 n8n workflow smoke",
       "missing_paths": [],
       "present_paths": [
@@ -150,9 +157,14 @@
     },
     {
       "external_missing": [
-        "live CI run log",
         "signed or promoted release candidate approval"
       ],
+      "external_present": {
+        "live CI run log": [
+          "reports/productization/hosted_ci_evidence.md",
+          "reports/productization/hosted_ci_evidence.json"
+        ]
+      },
       "gate": "PR-7 CI, observability, release packet",
       "missing_paths": [],
       "present_paths": [
@@ -173,12 +185,12 @@
     "partial": 1,
     "present": 7
   },
-  "generated_at": "2026-05-10T06:31:58.684495+00:00",
-  "git_commit": "6e7569720e3a92a391d5138b22381094875c3451",
+  "generated_at": "2026-05-10T06:44:18.401045+00:00",
+  "git_commit": "3b42e9df5a14266dbb80c86cbece4860cbc6a2cd",
   "known_limitations": [
     {
       "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
-      "impact": "Production promotion still requires CI logs, release approval, and signed candidate evidence.",
+      "impact": "Hosted CI pass evidence is attached; production promotion still requires release approval and signed candidate evidence.",
       "limitation": "Release status is dry-run/local validation, not production ready.",
       "status": "open"
     },
@@ -190,7 +202,7 @@
     },
     {
       "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
-      "impact": "Missing live DB/VDB/n8n/CI runs remain visible gaps or skips instead of pass claims.",
+      "impact": "Missing live DB/VDB/n8n runs remain visible gaps or skips instead of pass claims.",
       "limitation": "Live external services are optional and evidence-gated.",
       "status": "evidence_gated"
     },
@@ -253,7 +265,7 @@
   "missing_evidence": [],
   "missing_gate_evidence": [
     {
-      "evidence_needed": "missing external/live evidence: live CI run log, signed or promoted release candidate approval",
+      "evidence_needed": "missing external/live evidence: signed or promoted release candidate approval",
       "gate": "PR-7 CI, observability, release packet",
       "status": "partial"
     }

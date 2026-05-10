@@ -201,7 +201,7 @@ python -m pytest -q tests/security tests/packaging tests/e2e
 
 | Surface | v1 support level | Current evidence | Production caveat |
 |---|---|---|---|
-| Packages (`semantic_contracts`, `semantic_builder`, `semantic_registry`, `semantic_mcp`) | **Supported for local validation** | Package pyprojects, Makefile, PR-1 clean-clone evidence, dependency snapshot, and PR-7 `make ci` evidence. | Still requires external CI logs before production release claims. |
+| Packages (`semantic_contracts`, `semantic_builder`, `semantic_registry`, `semantic_mcp`) | **Supported for local validation** | Package pyprojects, Makefile, PR-1 clean-clone evidence, dependency snapshot, and PR-7 `make ci` evidence. | Hosted CI pass evidence is attached; production release claims still require signed/promoted release approval. |
 | MCP stdio | **Supported with official SDK installed** | `semantic_mcp.server` registration surface and tests. | Missing SDK must fail explicitly; no fake stdio runtime. |
 | HTTP adapter | **Partial local adapter** | PR-2 API docs, route inventory, product handler tests, typed errors, and audit evidence. | Local/demo scoped; not a production server distribution. |
 | Weaviate | **Optional explicit backend** | Backend seam, docs, deterministic tests, optional live test path. | Live service not mandatory; selected backend must fail explicitly if unavailable. |
@@ -209,9 +209,9 @@ python -m pytest -q tests/security tests/packaging tests/e2e
 | MySQL | **Read-only fixture/demo metadata validation** | Connector/docs/tests and `reports/reality/mysql_live_fixture_evidence.json`. | No fallback to other DBs; production MySQL execution is not supported. |
 | Oracle | **Unsupported** | Docs state unsupported/no fake behavior. | Must fail explicitly until real connector and tests exist. |
 | n8n | **Demo orchestration only** | Requirements/templates/product tests and PR-6 live Docker n8n smoke. | Not source of truth; must not execute SQL or hide failures. |
-| CI | **Local CI-equivalent present; external CI pending** | `.github/workflows/packaging-clean-clone.yml`, `make ci`, `make test`, release/security/product tests. | External CI run URL/log and release approval remain missing gate evidence. |
+| CI | **Hosted CI pass evidence attached** | `.github/workflows/packaging-clean-clone.yml`, `make ci`, `make test`, release/security/product tests, `reports/productization/hosted_ci_evidence.*`, run `25621898578`. | Signed/promoted release approval remains missing gate evidence. |
 | Observability | **Local audit/sample evidence only** | Product API audit writes, correlation IDs, structured error samples, and `docs/observability/product_api_audit_sample.jsonl`. | No Prometheus/Grafana/Jaeger/OTel production stack claim. |
-| Release | **Dry-run release packet only** | `reports/release/release-test/**`, readiness matrix, risk register, support matrix, known limitations. | Needs signed/promoted release candidate and external CI evidence before production release. |
+| Release | **Dry-run release packet only** | `reports/release/release-test/**`, readiness matrix, risk register, support matrix, known limitations. | Needs signed/promoted release candidate approval before production release. |
 
 ## Non-negotiable safety gates
 

@@ -37,7 +37,7 @@ No production `execute_query` is permitted in the v1 target.
 
 This refresh keeps the register current against the repo-local PR-7/release-packet artifacts now present:
 
-- Release-packet scaffolding exists: `.github/workflows/packaging-clean-clone.yml`, `scripts/release/build_release_packet.py`, `tests/release/test_build_release_packet.py`, and `reports/release/release-test/**`. PR-7 remains partial until live CI logs and signed/promoted release-candidate approval are attached.
+- Release-packet scaffolding exists: `.github/workflows/packaging-clean-clone.yml`, `scripts/release/build_release_packet.py`, `tests/release/test_build_release_packet.py`, and `reports/release/release-test/**`. PR-7 remains partial until signed/promoted release-candidate approval is attached; hosted CI pass evidence is now recorded in `reports/productization/hosted_ci_evidence.*`.
 - PR-1 clean-clone/package evidence is now represented by `reports/productization/PR1_CLEAN_CLONE_EVIDENCE.md`, `reports/productization/PR1_FINAL_VERIFIER_EVIDENCE.md`, and `reports/productization/PR1_PIP_FREEZE.txt`; hidden `/tmp/semantic-data-context-deps` dependency risk is mitigated by gate, not removed as a future regression risk.
 - PR-4 and PR-5 evidence packets are present for read-only DB fixtures and explicit retrieval/no-fallback behavior; MySQL remains fixture/demo/read-only only, not production MySQL execution support.
 - PR-6 local and live n8n runtime smoke reports exist (`reports/productization/pr6_n8n_local_workflow_smoke.md`, `reports/productization/pr6_n8n_live_runtime_smoke.md`), but release promotion still requires final packet evidence to preserve the limitations distinction.
@@ -60,7 +60,7 @@ This refresh keeps the register current against the repo-local PR-7/release-pack
 | R-11 | Oracle support is faked for symmetry. | High | Low | Keep Oracle unsupported until real connector and tests exist; unsupported backends fail visibly. | `docs/dev/DB_FIXTURE_GUIDE.md`, `docs/product/METADATA_PROVENANCE_RULES.md`, adapter/backend unsupported-path tests. | DB lane | Accepted limitation |
 | R-12 | n8n workflow duplicates source-of-truth logic or hides failures. | High | Medium | n8n remains orchestration/demo wrapper over Product API; display backend/comment mode/source warnings and failures. | `reports/productization/pr6_n8n_local_workflow_smoke.md`, `reports/productization/pr6_n8n_live_runtime_smoke.md`, `tests/product/test_n8n_workflow_templates.py`, `docs/demo/N8N_WORKFLOW_REQUIREMENTS.md`, `docs/demo/N8N_DB_BACKED_DEMO_REQUIREMENTS.md`; final release packet must preserve partial/live-import limitations. | n8n lane | Open |
 | R-13 | MCP stdio launch fails because official SDK is missing, but tests pass through function-level tools. | Medium | Medium | Keep import-time-safe function tests but require explicit SDK smoke for stdio readiness. | `semantic_mcp.server.inspect_registration_surface()` output plus stdio smoke in PR-3 when SDK installed; missing SDK returns explicit error. | MCP lane | Open |
-| R-14 | CI is absent or diverges from local verification commands. | High | Medium | PR-7 has local workflow scaffolding, but live CI logs must still be attached before release claims. | `.github/workflows/packaging-clean-clone.yml`, `make env-check`, `make test`, targeted security/packaging/e2e outputs, and external CI URL/log artifacts. | CI/release lane | Open |
+| R-14 | CI is absent or diverges from local verification commands. | High | Medium | Hosted CI pass evidence is attached, but release approval must still be attached before production release claims. | `.github/workflows/packaging-clean-clone.yml`, `make env-check`, `make test`, targeted security/packaging/e2e outputs, and hosted CI URL evidence and release approval artifacts. | CI/release lane | Open |
 | R-15 | Observability is too weak for adapter/API troubleshooting. | Medium | Medium | Add correlation IDs, typed errors, and audit JSONL samples in PR-2/PR-7. | HTTP smoke showing correlation ID in headers/logs; audit record sample; typed error examples. | observability/HTTP lane | Open |
 | R-16 | Release packet lacks support-level clarity. | High | Medium | Publish support matrix and known limitations with every release candidate; keep dry-run release packets clearly non-production. | `reports/release/release-test/release_summary.md`, `reports/release/release-test/support_matrix.md`, `reports/release/release-test/known_limitations.md`, readiness matrix, risk register, ADR, release notes, version/tag. | release lane | Mitigated-by-gate |
 | R-17 | Product API docs drift from actual Python handlers. | Medium | Medium | Generate or test route inventory against `semantic_registry.product.api.API_ENDPOINTS`. | `docs/api/PRODUCT_API.md`, `docs/api/OPENAPI_LIKE.yaml`, route inventory test or smoke output. | HTTP-adapter/docs lane | Open |
@@ -73,7 +73,7 @@ This refresh keeps the register current against the repo-local PR-7/release-pack
 
 | Gate | Primary owner lane | Risk IDs covered |
 |---|---|---|
-| PR-1 clean clone package baseline | package/CI lane | R-01, R-02, R-14, R-20 (R-02 mitigated by current PR-1 packet; R-14 remains open until CI logs) |
+| PR-1 clean clone package baseline | package/CI lane | R-01, R-02, R-14, R-20 (R-02 mitigated by current PR-1 packet; R-14 remains open until release approval evidence) |
 | PR-2 optional local HTTP adapter | HTTP-adapter/observability lane | R-03, R-04, R-15, R-17 |
 | PR-3 MCP + safe runtime | MCP/registry lane | R-04, R-05, R-13 |
 | PR-4 DB fixture/read-only evidence | DB lane | R-06, R-09, R-10, R-11 |
@@ -95,5 +95,5 @@ A future risk can be marked closed only when its evidence includes:
 ## Next recommended PR-7 follow-up
 
 ```text
-$team 3:executor "Execute PR-7 release evidence only for semantic-data-context: attach live CI run logs for setup/test/security/packaging jobs, rerun make release-test, refresh the release packet, and record signed/promoted release-candidate approval or an explicit not-approved blocker. Do not add production execute_query, BI/SaaS/dashboard scope, production credentials, or silent fallback support."
+$team 3:executor "Execute release-candidate approval evidence only for semantic-data-context: record signed/promoted release-candidate approval or an explicit not-approved blocker, rerun make release-test, and refresh the release packet. Do not add production execute_query, BI/SaaS/dashboard scope, production credentials, or silent fallback support."
 ```

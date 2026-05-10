@@ -156,7 +156,7 @@ A sixth hosted CI run after commit `641886a` narrowed the failure to `tests/prod
 
 A seventh hosted CI run after commit `279f6b2` passed product tests and narrowed the next failure to the `tests/eval` suite. The workflow now splits eval tests by file so the next hosted run identifies the exact eval contract if the failure persists.
 
-An eighth hosted CI run after commit `491f4db` narrowed the failure to `tests/eval/test_dataset_manifests.py`. Root cause: the Sinagong manifest and eval assertions contained decomposed Korean path strings that passed on the local macOS filesystem but did not match the NFC filenames committed to git on Linux. Fix: normalize the Sinagong eval manifest and eval path assertions to NFC, and verify manifest paths against the git index. This is a cross-platform path correction, not a silent file fallback. Until the rerun passes and logs are attached, the release manifest still lists hosted CI evidence as a missing gate instead of treating it as a pass.
+An eighth hosted CI run after commit `491f4db` narrowed the failure to `tests/eval/test_dataset_manifests.py`. Root cause: the Sinagong manifest and eval assertions contained decomposed Korean path strings that passed on the local macOS filesystem but did not match the NFC filenames committed to git on Linux. Fix: normalize the Sinagong eval manifest and eval path assertions to NFC, and verify manifest paths against the git index. This is a cross-platform path correction, not a silent file fallback. The rerun passed as hosted CI run `25621898578`, and the release manifest now treats hosted CI as attached evidence rather than a missing gate.
 
 ## Observability samples
 
@@ -204,7 +204,7 @@ Explicit limitations are included in `reports/release/release-test/known_limitat
 - Oracle is unsupported;
 - synthetic comments are fixture-only;
 - n8n remains demo orchestration only;
-- external CI logs and signed/promoted release-candidate approval remain missing.
+- hosted CI pass evidence is attached; signed/promoted release-candidate approval remains missing.
 
 ## Missing evidence
 
@@ -215,7 +215,7 @@ Explicit limitations are included in `reports/release/release-test/known_limitat
   {
     "gate": "PR-7 CI, observability, release packet",
     "status": "partial",
-    "evidence_needed": "missing external/live evidence: live CI run log, signed or promoted release candidate approval"
+    "evidence_needed": "missing external/live evidence: signed or promoted release candidate approval"
   }
 ]
 ```
@@ -268,8 +268,7 @@ No local PR-7 blocker remains after the release-packer bug fix and re-verificati
 
 External production-release blockers remain:
 
-1. hosted CI pass/logs must be attached after the workflow rerun;
-2. signed/promoted release-candidate approval is not attached.
+1. signed/promoted release-candidate approval is not attached.
 
 ## Readiness classification
 
@@ -277,4 +276,4 @@ External production-release blockers remain:
 PARTIAL_WITH_ACCEPTED_LIMITATIONS
 ```
 
-Reason: local CI-equivalent verification, release packet, safety scans, observability samples, n8n live smoke evidence, DB fixture evidence, retrieval evidence, baseline/system SQL comparison evidence, and comment provenance rules are represented. Production release readiness is still partial until external CI logs and signed/promoted release-candidate approval are attached.
+Reason: local CI-equivalent verification, release packet, safety scans, observability samples, n8n live smoke evidence, DB fixture evidence, retrieval evidence, baseline/system SQL comparison evidence, and comment provenance rules are represented. Production release readiness is still partial until signed/promoted release-candidate approval is attached.

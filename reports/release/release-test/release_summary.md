@@ -1,7 +1,7 @@
 # Release Packet: release-test
 
-- generated_at: 2026-05-10T06:31:58.684495+00:00
-- git_commit: 6e7569720e3a92a391d5138b22381094875c3451
+- generated_at: 2026-05-10T06:44:18.401045+00:00
+- git_commit: 3b42e9df5a14266dbb80c86cbece4860cbc6a2cd
 - status: dry-run release packet
 
 ## Evidence snapshot
@@ -18,7 +18,7 @@
 
 ## Missing gate evidence
 
-- PR-7 CI, observability, release packet: missing external/live evidence: live CI run log, signed or promoted release candidate approval
+- PR-7 CI, observability, release packet: missing external/live evidence: signed or promoted release candidate approval
 
 ## n8n status
 

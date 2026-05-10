@@ -8,12 +8,11 @@ Final verdict: `PARTIAL`
 
 The repo is **locally repeatable and release-packet ready**, but it is not fully production-release ready yet.
 
-Reason: all local/repo evidence, tests, release packet, safety scans, n8n live-smoke evidence, DB fixture/read-only evidence, retrieval evidence, baseline-vs-system SQL evidence, and metadata provenance rules are represented. The remaining blockers are external release-governance evidence:
+Reason: all local/repo evidence, tests, release packet, safety scans, n8n live-smoke evidence, DB fixture/read-only evidence, retrieval evidence, baseline-vs-system SQL evidence, hosted CI pass evidence, and metadata provenance rules are represented. The remaining blocker is external release-governance evidence:
 
-1. hosted CI run URL/logs are not attached;
-2. signed/promoted release-candidate approval is not attached.
+1. signed/promoted release-candidate approval is not attached.
 
-These blockers are intentionally not faked or silently converted into a pass.
+This blocker is intentionally not faked or silently converted into a pass. Hosted CI pass URL is attached in `reports/productization/hosted_ci_evidence.*`.
 
 ## Commands run in this final evaluation
 
@@ -69,7 +68,7 @@ Manifest summary after regeneration:
 status: dry-run
 coverage: present=7, partial=1, missing=0
 missing tracked source evidence: []
-missing gate evidence: PR-7 live CI run log; signed/promoted release candidate approval
+missing gate evidence: PR-7 signed/promoted release candidate approval
 n8n: pr6_completed_live_runtime_smoke_present / demo_orchestration_only_not_production
 baseline/system SQL evidence entries: 8
 ```
@@ -108,32 +107,30 @@ baseline/system SQL evidence entries: 8
 | Release packer failed with `NameError: baseline_system_sql_evidence is not defined` | RESOLVED | Release packer now passes baseline/system SQL evidence into summary/manifest generation; `make release-test` passes |
 | Release generated markdown had trailing whitespace | RESOLVED | Release packer strips trailing whitespace for markdown artifacts |
 | Manual release safety scans were not codified | RESOLVED | Added `scripts/release/scan_release_artifacts.py`, `make release-scan`, `make release-verify`, release tests, and GitHub Actions release packet scan/upload steps |
-| Hosted CI initially failed at `make env-check` | RESOLVED / RERUN REQUIRED | Root cause: workflow used Makefile default `.venv/bin/python` on GitHub runner. Fix: workflow-level `PYTHON=python` |
-| Hosted CI then failed in full test step on unverified Python 3.11 baseline | RESOLVED / RERUN REQUIRED | Current release evidence is Python 3.14. Fix: GitHub Actions and setup docs now use Python 3.14 as the verified baseline; unverified interpreter fallback is not release evidence |
-| Hosted CI full-test step may inherit optional live integration env | RESOLVED / RERUN REQUIRED | Workflow now forces clone-only/offline gates: `SDC_LLM_ENABLED=0`, `SEMANTIC_WEAVIATE_ENABLED=0`, `SEMANTIC_POSTGRES_ENABLED=0`, `SEMANTIC_MYSQL_ENABLED=0`, `SEMANTIC_CONTEXT_FIXTURE_DB=0` |
-| Hosted CI aggregated full-test step remained opaque without authenticated log download | RESOLVED / RERUN REQUIRED | Workflow now runs suite-level pytest steps and uploads per-suite `reports/ci/*.log` diagnostics with `if: always()` |
-| Hosted CI product-suite step failed but log body remained unavailable without artifact auth | RESOLVED / RERUN REQUIRED | Workflow now splits `tests/product` into file-level pytest steps so the next run identifies the exact failing product contract |
-| Hosted CI `test_phase18_evidence_console` failed from untracked local benchmark artifact dependency | RESOLVED / RERUN REQUIRED | Evidence console now marks missing benchmark artifacts with `per-file score is not invented`; regression test covers missing benchmark root |
-| Hosted CI eval-suite step failed but exact eval file was not identified | RESOLVED / RERUN REQUIRED | Workflow now splits `tests/eval` into file-level pytest steps while preserving fail-fast semantics |
-| Hosted CI `test_dataset_manifests` failed from macOS-only decomposed Korean path normalization | RESOLVED / RERUN REQUIRED | Sinagong eval manifest and eval path assertions are normalized to NFC to match git-index filenames on Linux |
-| External CI pass logs absent | OPEN BLOCKER | Must be produced by hosted CI rerun; not safe to fake locally |
+| Hosted CI initially failed at `make env-check` | RESOLVED | Root cause: workflow used Makefile default `.venv/bin/python` on GitHub runner. Fix: workflow-level `PYTHON=python` |
+| Hosted CI then failed in full test step on unverified Python 3.11 baseline | RESOLVED | Current release evidence is Python 3.14. Fix: GitHub Actions and setup docs now use Python 3.14 as the verified baseline; unverified interpreter fallback is not release evidence |
+| Hosted CI full-test step may inherit optional live integration env | RESOLVED | Workflow now forces clone-only/offline gates: `SDC_LLM_ENABLED=0`, `SEMANTIC_WEAVIATE_ENABLED=0`, `SEMANTIC_POSTGRES_ENABLED=0`, `SEMANTIC_MYSQL_ENABLED=0`, `SEMANTIC_CONTEXT_FIXTURE_DB=0` |
+| Hosted CI aggregated full-test step remained opaque without authenticated log download | RESOLVED | Workflow now runs suite-level pytest steps and uploads per-suite `reports/ci/*.log` diagnostics with `if: always()` |
+| Hosted CI product-suite step failed but log body remained unavailable without artifact auth | RESOLVED | Workflow now splits `tests/product` into file-level pytest steps so the next run identifies the exact failing product contract |
+| Hosted CI `test_phase18_evidence_console` failed from untracked local benchmark artifact dependency | RESOLVED | Evidence console now marks missing benchmark artifacts with `per-file score is not invented`; regression test covers missing benchmark root |
+| Hosted CI eval-suite step failed but exact eval file was not identified | RESOLVED | Workflow now splits `tests/eval` into file-level pytest steps while preserving fail-fast semantics |
+| Hosted CI `test_dataset_manifests` failed from macOS-only decomposed Korean path normalization | RESOLVED | Sinagong eval manifest and eval path assertions are normalized to NFC to match git-index filenames on Linux |
+| Hosted CI pass logs absent | RESOLVED | Public GitHub Actions run `25621898578` on commit `3a3a3774b7671c1d29b629746c5b655939791951` is attached in `reports/productization/hosted_ci_evidence.*` |
 | Signed/promoted release-candidate approval absent | OPEN BLOCKER | Requires release governance action; not safe to fake locally |
 
 ## New issues found in this final evaluation
 
 A locally fixable gap was found and resolved: release artifact/n8n/execute-query safety scans were previously manual `rg` commands, so they have been codified as a fail-closed script and wired into local CI-equivalent and GitHub Actions. No additional locally fixable issue remained after regeneration and verification.
 
-The only remaining issues after this fallback hardening are the external production-release blockers:
+The only remaining issue after this fallback hardening is the release-governance blocker:
 
-1. hosted CI pass log/URL still pending after workflow/interpreter/offline-env/suite/file/eval/unicode-path and clean-evidence fixes;
-2. signed or promoted release candidate approval missing.
+1. signed or promoted release candidate approval missing.
 
 ## Blocking issues
 
 For production release readiness:
 
-1. **Hosted CI pass evidence pending** — local `make ci` passed, hosted runs exposed/fixed workflow interpreter/offline-env/suite/file/eval/unicode-path and clean-evidence issues, and a passing hosted CI log/URL still must be attached.
-2. **Signed/promoted release-candidate approval missing** — the release packet is dry-run/local validation only.
+1. **Signed/promoted release-candidate approval missing** — hosted CI now passes, but release promotion approval has not been created or signed. The release packet remains dry-run/local validation only.
 
 ## Non-blocking limitations
 
@@ -150,8 +147,8 @@ For production release readiness:
 PARTIAL
 ```
 
-The system is ready for an external release-candidate verification pass, but not for production release claims until CI and approval evidence are attached.
+The system has hosted CI pass evidence and is ready for release-candidate approval review, but not for production release claims until signed/promoted approval evidence is attached.
 
 ## Next recommended milestone
 
-Run the GitHub/hosted CI pipeline against the workflow/interpreter/offline-env/suite/file/eval/unicode-path and clean-evidence fixes, attach the passing CI run URL/logs to the release packet, then create a signed/promoted release-candidate approval artifact. After that, regenerate the release packet and rerun this final evaluation.
+Create a signed/promoted release-candidate approval artifact, regenerate the release packet, and rerun this final evaluation. Hosted CI pass evidence is already attached via run 25621898578.

@@ -152,7 +152,7 @@ COMMENT_MODE_RULES: tuple[dict[str, str], ...] = (
 KNOWN_LIMITATIONS: tuple[dict[str, str], ...] = (
     {
         "limitation": "Release status is dry-run/local validation, not production ready.",
-        "impact": "Production promotion still requires CI logs, release approval, and signed candidate evidence.",
+        "impact": "Hosted CI pass evidence is attached; production promotion still requires release approval and signed candidate evidence.",
         "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
         "status": "open",
     },
@@ -164,7 +164,7 @@ KNOWN_LIMITATIONS: tuple[dict[str, str], ...] = (
     },
     {
         "limitation": "Live external services are optional and evidence-gated.",
-        "impact": "Missing live DB/VDB/n8n/CI runs remain visible gaps or skips instead of pass claims.",
+        "impact": "Missing live DB/VDB/n8n runs remain visible gaps or skips instead of pass claims.",
         "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
         "status": "evidence_gated",
     },
@@ -323,6 +323,12 @@ EVIDENCE_GATES: tuple[dict[str, object], ...] = (
             "tests/release/test_build_release_packet.py",
         ),
         "external_missing": ("live CI run log", "signed or promoted release candidate approval"),
+        "external_evidence": {
+            "live CI run log": (
+                "reports/productization/hosted_ci_evidence.md",
+                "reports/productization/hosted_ci_evidence.json",
+            )
+        },
     },
 )
 
@@ -558,7 +564,22 @@ def build_evidence_coverage(root: Path) -> list[dict[str, object]]:
         paths = [Path(str(path)) for path in gate["paths"]]  # type: ignore[index]
         present_paths = [str(path) for path in paths if (root / path).exists()]
         missing_paths = [str(path) for path in paths if not (root / path).exists()]
-        external_missing = list(gate.get("external_missing", ()))  # type: ignore[union-attr]
+        external_evidence = gate.get("external_evidence", {})  # type: ignore[assignment]
+        external_missing: list[str] = []
+        external_present: dict[str, list[str]] = {}
+        for required in gate.get("external_missing", ()):  # type: ignore[union-attr]
+            required_name = str(required)
+            evidence_paths = [
+                Path(str(path))
+                for path in getattr(external_evidence, "get", lambda _name, _default=(): ())(
+                    required_name, ()
+                )
+            ]
+            matched_paths = [str(path) for path in evidence_paths if (root / path).exists()]
+            if matched_paths:
+                external_present[required_name] = matched_paths
+            else:
+                external_missing.append(required_name)
         if missing_paths:
             status = "partial" if present_paths else "missing"
         elif external_missing:
@@ -572,6 +593,7 @@ def build_evidence_coverage(root: Path) -> list[dict[str, object]]:
                 "present_paths": present_paths,
                 "missing_paths": missing_paths,
                 "external_missing": external_missing,
+                "external_present": external_present,
             }
         )
     return coverage

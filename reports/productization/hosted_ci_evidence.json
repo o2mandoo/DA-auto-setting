@@ -1,0 +1,20 @@
+{
+  "evidence_type": "hosted_github_actions_workflow_run",
+  "workflow": "packaging-clean-clone.yml",
+  "job": "smoke",
+  "run_id": "25621898578",
+  "run_url": "https://github.com/o2mandoo/DA-auto-setting/actions/runs/25621898578",
+  "head_sha": "3a3a3774b7671c1d29b629746c5b655939791951",
+  "branch": "main",
+  "status": "success",
+  "triggered_at": "2026-05-10T06:32:04Z",
+  "observed_at": "2026-05-10T06:39:37Z",
+  "duration_observed": "4m45s",
+  "observed_via": "public GitHub Actions workflow run summary_partial HTML",
+  "evidence_notes": [
+    "Hosted CI initially failed in env-check, product, and eval gates; each root cause was fixed and rerun instead of recorded as a silent fallback.",
+    "The passing public workflow summary reported Status=Success for run 25621898578 on commit 3a3a3774b7671c1d29b629746c5b655939791951.",
+    "Per-job artifact log download was not used for release truth because unauthenticated artifact access returned 401 in earlier attempts; the stable evidence is the public run URL and workflow summary status."
+  ],
+  "silent_fallback": "none"
+}
