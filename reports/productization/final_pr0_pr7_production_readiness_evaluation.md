@@ -112,6 +112,7 @@ baseline/system SQL evidence entries: 8
 | Hosted CI then failed in full test step on unverified Python 3.11 baseline | RESOLVED / RERUN REQUIRED | Current release evidence is Python 3.14. Fix: GitHub Actions and setup docs now use Python 3.14 as the verified baseline; unverified interpreter fallback is not release evidence |
 | Hosted CI full-test step may inherit optional live integration env | RESOLVED / RERUN REQUIRED | Workflow now forces clone-only/offline gates: `SDC_LLM_ENABLED=0`, `SEMANTIC_WEAVIATE_ENABLED=0`, `SEMANTIC_POSTGRES_ENABLED=0`, `SEMANTIC_MYSQL_ENABLED=0`, `SEMANTIC_CONTEXT_FIXTURE_DB=0` |
 | Hosted CI aggregated full-test step remained opaque without authenticated log download | RESOLVED / RERUN REQUIRED | Workflow now runs suite-level pytest steps and uploads per-suite `reports/ci/*.log` diagnostics with `if: always()` |
+| Hosted CI product-suite step failed but log body remained unavailable without artifact auth | RESOLVED / RERUN REQUIRED | Workflow now splits `tests/product` into file-level pytest steps so the next run identifies the exact failing product contract |
 | External CI pass logs absent | OPEN BLOCKER | Must be produced by hosted CI rerun; not safe to fake locally |
 | Signed/promoted release-candidate approval absent | OPEN BLOCKER | Requires release governance action; not safe to fake locally |
 
@@ -121,14 +122,14 @@ A locally fixable gap was found and resolved: release artifact/n8n/execute-query
 
 The only remaining issues after this fallback hardening are the external production-release blockers:
 
-1. hosted CI pass log/URL still pending after workflow/interpreter/offline-env/suite-diagnostic fixes;
+1. hosted CI pass log/URL still pending after workflow/interpreter/offline-env/suite/file-diagnostic fixes;
 2. signed or promoted release candidate approval missing.
 
 ## Blocking issues
 
 For production release readiness:
 
-1. **Hosted CI pass evidence pending** — local `make ci` passed, hosted runs exposed/fixed workflow interpreter/offline-env/suite-diagnostic issues, and a passing hosted CI log/URL still must be attached.
+1. **Hosted CI pass evidence pending** — local `make ci` passed, hosted runs exposed/fixed workflow interpreter/offline-env/suite/file-diagnostic issues, and a passing hosted CI log/URL still must be attached.
 2. **Signed/promoted release-candidate approval missing** — the release packet is dry-run/local validation only.
 
 ## Non-blocking limitations
@@ -150,4 +151,4 @@ The system is ready for an external release-candidate verification pass, but not
 
 ## Next recommended milestone
 
-Run the GitHub/hosted CI pipeline against the workflow/interpreter/offline-env/suite-diagnostic fixes, attach the passing CI run URL/logs to the release packet, then create a signed/promoted release-candidate approval artifact. After that, regenerate the release packet and rerun this final evaluation.
+Run the GitHub/hosted CI pipeline against the workflow/interpreter/offline-env/suite/file-diagnostic fixes, attach the passing CI run URL/logs to the release packet, then create a signed/promoted release-candidate approval artifact. After that, regenerate the release packet and rerun this final evaluation.

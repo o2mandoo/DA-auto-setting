@@ -148,7 +148,9 @@ A second hosted CI run was triggered after pushing commit `8f1f3fa`; it passed `
 
 A third hosted CI run after commit `b357f88` still failed in the full test step. Public GitHub job metadata did not expose the private step log body, but the workflow previously did not force optional live integrations off. To avoid environment-variable leakage from repository/organization configuration and to keep CI clone-only, the workflow now explicitly sets `SDC_LLM_ENABLED=0`, `SEMANTIC_WEAVIATE_ENABLED=0`, `SEMANTIC_POSTGRES_ENABLED=0`, `SEMANTIC_MYSQL_ENABLED=0`, and `SEMANTIC_CONTEXT_FIXTURE_DB=0`.
 
-A fourth hosted CI run after commit `9b6a87b` still failed in the single aggregated full-test step. Because unauthenticated GitHub metadata only exposed the failing step name and not the private step log body, the workflow now runs the same test tree as explicit suite-level pytest steps and uploads per-suite diagnostic logs. This is not a silent pass: any failing suite still fails the job, but the next failure will identify the suite and preserve a downloadable artifact. Until the rerun passes and logs are attached, the release manifest still lists hosted CI evidence as a missing gate instead of treating it as a pass.
+A fourth hosted CI run after commit `9b6a87b` still failed in the single aggregated full-test step. Because unauthenticated GitHub metadata only exposed the failing step name and not the private step log body, the workflow now runs the same test tree as explicit suite-level pytest steps and uploads per-suite diagnostic logs.
+
+A fifth hosted CI run after commit `3fc6acf` narrowed the failure to the `tests/product` suite. The workflow now splits product tests by file so the next hosted run identifies the exact product contract file if the failure persists. This is not a silent pass: every file-level product step is still required to pass. Until the rerun passes and logs are attached, the release manifest still lists hosted CI evidence as a missing gate instead of treating it as a pass.
 
 ## Observability samples
 

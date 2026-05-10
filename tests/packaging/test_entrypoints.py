@@ -88,6 +88,8 @@ class EntrypointPackagingTests(unittest.TestCase):
         self.assertIn("PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/contracts", workflow)
         self.assertIn("PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/builder", workflow)
         self.assertIn("PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/registry", workflow)
+        self.assertIn("PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/product/test_phase20_n8n_readiness.py", workflow)
+        self.assertIn("PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/product/test_pr2_http_adapter.py", workflow)
         self.assertIn("PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/integration", workflow)
         self.assertIn("name: Upload CI diagnostic logs", workflow)
         self.assertIn("if: always()", workflow)

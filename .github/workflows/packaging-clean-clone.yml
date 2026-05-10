@@ -61,11 +61,77 @@ jobs:
           set -o pipefail
           PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/mcp 2>&1 | tee reports/ci/mcp.log
 
-      - name: Run product tests
+      - name: Run product n8n-live-runtime-smoke-script
         run: |
           mkdir -p reports/ci
           set -o pipefail
-          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/product 2>&1 | tee reports/ci/product.log
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/product/test_n8n_live_runtime_smoke_script.py 2>&1 | tee reports/ci/product-n8n-live-runtime-smoke-script.log
+
+      - name: Run product n8n-workflow-templates
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/product/test_n8n_workflow_templates.py 2>&1 | tee reports/ci/product-n8n-workflow-templates.log
+
+      - name: Run product observability-samples
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/product/test_observability_samples.py 2>&1 | tee reports/ci/product-observability-samples.log
+
+      - name: Run product phase14-baseline-sql-runner
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/product/test_phase14_baseline_sql_runner.py 2>&1 | tee reports/ci/product-phase14-baseline-sql-runner.log
+
+      - name: Run product phase15-sql-comparison-engine
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/product/test_phase15_sql_comparison_engine.py 2>&1 | tee reports/ci/product-phase15-sql-comparison-engine.log
+
+      - name: Run product phase16-answer-ui
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/product/test_phase16_answer_ui.py 2>&1 | tee reports/ci/product-phase16-answer-ui.log
+
+      - name: Run product phase17-failure-safe-scenarios
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/product/test_phase17_failure_safe_scenarios.py 2>&1 | tee reports/ci/product-phase17-failure-safe-scenarios.log
+
+      - name: Run product phase18-evidence-console
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/product/test_phase18_evidence_console.py 2>&1 | tee reports/ci/product-phase18-evidence-console.log
+
+      - name: Run product phase19-product-api-contract
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/product/test_phase19_product_api_contract.py 2>&1 | tee reports/ci/product-phase19-product-api-contract.log
+
+      - name: Run product phase20-n8n-readiness
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/product/test_phase20_n8n_readiness.py 2>&1 | tee reports/ci/product-phase20-n8n-readiness.log
+
+      - name: Run product pr2-http-adapter
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/product/test_pr2_http_adapter.py 2>&1 | tee reports/ci/product-pr2-http-adapter.log
+
+      - name: Run product pr2-http-docs
+        run: |
+          mkdir -p reports/ci
+          set -o pipefail
+          PYTHONDONTWRITEBYTECODE=1 python -m pytest -q tests/product/test_pr2_http_docs.py 2>&1 | tee reports/ci/product-pr2-http-docs.log
 
       - name: Run security tests
         run: |
