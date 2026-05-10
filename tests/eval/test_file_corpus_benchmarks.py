@@ -50,10 +50,10 @@ class FileCorpusBenchmarkRunnerTests(unittest.TestCase):
         self.assertEqual(len(recursive_xlsx), 20, recursive_xlsx)
         self.assertTrue(
             {
-                "docs/reference/test_datasets/sinagong_tableau_2026/와일드카드유니온실습/SEILOneCompany_2022.xlsx",
-                "docs/reference/test_datasets/sinagong_tableau_2026/와일드카드유니온실습/SEILOneCompany_2023.xlsx",
-                "docs/reference/test_datasets/sinagong_tableau_2026/와일드카드유니온실습/SEILOneCompany_2024.xlsx",
-                "docs/reference/test_datasets/sinagong_tableau_2026/와일드카드유니온실습/SEILOneCompany_2025.xlsx",
+                "docs/reference/test_datasets/sinagong_tableau_2026/와일드카드유니온실습/SEILOneCompany_2022.xlsx",
+                "docs/reference/test_datasets/sinagong_tableau_2026/와일드카드유니온실습/SEILOneCompany_2023.xlsx",
+                "docs/reference/test_datasets/sinagong_tableau_2026/와일드카드유니온실습/SEILOneCompany_2024.xlsx",
+                "docs/reference/test_datasets/sinagong_tableau_2026/와일드카드유니온실습/SEILOneCompany_2025.xlsx",
             }.issubset({str(path) for path in manifest.files}),
             manifest.files,
         )

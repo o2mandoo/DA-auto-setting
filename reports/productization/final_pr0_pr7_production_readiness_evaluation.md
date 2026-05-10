@@ -115,6 +115,7 @@ baseline/system SQL evidence entries: 8
 | Hosted CI product-suite step failed but log body remained unavailable without artifact auth | RESOLVED / RERUN REQUIRED | Workflow now splits `tests/product` into file-level pytest steps so the next run identifies the exact failing product contract |
 | Hosted CI `test_phase18_evidence_console` failed from untracked local benchmark artifact dependency | RESOLVED / RERUN REQUIRED | Evidence console now marks missing benchmark artifacts with `per-file score is not invented`; regression test covers missing benchmark root |
 | Hosted CI eval-suite step failed but exact eval file was not identified | RESOLVED / RERUN REQUIRED | Workflow now splits `tests/eval` into file-level pytest steps while preserving fail-fast semantics |
+| Hosted CI `test_dataset_manifests` failed from macOS-only decomposed Korean path normalization | RESOLVED / RERUN REQUIRED | Sinagong eval manifest and eval path assertions are normalized to NFC to match git-index filenames on Linux |
 | External CI pass logs absent | OPEN BLOCKER | Must be produced by hosted CI rerun; not safe to fake locally |
 | Signed/promoted release-candidate approval absent | OPEN BLOCKER | Requires release governance action; not safe to fake locally |
 
@@ -124,14 +125,14 @@ A locally fixable gap was found and resolved: release artifact/n8n/execute-query
 
 The only remaining issues after this fallback hardening are the external production-release blockers:
 
-1. hosted CI pass log/URL still pending after workflow/interpreter/offline-env/suite/file/eval-diagnostic and clean-evidence fixes;
+1. hosted CI pass log/URL still pending after workflow/interpreter/offline-env/suite/file/eval/unicode-path and clean-evidence fixes;
 2. signed or promoted release candidate approval missing.
 
 ## Blocking issues
 
 For production release readiness:
 
-1. **Hosted CI pass evidence pending** — local `make ci` passed, hosted runs exposed/fixed workflow interpreter/offline-env/suite/file/eval-diagnostic and clean-evidence issues, and a passing hosted CI log/URL still must be attached.
+1. **Hosted CI pass evidence pending** — local `make ci` passed, hosted runs exposed/fixed workflow interpreter/offline-env/suite/file/eval/unicode-path and clean-evidence issues, and a passing hosted CI log/URL still must be attached.
 2. **Signed/promoted release-candidate approval missing** — the release packet is dry-run/local validation only.
 
 ## Non-blocking limitations
@@ -153,4 +154,4 @@ The system is ready for an external release-candidate verification pass, but not
 
 ## Next recommended milestone
 
-Run the GitHub/hosted CI pipeline against the workflow/interpreter/offline-env/suite/file/eval-diagnostic and clean-evidence fixes, attach the passing CI run URL/logs to the release packet, then create a signed/promoted release-candidate approval artifact. After that, regenerate the release packet and rerun this final evaluation.
+Run the GitHub/hosted CI pipeline against the workflow/interpreter/offline-env/suite/file/eval/unicode-path and clean-evidence fixes, attach the passing CI run URL/logs to the release packet, then create a signed/promoted release-candidate approval artifact. After that, regenerate the release packet and rerun this final evaluation.

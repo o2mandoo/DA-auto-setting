@@ -8,7 +8,7 @@ from semantic_contracts import BenchmarkManifest
 
 ROOT = Path(__file__).resolve().parents[2]
 SINAGONG_ROOT = "docs/reference/test_datasets/sinagong_tableau_2026"
-SINAGONG_WILDCARD = "와일드카드유니온실습"
+SINAGONG_WILDCARD = "와일드카드유니온실습"
 
 
 class DatasetManifestTests(unittest.TestCase):
@@ -51,26 +51,26 @@ class DatasetManifestTests(unittest.TestCase):
         expected_recursive = {
             f"{SINAGONG_ROOT}/{name}"
             for name in (
-                "2008_2024_연령별인구현황.xlsx",
-                "SEILOneCompany_HR데이터.xlsx",
-                "SEILOneCompany_Sales데이터.xlsx",
-                "경제활동인구_2013_2024.xlsx",
-                "경제활동인구_2019_2024.xlsx",
-                "배달앱이용현황.xlsx",
-                "서울날씨_최고기온.xlsx",
-                "서울지하철승하차인원.xlsx",
-                "스타벅스_구매목록.xlsx",
-                "스타벅스매장데이터.xlsx",
-                "시도별연간인구수.xlsx",
-                "에버랜드입장객데이터.xlsx",
-                "여름가전종목.xlsx",
-                "온라인쇼핑몰_판매매체별_상품군별거래액_2017_2024.xlsx",
-                "와일드카드유니온실습/SEILOneCompany_2022.xlsx",
-                "와일드카드유니온실습/SEILOneCompany_2023.xlsx",
-                "와일드카드유니온실습/SEILOneCompany_2024.xlsx",
-                "와일드카드유니온실습/SEILOneCompany_2025.xlsx",
-                "우리나라인구수_2021_2024.xlsx",
-                "인구동태건수_2019_2023.xlsx",
+                "2008_2024_연령별인구현황.xlsx",
+                "SEILOneCompany_HR데이터.xlsx",
+                "SEILOneCompany_Sales데이터.xlsx",
+                "경제활동인구_2013_2024.xlsx",
+                "경제활동인구_2019_2024.xlsx",
+                "배달앱이용현황.xlsx",
+                "서울날씨_최고기온.xlsx",
+                "서울지하철승하차인원.xlsx",
+                "스타벅스_구매목록.xlsx",
+                "스타벅스매장데이터.xlsx",
+                "시도별연간인구수.xlsx",
+                "에버랜드입장객데이터.xlsx",
+                "여름가전종목.xlsx",
+                "온라인쇼핑몰_판매매체별_상품군별거래액_2017_2024.xlsx",
+                "와일드카드유니온실습/SEILOneCompany_2022.xlsx",
+                "와일드카드유니온실습/SEILOneCompany_2023.xlsx",
+                "와일드카드유니온실습/SEILOneCompany_2024.xlsx",
+                "와일드카드유니온실습/SEILOneCompany_2025.xlsx",
+                "우리나라인구수_2021_2024.xlsx",
+                "인구동태건수_2019_2023.xlsx",
             )
         }
         self.assertTrue(expected_recursive.issubset(set(manifest["files"])), manifest["files"])

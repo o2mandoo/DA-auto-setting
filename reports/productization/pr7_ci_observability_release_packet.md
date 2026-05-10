@@ -154,7 +154,9 @@ A fifth hosted CI run after commit `3fc6acf` narrowed the failure to the `tests/
 
 A sixth hosted CI run after commit `641886a` narrowed the failure to `tests/product/test_phase18_evidence_console.py`. Root cause: the evidence-console assertion depended on an untracked local aggregate benchmark artifact, so clean hosted CI saw a missing benchmark artifact and the test did not prove the “do not invent per-file scores” rule. Fix: missing benchmark artifacts now carry the same explicit “per-file score is not invented” note, and a regression test covers a missing benchmark root. This preserves fail-closed evidence behavior instead of silently treating missing benchmark data as pass evidence.
 
-A seventh hosted CI run after commit `279f6b2` passed product tests and narrowed the next failure to the `tests/eval` suite. The workflow now splits eval tests by file so the next hosted run identifies the exact eval contract if the failure persists. Until the rerun passes and logs are attached, the release manifest still lists hosted CI evidence as a missing gate instead of treating it as a pass.
+A seventh hosted CI run after commit `279f6b2` passed product tests and narrowed the next failure to the `tests/eval` suite. The workflow now splits eval tests by file so the next hosted run identifies the exact eval contract if the failure persists.
+
+An eighth hosted CI run after commit `491f4db` narrowed the failure to `tests/eval/test_dataset_manifests.py`. Root cause: the Sinagong manifest and eval assertions contained decomposed Korean path strings that passed on the local macOS filesystem but did not match the NFC filenames committed to git on Linux. Fix: normalize the Sinagong eval manifest and eval path assertions to NFC, and verify manifest paths against the git index. This is a cross-platform path correction, not a silent file fallback. Until the rerun passes and logs are attached, the release manifest still lists hosted CI evidence as a missing gate instead of treating it as a pass.
 
 ## Observability samples
 
