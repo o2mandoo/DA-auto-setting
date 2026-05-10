@@ -142,7 +142,7 @@ CI-equivalent local command exists and passed:
 make ci
 ```
 
-The CI-equivalent command now includes release packet generation and the fail-closed release scan through `release-verify`. The GitHub Actions workflow also generates `ci-smoke`, scans it, and uploads it as an artifact. External hosted CI run logs are not attached in this local environment. The release manifest lists this as missing gate evidence instead of treating it as a pass.
+The CI-equivalent command now includes release packet generation and the fail-closed release scan through `release-verify`. The GitHub Actions workflow also generates `ci-smoke`, scans it, and uploads it as an artifact. A first hosted CI run was triggered after pushing commit `05c6e93`; it failed at `make env-check` because the GitHub runner uses `python` while the repo Makefile defaults to `.venv/bin/python`. This was a real workflow bug, not hidden as a warning. The workflow now sets `PYTHON=python` at workflow scope so hosted CI uses the runner-installed interpreter while local development can keep the `.venv` default. Until the rerun passes and logs are attached, the release manifest still lists hosted CI evidence as a missing gate instead of treating it as a pass.
 
 ## Observability samples
 
@@ -254,7 +254,7 @@ No local PR-7 blocker remains after the release-packer bug fix and re-verificati
 
 External production-release blockers remain:
 
-1. hosted CI run URL/logs are not attached;
+1. hosted CI pass/logs must be attached after the workflow rerun;
 2. signed/promoted release-candidate approval is not attached.
 
 ## Readiness classification

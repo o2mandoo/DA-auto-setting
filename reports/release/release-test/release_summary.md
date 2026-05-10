@@ -1,7 +1,7 @@
 # Release Packet: release-test
 
-- generated_at: 2026-05-10T01:52:08.519765+00:00
-- git_commit: 063eddab77cdc71ac12f1610dbb7badf02fce87e
+- generated_at: 2026-05-10T01:54:56.159947+00:00
+- git_commit: 05c6e93d6a746f714f900e240eea5f6a525128da
 - status: dry-run release packet
 
 ## Evidence snapshot

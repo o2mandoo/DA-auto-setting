@@ -77,6 +77,7 @@ class EntrypointPackagingTests(unittest.TestCase):
         self.assertIn("python -m pip install -e packages/semantic_registry", install_body)
         self.assertIn("python -m pip install -e packages/semantic_mcp", install_body)
         self.assertIn("python -m pip install -e 'packages/semantic_builder[test]'", install_body)
+        self.assertIn("PYTHON: python", workflow)
         self.assertIn("run: make env-check", workflow)
         self.assertIn("run: PYTHONDONTWRITEBYTECODE=1 make test", workflow)
         self.assertIn("run: make release-test", workflow)
