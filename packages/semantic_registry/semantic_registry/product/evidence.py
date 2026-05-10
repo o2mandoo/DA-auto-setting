@@ -86,7 +86,7 @@ def build_product_readiness_report(
         if artifact.exists():
             notes.append("aggregate benchmark artifact exists; per-file score is not invented")
         else:
-            notes.append("benchmark artifact missing")
+            notes.append("benchmark artifact missing; per-file score is not invented")
         if not file_exists:
             notes.append("source file missing in repo")
         domain_summaries.append(

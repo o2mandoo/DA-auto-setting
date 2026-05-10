@@ -13,6 +13,15 @@ def test_twenty_domain_evidence_uses_manifest_without_inventing_scores() -> None
     assert report.capability_matrix.capabilities
 
 
+
+def test_evidence_console_reports_missing_benchmark_without_inventing_scores(tmp_path: Path) -> None:
+    report = build_product_readiness_report(benchmark_root=tmp_path / "missing-benchmarks")
+    assert len(report.domain_summaries) == 20
+    assert report.missing_evidence
+    assert all(summary.benchmark_artifact is None for summary in report.domain_summaries)
+    assert any("benchmark artifact missing" in " ".join(summary.notes) for summary in report.domain_summaries)
+    assert any("per-file score is not invented" in " ".join(summary.notes) for summary in report.domain_summaries)
+
 def test_evidence_reports_are_written() -> None:
     paths = write_evidence_reports()
     for path in paths.values():

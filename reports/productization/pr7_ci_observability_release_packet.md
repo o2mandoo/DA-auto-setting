@@ -150,7 +150,9 @@ A third hosted CI run after commit `b357f88` still failed in the full test step.
 
 A fourth hosted CI run after commit `9b6a87b` still failed in the single aggregated full-test step. Because unauthenticated GitHub metadata only exposed the failing step name and not the private step log body, the workflow now runs the same test tree as explicit suite-level pytest steps and uploads per-suite diagnostic logs.
 
-A fifth hosted CI run after commit `3fc6acf` narrowed the failure to the `tests/product` suite. The workflow now splits product tests by file so the next hosted run identifies the exact product contract file if the failure persists. This is not a silent pass: every file-level product step is still required to pass. Until the rerun passes and logs are attached, the release manifest still lists hosted CI evidence as a missing gate instead of treating it as a pass.
+A fifth hosted CI run after commit `3fc6acf` narrowed the failure to the `tests/product` suite. The workflow now splits product tests by file so the next hosted run identifies the exact product contract file if the failure persists.
+
+A sixth hosted CI run after commit `641886a` narrowed the failure to `tests/product/test_phase18_evidence_console.py`. Root cause: the evidence-console assertion depended on an untracked local aggregate benchmark artifact, so clean hosted CI saw a missing benchmark artifact and the test did not prove the “do not invent per-file scores” rule. Fix: missing benchmark artifacts now carry the same explicit “per-file score is not invented” note, and a regression test covers a missing benchmark root. This preserves fail-closed evidence behavior instead of silently treating missing benchmark data as pass evidence. Until the rerun passes and logs are attached, the release manifest still lists hosted CI evidence as a missing gate instead of treating it as a pass.
 
 ## Observability samples
 
