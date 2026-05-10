@@ -6,7 +6,7 @@ N8N_IMAGE ?= n8nio/n8n:2.19.5
 N8N_LIVE_OUT ?= runtime/n8n_live_smoke/latest
 LOCAL_PYTHONPATH := packages/semantic_contracts:packages/semantic_builder/src:packages/semantic_registry:packages/semantic_mcp/src
 
-.PHONY: setup test lint ci demo env-check clean-runtime release-pack release-test n8n-live-smoke
+.PHONY: setup test lint ci demo env-check clean-runtime release-pack release-test release-scan release-verify n8n-live-smoke
 
 setup:
 	python3 -m venv $(VENV_DIR)
@@ -18,7 +18,7 @@ test:
 lint:
 	$(PYTHON) -m ruff check packages scripts tests
 
-ci: env-check test lint
+ci: env-check test lint release-verify
 	$(PYTHON) scripts/setup/clone_ready_setup.py
 	bash scripts/setup/env_check.sh
 	$(PYTHON) -m unittest discover -s tests/packaging -v
@@ -41,6 +41,11 @@ release-pack:
 
 release-test:
 	$(PYTHON) -m pytest -q tests/release
+
+release-scan:
+	$(PYTHON) scripts/release/scan_release_artifacts.py --release-dir $(RELEASE_OUT)/$(RELEASE_ID)
+
+release-verify: release-test release-pack release-scan
 
 
 n8n-live-smoke:

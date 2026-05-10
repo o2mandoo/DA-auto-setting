@@ -29,8 +29,17 @@ jobs:
       - name: Run make env-check
         run: make env-check
 
-      - name: Run make test
+      - name: Run full test suite
         run: PYTHONDONTWRITEBYTECODE=1 make test
+
+      - name: Run release tests
+        run: make release-test
+
+      - name: Generate release packet
+        run: make release-pack RELEASE_ID=ci-smoke RELEASE_OUT=reports/release
+
+      - name: Scan release packet and workflow safety
+        run: make release-scan RELEASE_ID=ci-smoke RELEASE_OUT=reports/release
 
       - name: Validate clone-ready setup helper
         run: python scripts/setup/clone_ready_setup.py
@@ -40,3 +49,9 @@ jobs:
 
       - name: Run packaging smoke tests
         run: python -m unittest discover -s tests/packaging -v
+
+      - name: Upload release packet evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-smoke-release-packet
+          path: reports/release/ci-smoke

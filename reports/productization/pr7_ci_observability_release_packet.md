@@ -39,7 +39,7 @@ Operational notes:
 Key changed/added files:
 
 - `.github/workflows/packaging-clean-clone.yml` already existed and is now covered by packaging regression tests.
-- `Makefile` exposes `test`, `lint`, `ci`, `release-pack`, `release-test`, and `n8n-live-smoke`.
+- `Makefile` exposes `test`, `lint`, `ci`, `release-pack`, `release-test`, `release-scan`, `release-verify`, and `n8n-live-smoke`.
 - `docs/observability/OBSERVABILITY_SAMPLES.md`
 - `docs/observability/product_api_audit_sample.jsonl`
 - `reports/productization/PRODUCTION_READINESS_MATRIX.md`
@@ -50,9 +50,11 @@ Key changed/added files:
 - `reports/release/release-test/support_matrix.md`
 - `reports/release/release-test/known_limitations.md`
 - `scripts/release/build_release_packet.py`
+- `scripts/release/scan_release_artifacts.py`
 - `tests/packaging/test_entrypoints.py`
 - `tests/product/test_observability_samples.py`
 - `tests/release/test_build_release_packet.py`
+- `tests/release/test_scan_release_artifacts.py`
 
 ## Release command and packet path
 
@@ -95,9 +97,9 @@ make release-test
 make test
 make ci
 make release-pack RELEASE_ID=release-test RELEASE_OUT=reports/release
-rg -n --hidden -i "sk-[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|password@|client_secret|Bearer [A-Za-z0-9._~+/=-]+|postgres://|mysql://|/Users/|worker-[0-9]+|leader-fixed|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}" reports/release/release-test
-rg -n -i "postgres://|mysql://|mongodb://|password|secret|token|api_key|apikey|authorization|bearer |n8n-nodes-base\.(postgres|mysql|mssql|sqlite|mariadb|oracledb|snowflake)" n8n/workflows
-rg -n "def execute_query|execute_query\(|/api/execute_query" packages scripts n8n tests
+make release-scan RELEASE_ID=release-test RELEASE_OUT=reports/release
+make release-verify RELEASE_ID=release-test RELEASE_OUT=reports/release
+.venv/bin/python scripts/release/scan_release_artifacts.py --release-dir reports/release/release-test --json
 ```
 
 ## Test results
@@ -107,13 +109,13 @@ make env-check
 => environment ok: 3.14.4
 
 make release-test
-=> 3 passed
+=> 5 passed
 
 .venv/bin/python -m pytest -q tests/security tests/packaging tests/e2e tests/product
 => 80 passed
 
 make test
-=> 384 passed, 2 skipped
+=> 386 passed, 2 skipped
 
 make ci
 => make env-check PASS
@@ -129,7 +131,7 @@ Earlier failure and fix:
 ```text
 make release-test initially failed with NameError: baseline_system_sql_evidence is not defined.
 Fix: pass baseline_system_sql_evidence into release summary/manifest generation and regenerate the release packet.
-Reverification: make release-test => 3 passed.
+Reverification: make release-test => 5 passed.
 ```
 
 ## CI status
@@ -140,7 +142,7 @@ CI-equivalent local command exists and passed:
 make ci
 ```
 
-External hosted CI run logs are not attached in this local environment. The release manifest lists this as missing gate evidence instead of treating it as a pass.
+The CI-equivalent command now includes release packet generation and the fail-closed release scan through `release-verify`. The GitHub Actions workflow also generates `ci-smoke`, scans it, and uploads it as an artifact. External hosted CI run logs are not attached in this local environment. The release manifest lists this as missing gate evidence instead of treating it as a pass.
 
 ## Observability samples
 
@@ -208,7 +210,7 @@ There is no missing tracked source evidence in the generated packet.
 
 ## Safety checks
 
-Static/release scans returned no hits for:
+The manual `rg` release-scan fallback has been replaced by the CI-safe fail-closed command `scripts/release/scan_release_artifacts.py` / `make release-scan`. It returned no hits for:
 
 - raw PII-like emails in release artifacts;
 - secret/API-key/bearer-token patterns in release artifacts;

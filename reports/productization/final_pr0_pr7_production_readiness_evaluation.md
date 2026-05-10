@@ -23,9 +23,9 @@ make release-test
 .venv/bin/python -m pytest -q tests/security tests/packaging tests/e2e tests/product
 make ci
 make release-pack RELEASE_ID=release-test RELEASE_OUT=reports/release
-rg -n --hidden -i "sk-[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|password@|client_secret|Bearer [A-Za-z0-9._~+/=-]+|postgres://|mysql://|/Users/|worker-[0-9]+|leader-fixed|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}" reports/release/release-test
-rg -n -i "postgres://|mysql://|mongodb://|password|secret|token|api_key|apikey|authorization|bearer |n8n-nodes-base\.(postgres|mysql|mssql|sqlite|mariadb|oracledb|snowflake)" n8n/workflows
-rg -n "def execute_query|execute_query\(|/api/execute_query" packages scripts n8n tests
+make release-scan RELEASE_ID=release-test RELEASE_OUT=reports/release
+make release-verify RELEASE_ID=release-test RELEASE_OUT=reports/release
+.venv/bin/python scripts/release/scan_release_artifacts.py --release-dir reports/release/release-test --json
 ```
 
 ## Mechanical verification results
@@ -35,7 +35,7 @@ make env-check
 => environment ok: 3.14.4
 
 make release-test
-=> 3 passed
+=> 5 passed
 
 pytest tests/security tests/packaging tests/e2e tests/product
 => 80 passed
@@ -107,14 +107,15 @@ baseline/system SQL evidence entries: 8
 | `npx n8n` failed on local Node v25 native dependency install | RESOLVED BY EXPLICIT PATH | Docker live runtime path documented; no silent fallback |
 | Release packer failed with `NameError: baseline_system_sql_evidence is not defined` | RESOLVED | Release packer now passes baseline/system SQL evidence into summary/manifest generation; `make release-test` passes |
 | Release generated markdown had trailing whitespace | RESOLVED | Release packer strips trailing whitespace for markdown artifacts |
+| Manual release safety scans were not codified | RESOLVED | Added `scripts/release/scan_release_artifacts.py`, `make release-scan`, `make release-verify`, release tests, and GitHub Actions release packet scan/upload steps |
 | External CI logs absent | OPEN BLOCKER | Must be produced by hosted CI; not safe to fake locally |
 | Signed/promoted release-candidate approval absent | OPEN BLOCKER | Requires release governance action; not safe to fake locally |
 
 ## New issues found in this final evaluation
 
-No new locally fixable issue remained after regeneration and verification.
+A locally fixable gap was found and resolved: release artifact/n8n/execute-query safety scans were previously manual `rg` commands, so they have been codified as a fail-closed script and wired into local CI-equivalent and GitHub Actions. No additional locally fixable issue remained after regeneration and verification.
 
-The only remaining issues are the same external production-release blockers:
+The only remaining issues after this fallback hardening are the external production-release blockers:
 
 1. hosted CI run log/URL missing;
 2. signed or promoted release candidate approval missing.

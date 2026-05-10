@@ -54,6 +54,10 @@ class EntrypointPackagingTests(unittest.TestCase):
 
         self.assertRegex(makefile, r"(?m)^\.PHONY:.*\btest\b")
         self.assertRegex(makefile, r"(?m)^test:\n\t\$\(PYTHON\) -m pytest -q tests$")
+        self.assertIn("release-scan", makefile)
+        self.assertIn("release-verify", makefile)
+        self.assertIn("ci: env-check test lint release-verify", makefile)
+        self.assertIn("scripts/release/scan_release_artifacts.py", makefile)
 
         setup_docs = Path("docs/setup/README.md").read_text(encoding="utf-8")
         dev_docs = Path("docs/setup/DEVELOPMENT.md").read_text(encoding="utf-8")
@@ -75,6 +79,10 @@ class EntrypointPackagingTests(unittest.TestCase):
         self.assertIn("python -m pip install -e 'packages/semantic_builder[test]'", install_body)
         self.assertIn("run: make env-check", workflow)
         self.assertIn("run: PYTHONDONTWRITEBYTECODE=1 make test", workflow)
+        self.assertIn("run: make release-test", workflow)
+        self.assertIn("run: make release-pack RELEASE_ID=ci-smoke RELEASE_OUT=reports/release", workflow)
+        self.assertIn("run: make release-scan RELEASE_ID=ci-smoke RELEASE_OUT=reports/release", workflow)
+        self.assertIn("uses: actions/upload-artifact@v4", workflow)
         self.assertIn("run: python scripts/setup/clone_ready_setup.py", workflow)
 
 
