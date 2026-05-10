@@ -7,8 +7,16 @@ from semantic_builder.eval import load_benchmark_manifest, render_benchmark_json
 
 
 class FileCorpusBenchmarkRunnerTests(unittest.TestCase):
+    def require_local_manifest(self, path: Path) -> None:
+        if not path.exists():
+            self.skipTest(f"local-only benchmark manifest is not tracked in git: {path}")
+
     def test_non_demo_file_corpus_manifests_run_deterministically(self) -> None:
-        superstore_manifest = load_benchmark_manifest(Path("eval/datasets/tableau_superstore.yaml"))
+        superstore_path = Path("eval/datasets/tableau_superstore.yaml")
+        sinagong_path = Path("eval/datasets/sinagong_tableau_2026.yaml")
+        self.require_local_manifest(superstore_path)
+        self.require_local_manifest(sinagong_path)
+        superstore_manifest = load_benchmark_manifest(superstore_path)
         superstore_run_one = run_benchmark_manifest(superstore_manifest)
         superstore_run_two = run_benchmark_manifest(superstore_manifest)
 
@@ -18,7 +26,7 @@ class FileCorpusBenchmarkRunnerTests(unittest.TestCase):
         self.assertGreater(superstore_run_one.summary["passed"], 0, superstore_run_one.as_dict())
         self.assertEqual(superstore_run_one.manifest.dataset_id, superstore_manifest.dataset_id)
 
-        sinagong_manifest = load_benchmark_manifest(Path("eval/datasets/sinagong_tableau_2026.yaml"))
+        sinagong_manifest = load_benchmark_manifest(sinagong_path)
         sinagong_run_one = run_benchmark_manifest(sinagong_manifest)
         sinagong_run_two = run_benchmark_manifest(sinagong_manifest)
 
@@ -44,7 +52,9 @@ class FileCorpusBenchmarkRunnerTests(unittest.TestCase):
         )
 
     def test_sinagong_manifest_covers_all_recursive_workbooks_and_nested_sales_inputs(self) -> None:
-        manifest = load_benchmark_manifest(Path("eval/datasets/sinagong_tableau_2026.yaml"))
+        manifest_path = Path("eval/datasets/sinagong_tableau_2026.yaml")
+        self.require_local_manifest(manifest_path)
+        manifest = load_benchmark_manifest(manifest_path)
         recursive_xlsx = [path for path in manifest.files if str(path).endswith(".xlsx")]
 
         self.assertEqual(len(recursive_xlsx), 20, recursive_xlsx)

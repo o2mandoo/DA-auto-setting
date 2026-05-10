@@ -26,6 +26,11 @@ from semantic_builder.eval import (
 ROOT = Path(__file__).resolve().parents[2]
 
 
+def require_local_manifest(testcase: unittest.TestCase, path: Path) -> None:
+    if not path.exists():
+        testcase.skipTest(f"local-only benchmark manifest is not tracked in git: {path}")
+
+
 class EvalRunnerTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -48,6 +53,7 @@ class EvalRunnerTest(unittest.TestCase):
 
     def test_contract_manifest_yaml_can_drive_runner(self) -> None:
         manifest_path = Path("eval/datasets/tableau_superstore.yaml")
+        require_local_manifest(self, manifest_path)
         manifest = load_benchmark_manifest(manifest_path)
         self.assertEqual(type(manifest).__name__, "FileCorpusBenchmarkManifest")
         self.assertEqual(manifest.dataset_id, "tableau_superstore")
@@ -76,7 +82,10 @@ class EvalRunnerTest(unittest.TestCase):
 
         for manifest_name, dataset_id, expected_file_suffixes, expected_must_block in cases:
             with self.subTest(manifest_name=manifest_name):
-                manifest = load_benchmark_manifest(Path("eval/datasets") / manifest_name)
+                manifest_path = Path("eval/datasets") / manifest_name
+                if not manifest_path.exists():
+                    continue
+                manifest = load_benchmark_manifest(manifest_path)
                 self.assertEqual(type(manifest).__name__, "FileCorpusBenchmarkManifest")
                 self.assertEqual(manifest.dataset_id, dataset_id)
                 self.assertTrue(manifest.files)
@@ -100,7 +109,9 @@ class EvalRunnerTest(unittest.TestCase):
         self.assertTrue(all("demo benchmark unavailable" in result.reason for result in run.results))
 
     def test_file_corpus_benchmark_writes_runtime_benchmarks_outputs(self) -> None:
-        manifest = load_benchmark_manifest(Path("eval/datasets") / "tableau_superstore.yaml")
+        manifest_path = Path("eval/datasets") / "tableau_superstore.yaml"
+        require_local_manifest(self, manifest_path)
+        manifest = load_benchmark_manifest(manifest_path)
         with TemporaryDirectory() as tmpdir:
             out_dir = Path(tmpdir) / "runtime" / "benchmarks" / manifest.dataset_id
             run = run_benchmark_manifest(manifest, out_dir=out_dir)

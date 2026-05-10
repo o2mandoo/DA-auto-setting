@@ -20,9 +20,10 @@
 
 ## Current known limitations
 
-- `.xlsx` is supported and verified with `openpyxl`.
-- legacy `.xls` is supported and verified with `xlrd` against Tableau Sample
-  Superstore.
-- Large workbook validation should be bounded and reported; do not turn every
-  local development test into a full corpus scan unless the phase explicitly
-  requires it.
+- This is an internal release-candidate state, not a production release approval.
+- Signed or promoted release-candidate approval is still missing.
+- PostgreSQL/MySQL support remains fixture/read-only metadata validation only.
+- Weaviate remains optional and evidence-gated.
+- n8n remains orchestration/demo wrapper only.
+- Oracle remains unsupported.
+- Production SQL execution remains forbidden.

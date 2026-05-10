@@ -185,8 +185,8 @@
     "partial": 1,
     "present": 7
   },
-  "generated_at": "2026-05-10T06:52:40.349718+00:00",
-  "git_commit": "65e361401633f123ee94ff5a774d1bfcc5d666d1",
+  "generated_at": "2026-05-10T07:19:04.824893+00:00",
+  "git_commit": "0eb4ad8efa0dc7652fd666a9fba5185ccf6e9516",
   "known_limitations": [
     {
       "evidence": "reports/productization/PRODUCTION_READINESS_MATRIX.md",
@@ -337,7 +337,7 @@
     "reports/productization/PRODUCTION_READINESS_MATRIX.md",
     "reports/productization/PRODUCTION_RISK_REGISTER.md",
     "reports/final/final_integration_report.md",
-    "docs/execution/VALIDATION_DATASETS.md"
+    "docs/release/RELEASE_DECISION.md"
   ],
   "status": "dry-run",
   "support_levels": [

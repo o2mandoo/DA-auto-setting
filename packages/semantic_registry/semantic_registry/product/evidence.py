@@ -63,7 +63,27 @@ def build_product_readiness_report(
     manifest_path: str | Path = Path("eval/datasets/sinagong_tableau_2026.yaml"),
     benchmark_root: str | Path = Path("runtime/benchmarks"),
 ) -> ProductReadinessReport:
-    manifest = yaml.safe_load(Path(manifest_path).read_text(encoding="utf-8"))
+    manifest_file = Path(manifest_path)
+    if not manifest_file.exists():
+        missing_path = str(manifest_file)
+        return ProductReadinessReport(
+            domain_summaries=[],
+            capability_matrix=CapabilityMatrix({}),
+            failure_patterns=[
+                FailurePatternSummary(
+                    "local_dataset_manifest_not_tracked",
+                    [],
+                    [
+                        f"{missing_path} is local-only and intentionally absent from git",
+                        "run local dataset benchmarks only after restoring ignored local manifests",
+                    ],
+                )
+            ],
+            examples=[],
+            missing_evidence=[missing_path],
+        )
+
+    manifest = yaml.safe_load(manifest_file.read_text(encoding="utf-8"))
     dataset_id = manifest["dataset_id"]
     # The Sinagong manifest includes a benchmark-only semantic-gold support pack
     # alongside the 20 workbook/domain files. The product evidence console is a

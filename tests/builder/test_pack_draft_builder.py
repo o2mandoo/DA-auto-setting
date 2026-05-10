@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+LOCAL_SUPERSTORE_XLS = REPO_ROOT / "docs" / "reference" / "test_datasets" / "tableau_superstore" / "Sample - Superstore.xls"
 BUILDER_SRC = REPO_ROOT / "packages" / "semantic_builder" / "src"
 CONTRACTS_SRC = REPO_ROOT / "packages" / "semantic_contracts"
 for path in (BUILDER_SRC, CONTRACTS_SRC):
@@ -100,7 +101,9 @@ class PackDraftBuilderTests(unittest.TestCase):
     def test_cli_pipeline_builds_per_sheet_tables_for_superstore_xls_without_pii_leakage(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
-            source = REPO_ROOT / "docs" / "reference" / "test_datasets" / "tableau_superstore" / "Sample - Superstore.xls"
+            source = LOCAL_SUPERSTORE_XLS
+            if not source.exists():
+                self.skipTest(f"local-only Superstore XLS is not tracked in git: {source}")
             scan_path = tmp / "scan_report.json"
             profiles_path = tmp / "column_profiles.jsonl"
             draft_path = tmp / "semantic_pack.draft.yaml"

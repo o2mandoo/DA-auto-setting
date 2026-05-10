@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from experiments.db_fixtures.scripts.fixture_modes import TEST_ONLY_MARKER
 from experiments.db_fixtures.scripts.sinagong_corpus_live_evidence import (
     DEFAULT_DATASET_ROOT,
@@ -12,7 +14,13 @@ from experiments.db_fixtures.scripts.sinagong_corpus_live_evidence import (
 )
 
 
+def require_local_sinagong_corpus() -> None:
+    if not DEFAULT_DATASET_ROOT.exists() or not any(DEFAULT_DATASET_ROOT.rglob("*.xlsx")):
+        pytest.skip(f"local-only Sinagong workbook corpus is not tracked in git: {DEFAULT_DATASET_ROOT}")
+
+
 def test_discovery_covers_twenty_workbooks_without_row_values() -> None:
+    require_local_sinagong_corpus()
     plans, datasets = discover_workbook_plans(DEFAULT_DATASET_ROOT)
 
     assert len(datasets) == 20
@@ -26,6 +34,7 @@ def test_discovery_covers_twenty_workbooks_without_row_values() -> None:
 
 
 def test_collect_without_dsns_is_explicit_pending_no_fallback(tmp_path: Path) -> None:
+    require_local_sinagong_corpus()
     evidence = collect_corpus_evidence(dataset_root=DEFAULT_DATASET_ROOT, env={})
     output = write_corpus_evidence(tmp_path / "evidence.json", evidence)
     payload = json.loads(output.read_text(encoding="utf-8"))

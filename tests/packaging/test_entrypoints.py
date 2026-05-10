@@ -56,8 +56,10 @@ class EntrypointPackagingTests(unittest.TestCase):
         self.assertRegex(makefile, r"(?m)^test:\n\t\$\(PYTHON\) -m pytest -q tests$")
         self.assertIn("release-scan", makefile)
         self.assertIn("release-verify", makefile)
-        self.assertIn("ci: env-check test lint release-verify", makefile)
+        self.assertIn("dataset-guard", makefile)
+        self.assertIn("ci: env-check dataset-guard test lint release-verify", makefile)
         self.assertIn("scripts/release/scan_release_artifacts.py", makefile)
+        self.assertIn("scripts/release/check_no_tracked_test_datasets.py", makefile)
 
         setup_docs = Path("docs/setup/README.md").read_text(encoding="utf-8")
         dev_docs = Path("docs/setup/DEVELOPMENT.md").read_text(encoding="utf-8")

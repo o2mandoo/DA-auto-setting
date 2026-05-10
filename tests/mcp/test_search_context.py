@@ -426,6 +426,8 @@ class SearchContextToolTests(unittest.TestCase):
 
     def test_weaviate_mode_comparison_report_lists_all_three_modes(self) -> None:
         report_path = ROOT / "reports" / "benchmarks" / "weaviate_mode_comparison_report.md"
+        if not report_path.exists():
+            self.skipTest(f"local-only benchmark report is not tracked in git: {report_path}")
         text = report_path.read_text()
         self.assertIn("`bm25`", text)
         self.assertIn("`hybrid`", text)

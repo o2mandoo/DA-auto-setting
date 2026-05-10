@@ -59,7 +59,7 @@ SOURCE_FILES: tuple[Path, ...] = (
     Path("reports/productization/PRODUCTION_READINESS_MATRIX.md"),
     Path("reports/productization/PRODUCTION_RISK_REGISTER.md"),
     Path("reports/final/final_integration_report.md"),
-    Path("docs/execution/VALIDATION_DATASETS.md"),
+    Path("docs/release/RELEASE_DECISION.md"),
 )
 
 READINESS_MATRIX_SOURCE = Path("reports/productization/PRODUCTION_READINESS_MATRIX.md")

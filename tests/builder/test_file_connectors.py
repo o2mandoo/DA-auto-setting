@@ -7,6 +7,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+LOCAL_SUPERSTORE_XLS = REPO_ROOT / "docs" / "reference" / "test_datasets" / "tableau_superstore" / "Sample - Superstore.xls"
 BUILDER_SRC = REPO_ROOT / "packages" / "semantic_builder" / "src"
 if str(BUILDER_SRC) not in sys.path:
     sys.path.insert(0, str(BUILDER_SRC))
@@ -48,9 +49,9 @@ class FileConnectorTests(unittest.TestCase):
         self.assertEqual(49.0, dataset.rows[0]["monthly_amount"])
 
     def test_xls_superstore_file_is_loaded_when_xlrd_is_available(self) -> None:
-        dataset = load_file(
-            REPO_ROOT / "docs" / "reference" / "test_datasets" / "tableau_superstore" / "Sample - Superstore.xls"
-        )
+        if not LOCAL_SUPERSTORE_XLS.exists():
+            self.skipTest(f"local-only Superstore XLS is not tracked in git: {LOCAL_SUPERSTORE_XLS}")
+        dataset = load_file(LOCAL_SUPERSTORE_XLS)
 
         self.assertEqual("sample_superstore_orders", dataset.table_name)
         self.assertEqual("Orders", dataset.sheet_name)
@@ -62,9 +63,9 @@ class FileConnectorTests(unittest.TestCase):
         self.assertEqual("US-2022-103800", dataset.rows[0]["Order ID"])
 
     def test_xls_superstore_scans_all_non_empty_sheets_with_metadata(self) -> None:
-        datasets = load_file_datasets(
-            REPO_ROOT / "docs" / "reference" / "test_datasets" / "tableau_superstore" / "Sample - Superstore.xls"
-        )
+        if not LOCAL_SUPERSTORE_XLS.exists():
+            self.skipTest(f"local-only Superstore XLS is not tracked in git: {LOCAL_SUPERSTORE_XLS}")
+        datasets = load_file_datasets(LOCAL_SUPERSTORE_XLS)
         by_name = {dataset.table_name: dataset for dataset in datasets}
 
         self.assertEqual({"sample_superstore_orders", "sample_superstore_people", "sample_superstore_returns"}, set(by_name))

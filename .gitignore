@@ -54,4 +54,18 @@ semantic-data-context-deps/
 # Notebook and data-science caches
 .ipynb_checkpoints/
 
-# Keep source fixtures under docs/reference/test_datasets tracked intentionally.
+# Local-only validation datasets and benchmark inventories.
+# These may contain third-party/customer-like sample files or detailed dataset lists.
+# Keep them out of git; publish only aggregate, redacted evidence.
+/docs/reference/test_datasets/
+/docs/execution/VALIDATION_DATASETS.md
+/docs/execution/DATASET_BENCHMARKS.md
+/eval/datasets/tableau_superstore.yaml
+/eval/datasets/sinagong_tableau_2026.yaml
+/semantic_packs/sinagong_tableau_2026/
+/reports/benchmarks/
+/reports/final/20_domain_benchmark_summary.json
+/reports/final/20_domain_benchmark_summary.md
+/reports/final/final_capability_matrix.md
+/reports/final/known_failure_patterns.md
+/reports/final/demo_narrative.md
